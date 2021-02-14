@@ -1,0 +1,19 @@
+# Path to your oh-my-zsh installation.
+export ZSH="/Users/buritica/.oh-my-zsh"
+
+# Set name of the theme to load.
+ZSH_THEME="geoffgarside"
+
+# oh-my-zsh plugins
+plugins=(
+	git git-extras github \
+	heroku \
+	osx \
+	cp copydir copyfile \
+	npm \
+)
+
+# source other profile files
+source $ZSH/oh-my-zsh.sh
+
+# User configuration
