@@ -1,0 +1,65 @@
+tap "heroku/brew"
+tap "homebrew/bundle"
+tap "homebrew/cask-drivers"
+tap "homebrew/cask-fonts"
+tap "homebrew/cask-versions"
+tap "homebrew/cask"
+tap "homebrew/core"
+tap "homebrew/services"
+
+brew "ack"
+brew "coreutils"
+brew "direnv"
+brew "findutils"
+brew "git-extras"
+brew "gist"
+brew "gnu-tar"
+brew "gnupg"
+brew "go"
+brew "heroku/brew/heroku"
+brew "httpie"
+brew "hub"
+brew "jq"
+brew "libyaml"
+brew "mas"
+brew "moreutils"
+brew "node-build"
+brew "nodenv"
+brew "python@3.9"
+brew "svn"
+brew "tree"
+brew "wget"
+
+cask "alfred"
+cask "atom"
+cask "font-inconsolata"
+cask "font-open-sans"
+cask "font-sanchez"
+cask "google-chrome"
+cask "iterm2"
+cask "keybase"
+cask "kitematic"
+cask "loopback"
+cask "minecraft"
+cask "mongodb-compass"
+cask "rectangle"
+cask "sequel-pro"
+cask "signal"
+cask "splice"
+cask "spotify"
+cask "visual-studio-code"
+cask "vlc"
+cask "whatsapp"
+
+mas "1Password 7", id: 1333542190
+mas "Bear", id: 1091189122
+mas "GarageBand", id: 682658836
+mas "Keynote", id: 409183694
+mas "Logic Pro X", id: 634148309
+mas "MindNode", id: 1289197285
+mas "Numbers", id: 409203825
+mas "Pages", id: 409201541
+mas "Patterns", id: 429449079
+mas "Slack", id: 803453959
+mas "Transmit", id: 403388562
+mas "Xcode", id: 497799835

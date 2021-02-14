@@ -27,3 +27,6 @@ export TERM="xterm-256color"
 
 # Gopath
 export GOPATH="/Users/buritica/go"
+
+# Brefile
+export HOMEBREW_BUNDLE_FILE="~/.my/.Brewfile"
