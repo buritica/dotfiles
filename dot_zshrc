@@ -24,12 +24,12 @@ for file in ~/.my/.{exports,aliases,functions}; do
 done;
 unset file;
 
-# i like burgers
+# i like skulls
 contains $HOST "crowntail" && export PS1="🏡  $PS1"
 contains $HOST "deltatail" && export PS1="💼  $PS1"
 contains $HOST "halfmoon" && export PS1="🎥  $PS1"
 contains $HOST "test" && export PS1="🔬  $PS1"
-export PS1="🍔  $PS1"
+export PS1="💀  $PS1"
 
 # file size limit
 ulimit -n 10000
@@ -39,8 +39,11 @@ if hash direnv 2>/dev/null; then
 	eval "$(direnv hook zsh)"
 fi
 
-# Add `~/bin` to the `$PATH`
+# Append `~/bin` to the `$PATH`
 export PATH="$HOME/bin:$PATH";
+
+# Prepend `/usr/local/sbin` to the `$PATH`
+export PATH="/usr/local/sbin:$PATH"
 
 # add nodenv to the `$PATH`
 if hash nodenv 2>/dev/null; then
