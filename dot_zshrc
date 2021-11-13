@@ -7,8 +7,7 @@ ZSH_THEME="geoffgarside"
 # oh-my-zsh plugins
 plugins=(
 	git git-extras github \
-	heroku \
-	osx \
+	macos \
 	cp copydir copyfile \
 	npm \
 )
