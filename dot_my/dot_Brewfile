@@ -67,7 +67,6 @@ cask "signal"
 cask "skype"
 cask "slack"
 cask "soundsource"
-cask "spectacle"
 cask "splice"
 cask "spotify"
 cask "streamlabs-obs"
@@ -77,6 +76,7 @@ cask "vlc"
 cask "whatsapp"
 mas "1Password 7", id: 1333542190
 mas "Bear", id: 1091189122
+mas "Craft - Docs and Notes Editor", id: 1487937127
 mas "DaisyDisk", id: 411643860
 mas "Fantastical", id: 975937182
 mas "GarageBand", id: 682658836

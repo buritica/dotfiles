@@ -8,7 +8,7 @@ ZSH_THEME="geoffgarside"
 plugins=(
 	git git-extras github \
 	macos \
-	cp copydir copyfile \
+	cp copypath copyfile \
 	npm \
 )
 
