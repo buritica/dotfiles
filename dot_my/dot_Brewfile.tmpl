@@ -6,8 +6,8 @@ tap "homebrew/cask-fonts"
 tap "homebrew/cask-versions"
 tap "homebrew/core"
 tap "homebrew/services"
-brew "ack"
 
+brew "ack"
 brew "awscli"
 brew "chezmoi"
 brew "coreutils"
@@ -53,10 +53,6 @@ cask "iterm2"
 cask "keybase"
 cask "kitematic"
 cask "loopback"
-cask "microsoft-auto-update"
-cask "microsoft-office"
-cask "microsoft-teams"
-cask "minecraft"
 cask "mongodb-compass"
 cask "ngrok"
 cask "notion"
@@ -65,24 +61,21 @@ cask "rectangle"
 cask "sequel-pro"
 cask "signal"
 cask "skype"
-cask "slack"
 cask "soundsource"
-cask "splice"
 cask "spotify"
 cask "streamlabs-obs"
 cask "tunnelblick"
 cask "visual-studio-code"
-cask "vlc"
 cask "whatsapp"
+cask "zoom"
+
 mas "1Password 7", id: 1333542190
 mas "Bear", id: 1091189122
-mas "Craft - Docs and Notes Editor", id: 1487937127
+mas "NotePlan 3: Markdown Planner", id: 1505432629
 mas "DaisyDisk", id: 411643860
 mas "Fantastical", id: 975937182
-mas "GarageBand", id: 682658836
+
 mas "Keynote", id: 409183694
-mas "Logic Pro", id: 634148309
-mas "Microsoft Outlook", id: 985367838
 mas "MindNode", id: 1289197285
 mas "Numbers", id: 409203825
 mas "Pages", id: 409201541
@@ -90,4 +83,34 @@ mas "Patterns", id: 429449079
 mas "Slack", id: 803453959
 mas "The Unarchiver", id: 425424353
 mas "Transmit", id: 403388562
-mas "Xcode", id: 497799835
+
+## 💼
+
+{{- if (eq .chezmoi.hostname "deltatail")}}
+mas "Microsoft Outlook", id: 985367838
+cask "microsoft-auto-update"
+cask "microsoft-office"
+cask "microsoft-teams"
+    
+{{- end }}
+
+## !💼
+{{- if (ne .chezmoi.hostname "deltatail")}}
+
+cask "minecraft"
+cask "splice"
+cask "vlc"
+mas "Logic Pro", id: 634148309
+mas "GarageBand", id: 682658836
+    
+{{- end }}
+
+## 🎥
+{{- if (eq .chezmoi.hostname "halfmoon")}}
+    cask "mono-mdk"
+    cask "plex-media-server"
+    cask "radarr"
+    cask "sabnzbd"
+    cask "sonarr"
+	mas "dDNS Broker", id: 1050307950
+{{- end }}
