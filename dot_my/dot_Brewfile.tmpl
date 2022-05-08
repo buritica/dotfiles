@@ -7,6 +7,8 @@ tap "homebrew/cask-versions"
 tap "homebrew/core"
 tap "homebrew/services"
 
+
+
 brew "ack"
 brew "awscli"
 brew "chezmoi"
@@ -31,7 +33,9 @@ brew "nodenv"
 brew "svn"
 brew "tree"
 brew "wget"
+
 cask "1password-cli"
+cask "1password"
 cask "adobe-creative-cloud"
 cask "alfred"
 cask "audio-hijack"
@@ -69,14 +73,13 @@ cask "visual-studio-code"
 cask "whatsapp"
 cask "zoom"
 
-mas "1Password 7", id: 1333542190
+mas "1Password for Safari", id:1569813296  
 mas "Bear", id: 1091189122
-mas "NotePlan 3: Markdown Planner", id: 1505432629
 mas "DaisyDisk", id: 411643860
 mas "Fantastical", id: 975937182
-
 mas "Keynote", id: 409183694
 mas "MindNode", id: 1289197285
+mas "NotePlan 3: Markdown Planner", id: 1505432629
 mas "Numbers", id: 409203825
 mas "Pages", id: 409201541
 mas "Patterns", id: 429449079
@@ -85,32 +88,35 @@ mas "The Unarchiver", id: 425424353
 mas "Transmit", id: 403388562
 
 ## 💼
+{{- if (contains "deltatail" .chezmoi.hostname)}}
 
-{{- if (eq .chezmoi.hostname "deltatail")}}
-mas "Microsoft Outlook", id: 985367838
 cask "microsoft-auto-update"
 cask "microsoft-office"
 cask "microsoft-teams"
+cask "yubico-yubikey-manager"
+mas "Microsoft Outlook", id: 985367838
     
 {{- end }}
 
 ## !💼
-{{- if (ne .chezmoi.hostname "deltatail")}}
+{{- if not (contains "deltatail" .chezmoi.hostname)}}
 
 cask "minecraft"
 cask "splice"
 cask "vlc"
-mas "Logic Pro", id: 634148309
 mas "GarageBand", id: 682658836
+mas "Logic Pro", id: 634148309
     
 {{- end }}
 
 ## 🎥
 {{- if (eq .chezmoi.hostname "halfmoon")}}
-    cask "mono-mdk"
-    cask "plex-media-server"
-    cask "radarr"
-    cask "sabnzbd"
-    cask "sonarr"
-	mas "dDNS Broker", id: 1050307950
+
+cask "mono-mdk"
+cask "plex-media-server"
+cask "radarr"
+cask "sabnzbd"
+cask "sonarr"
+mas "dDNS Broker", id: 1050307950
+
 {{- end }}
