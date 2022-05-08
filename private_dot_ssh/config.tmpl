@@ -1,4 +1,3 @@
-# only run key template in viable hosts
-{{- if or (eq .chezmoi.hostname "crowntail") (eq .chezmoi.hostname "deltatail") (eq .chezmoi.hostname "halfmoon")}}
+{{- if or (eq .chezmoi.hostname "crowntail") (contains "deltatail" .chezmoi.hostname) (eq .chezmoi.hostname "halfmoon")}}
     {{- onepasswordDocument "4gqmist25c7ubquasn6iyyasmm" -}}
 {{- end }}
