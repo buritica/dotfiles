@@ -54,6 +54,11 @@ if hash nodenv 2>/dev/null; then
   eval "$(nodenv init -)"
 fi
 
+# alias python to python3 if it exists
+if hash python3 2>/dev/null; then
+	alias python=/usr/bin/python3
+fi
+
 # Add tab completion for many Bash commands
 if which brew > /dev/null && [ -f "$(brew --prefix)/etc/bash_completion" ]; then
   source "$(brew --prefix)/etc/bash_completion";
