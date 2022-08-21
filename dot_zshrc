@@ -33,11 +33,6 @@ export PS1="💀 $PS1"
 # file size limit
 ulimit -n 10000
 
-# enable direnv
-if hash direnv 2>/dev/null; then
-	eval "$(direnv hook zsh)"
-fi
-
 # Append `~/bin` to the `$PATH`
 export PATH="$HOME/bin:$PATH";
 
@@ -57,6 +52,11 @@ fi
 # alias python to python3 if it exists
 if hash python3 2>/dev/null; then
 	alias python=/usr/bin/python3
+fi
+
+# enable direnv
+if hash direnv 2>/dev/null; then
+	eval "$(direnv hook zsh)"
 fi
 
 # Add tab completion for many Bash commands
