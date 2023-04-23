@@ -6,8 +6,7 @@ tap "homebrew/cask-fonts"
 tap "homebrew/cask-versions"
 tap "homebrew/core"
 tap "homebrew/services"
-
-
+tap "mongodb/brew"
 
 brew "ack"
 brew "awscli"
@@ -21,26 +20,25 @@ brew "git-extras"
 brew "gnu-tar"
 brew "gnupg"
 brew "go"
-brew "heroku/brew/heroku"
 brew "httpie"
 brew "hub"
 brew "jq"
-brew "libyaml"
 brew "mas"
 brew "moreutils"
-brew "node-build"
-brew "nodenv"
-brew "svn"
+brew "subversion"
+brew "tailscale"
 brew "tree"
 brew "wget"
+brew "heroku/brew/heroku"
+brew "docker-compose"
+brew "ffmpeg"
+brew "gifsicle"
 
-cask "1password-cli"
 cask "1password"
+cask "1password-cli"
 cask "adobe-creative-cloud"
 cask "alfred"
 cask "audio-hijack"
-cask "dash"
-cask "deckset"
 cask "discord"
 cask "docker"
 cask "figma"
@@ -50,73 +48,34 @@ cask "font-open-sans"
 cask "font-sanchez"
 cask "font-source-code-pro"
 cask "github"
+cask "gmvault"
 cask "google-chrome"
 cask "google-drive"
 cask "grammarly"
 cask "iterm2"
 cask "keybase"
 cask "kitematic"
+cask "ledger-live"
 cask "loopback"
-cask "mongodb-compass"
-cask "ngrok"
+cask "minecraft"
 cask "notion"
 cask "obs"
+cask "qfinder-pro"
 cask "rectangle"
-cask "sequel-pro"
 cask "signal"
-cask "skype"
+cask "slack"
 cask "soundsource"
+cask "splice"
 cask "spotify"
 cask "streamlabs-obs"
-cask "tunnelblick"
 cask "visual-studio-code"
+cask "vlc"
 cask "whatsapp"
 cask "zoom"
 
-mas "1Password for Safari", id:1569813296  
+mas "1Password for Safari", id: 1569813296
 mas "Bear", id: 1091189122
 mas "DaisyDisk", id: 411643860
 mas "Fantastical", id: 975937182
+mas "GoLinks", id: 1478821913
 mas "Keynote", id: 409183694
-mas "MindNode", id: 1289197285
-mas "NotePlan 3: Markdown Planner", id: 1505432629
-mas "Numbers", id: 409203825
-mas "Pages", id: 409201541
-mas "Patterns", id: 429449079
-mas "Slack", id: 803453959
-mas "The Unarchiver", id: 425424353
-mas "Transmit", id: 403388562
-
-## 💼
-{{- if (contains "deltatail" .chezmoi.hostname)}}
-
-cask "microsoft-auto-update"
-cask "microsoft-office"
-cask "microsoft-teams"
-cask "yubico-yubikey-manager"
-mas "Microsoft Outlook", id: 985367838
-    
-{{- end }}
-
-## !💼
-{{- if not (contains "deltatail" .chezmoi.hostname)}}
-
-cask "minecraft"
-cask "splice"
-cask "vlc"
-mas "GarageBand", id: 682658836
-mas "Logic Pro", id: 634148309
-    
-{{- end }}
-
-## 🎥
-{{- if (eq .chezmoi.hostname "halfmoon")}}
-
-cask "mono-mdk"
-cask "plex-media-server"
-cask "radarr"
-cask "sabnzbd"
-cask "sonarr"
-mas "dDNS Broker", id: 1050307950
-
-{{- end }}
