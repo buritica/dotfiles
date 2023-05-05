@@ -66,4 +66,7 @@ elif [ -f /etc/bash_completion ]; then
   source /etc/bash_completion;
 fi;
 
+# enable adsf
+. /opt/homebrew/opt/asdf/libexec/asdf.sh
+
 echo "dotfiles sourced"
