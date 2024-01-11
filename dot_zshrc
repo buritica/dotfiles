@@ -69,4 +69,7 @@ fi;
 # enable adsf
 . /opt/homebrew/opt/asdf/libexec/asdf.sh
 
+# incluide colima ssh config
+Include /Users/buritica/.colima/ssh_config
+
 echo "dotfiles sourced"
