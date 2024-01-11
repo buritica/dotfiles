@@ -1,1 +1,3 @@
-{{- onepasswordDocument "tecevyloa37cm4lqvskhlmizd4" -}}
+{{- if or (eq .chezmoi.hostname "crowntail") (contains "deltatail" .chezmoi.hostname) (eq .chezmoi.hostname "halfmoon") (contains "buritica" .chezmoi.hostname)}}
+    {{- onepasswordDocument "tecevyloa37cm4lqvskhlmizd4" -}}
+{{- end }}
