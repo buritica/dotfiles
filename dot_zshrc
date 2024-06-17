@@ -69,4 +69,7 @@ fi;
 # enable adsf
 . /opt/homebrew/opt/asdf/libexec/asdf.sh
 
+# Created by `pipx` on 2024-01-23 17:29:22
+export PATH="$PATH:/Users/buritica/.local/bin"
+
 echo "dotfiles sourced"
