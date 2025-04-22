@@ -102,8 +102,8 @@ fi
 
 # Install Homebrew packages
 print_status "Installing Homebrew packages..."
-if [ -f "$HOME/Brewfile" ]; then
-    sudo brew bundle install --file="$HOME/Brewfile"
+if [ -f "$HOME/.my/.Brewfile" ]; then
+    sudo brew bundle install --file="$HOME/.my/.Brewfile"
 else
     print_warning "Brewfile not found. Make sure dotfiles are properly installed."
 fi
