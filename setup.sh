@@ -71,7 +71,14 @@ fi
 # Initialize and apply dotfiles
 print_status "Setting up dotfiles..."
 if [ ! -d "$HOME/.local/share/chezmoi" ]; then
-    chezmoi init --apply "https://github.com/buritica/dotfiles.git"
+    # Check if we're running from a local repository
+    if [ -d "$(dirname "$0")/.git" ]; then
+        print_status "Using local repository..."
+        chezmoi init --apply "$(dirname "$0")"
+    else
+        print_status "Using remote repository..."
+        chezmoi init --apply "https://github.com/buritica/dotfiles.git"
+    fi
 else
     print_warning "Dotfiles already initialized. Run 'chezmoi update' to update them."
 fi
