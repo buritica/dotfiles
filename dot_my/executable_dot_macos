@@ -426,7 +426,15 @@ defaults write com.apple.mail SpellCheckingBehavior -string "NoSpellCheckingEnab
 ############################# Spotlight Settings #############################
 
 # Disable Spotlight indexing for any volume that gets mounted and has not yet been indexed
-sudo defaults write /.Spotlight-V100/VolumeConfiguration Exclusions -array "/Volumes"
+# Using mdutil instead of direct file access
+if command -v mdutil &> /dev/null; then
+    # Disable indexing for mounted volumes
+    sudo mdutil -i off /Volumes
+    # Disable indexing for the root volume
+    sudo mdutil -i off /
+    # Add exclusions for mounted volumes
+    sudo mdutil -E /Volumes
+fi
 
 # Change indexing order and disable some search results
 defaults write com.apple.spotlight orderedItems -array \
