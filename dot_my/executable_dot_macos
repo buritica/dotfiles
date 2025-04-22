@@ -501,8 +501,15 @@ defaults write com.apple.ActivityMonitor SortDirection -int 0
 
 ########################## Address Book, iCal, etc. ##########################
 
-# Enable the debug menu in Address Book
-defaults write com.apple.addressbook ABShowDebugMenu -bool true
+# Enable the debug menu in Address Book (with error handling)
+if [ -d "/Applications/Contacts.app" ]; then
+    # Kill Contacts if it's running
+    killall "Contacts" &> /dev/null
+    # Wait a moment for the app to fully close
+    sleep 1
+    # Try to write the setting with error handling
+    defaults write com.apple.addressbook ABShowDebugMenu -bool true 2>/dev/null || echo "Note: Could not modify Address Book settings"
+fi
 
 # Enable the debug menu in iCal (pre-10.8)
 defaults write com.apple.iCal IncludeDebugMenu -bool true
