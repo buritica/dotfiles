@@ -77,7 +77,7 @@ if [ ! -d "$HOME/.local/share/chezmoi" ]; then
         chezmoi init --apply "$(dirname "$0")"
     else
         print_status "Using remote repository..."
-        chezmoi init --apply "https://github.com/buritica/dotfiles.git"
+        chezmoi init --apply "https://raw.githubusercontent.com/buritica/dotfiles/refs/heads/master"
     fi
 else
     print_warning "Dotfiles already initialized. Run 'chezmoi update' to update them."
