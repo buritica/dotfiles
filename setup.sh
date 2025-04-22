@@ -77,7 +77,7 @@ if [ ! -d "$HOME/.local/share/chezmoi" ]; then
         chezmoi init --apply "$(dirname "$0")"
     else
         print_status "Using remote repository..."
-        chezmoi init --apply "https://raw.githubusercontent.com/buritica/dotfiles/refs/heads/master"
+        chezmoi init --apply "https://github.com/buritica/dotfiles.git"
     fi
 else
     print_warning "Dotfiles already initialized. Run 'chezmoi update' to update them."
@@ -95,7 +95,7 @@ fi
 # Install Homebrew packages
 print_status "Installing Homebrew packages..."
 if [ -f "$HOME/Brewfile" ]; then
-    brew bundle install --file="$HOME/Brewfile"
+    sudo brew bundle install --file="$HOME/Brewfile"
 else
     print_warning "Brewfile not found. Make sure dotfiles are properly installed."
 fi
