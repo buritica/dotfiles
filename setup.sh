@@ -60,6 +60,14 @@ else
     print_status "Homebrew already installed"
 fi
 
+# Install 1Password CLI
+print_status "Installing 1Password CLI..."
+if ! command -v op &>/dev/null; then
+    brew install --cask 1password-cli
+else
+    print_status "1Password CLI already installed"
+fi
+
 # Install chezmoi
 print_status "Installing chezmoi..."
 if ! command -v chezmoi &>/dev/null; then
