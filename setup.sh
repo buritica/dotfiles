@@ -35,11 +35,11 @@ print_status "Starting macOS setup..."
 # Install Xcode Command Line Tools
 print_status "Installing Xcode Command Line Tools..."
 if ! xcode-select -p &>/dev/null; then
+    print_status "This will open a dialog to install Xcode Command Line Tools."
+    print_status "Please complete the installation in the dialog that appears."
+    print_status "After installation is complete, run this script again."
     xcode-select --install
-    # Wait until the Xcode Command Line Tools are installed
-    until xcode-select -p &>/dev/null; do
-        sleep 5
-    done
+    exit 0
 else
     print_status "Xcode Command Line Tools already installed"
 fi
