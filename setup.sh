@@ -95,15 +95,15 @@ fi
 print_status "Applying macOS settings..."
 if [ -f "$HOME/.my/.macos" ]; then
     # Check if macOS settings have already been run
-    if [ ! -f "$HOME/.my/.macos_configured" ]; then
+    if [ ! -f "$HOME/.local/share/chezmoi/.macos_configured" ]; then
         print_status "Running macOS settings for the first time..."
         chmod +x "$HOME/.my/.macos"
         "$HOME/.my/.macos"
         # Create flag file to indicate settings have been run
-        touch "$HOME/.my/.macos_configured"
+        touch "$HOME/.local/share/chezmoi/.macos_configured"
     else
         print_status "macOS settings have already been configured. Skipping..."
-        print_status "To run settings again, remove $HOME/.my/.macos_configured"
+        print_status "To run settings again, remove $HOME/.local/share/chezmoi/.macos_configured"
     fi
 else
     print_warning "macOS settings script not found. Make sure dotfiles are properly installed."
@@ -112,7 +112,7 @@ fi
 # Install Homebrew packages
 print_status "Installing Homebrew packages..."
 if [ -f "$HOME/.my/.Brewfile" ]; then
-    sudo brew bundle install --file="$HOME/.my/.Brewfile"
+    brew bundle install --file="$HOME/.my/.Brewfile"
 else
     print_warning "Brewfile not found. Make sure dotfiles are properly installed."
 fi
