@@ -93,9 +93,9 @@ fi
 
 # Run macOS settings script
 print_status "Applying macOS settings..."
-if [ -f "$HOME/.macos" ]; then
-    chmod +x "$HOME/.macos"
-    "$HOME/.macos"
+if [ -f "$HOME/.my/.macos" ]; then
+    chmod +x "$HOME/.my/.macos"
+    "$HOME/.my/.macos"
 else
     print_warning "macOS settings script not found. Make sure dotfiles are properly installed."
 fi
