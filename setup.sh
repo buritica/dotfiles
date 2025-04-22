@@ -94,8 +94,17 @@ fi
 # Run macOS settings script
 print_status "Applying macOS settings..."
 if [ -f "$HOME/.my/.macos" ]; then
-    chmod +x "$HOME/.my/.macos"
-    "$HOME/.my/.macos"
+    # Check if macOS settings have already been run
+    if [ ! -f "$HOME/.my/.macos_configured" ]; then
+        print_status "Running macOS settings for the first time..."
+        chmod +x "$HOME/.my/.macos"
+        "$HOME/.my/.macos"
+        # Create flag file to indicate settings have been run
+        touch "$HOME/.my/.macos_configured"
+    else
+        print_status "macOS settings have already been configured. Skipping..."
+        print_status "To run settings again, remove $HOME/.my/.macos_configured"
+    fi
 else
     print_warning "macOS settings script not found. Make sure dotfiles are properly installed."
 fi
