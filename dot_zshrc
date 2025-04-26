@@ -1,5 +1,15 @@
+# =============================================================================
+# Oh My Zsh Configuration
+# =============================================================================
+
 # Path to your oh-my-zsh installation.
-export ZSH="/Users/buritica/.oh-my-zsh"
+export ZSH="$HOME/.oh-my-zsh"
+
+# Install Oh My Zsh if it's not already installed
+if [ ! -d "$ZSH" ]; then
+    echo "Installing Oh My Zsh..."
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+fi
 
 # Set name of the theme to load.
 ZSH_THEME="geoffgarside"
@@ -13,63 +23,104 @@ plugins=(
 )
 
 # source other profile files
-source $ZSH/oh-my-zsh.sh
+if [ -f "$ZSH/oh-my-zsh.sh" ]; then
+    source "$ZSH/oh-my-zsh.sh"
+else
+    echo "Warning: Oh My Zsh not found at $ZSH/oh-my-zsh.sh"
+fi
 
-# buriti.ca configuration
+# =============================================================================
+# Path Configuration
+# =============================================================================
 
-# Load the shell dotfiles, and then some:
+# Define path components
+typeset -U path
+path=(
+    "$HOME/bin"
+    "$HOME/.local/bin"
+    "/usr/local/sbin"
+    "/usr/local/bin"
+    "/usr/sbin"
+    "/usr/bin"
+    "/sbin"
+    "/bin"
+    $path
+)
+
+# Add Homebrew paths based on architecture
+if [[ $(uname -m) == 'arm64' ]]; then
+    eval $(/opt/homebrew/bin/brew shellenv)
+else
+    eval $(/usr/local/bin/brew shellenv 2>/dev/null || true)
+fi
+
+# =============================================================================
+# Tool Initialization
+# =============================================================================
+
+# Initialize nodenv if available
+if command -v nodenv >/dev/null 2>&1; then
+    eval "$(nodenv init -)"
+fi
+
+# Initialize direnv if available
+if command -v direnv >/dev/null 2>&1; then
+    eval "$(direnv hook zsh)"
+fi
+
+# Initialize asdf if available
+if [ -f "/opt/homebrew/opt/asdf/libexec/asdf.sh" ]; then
+    . "/opt/homebrew/opt/asdf/libexec/asdf.sh"
+fi
+
+# =============================================================================
+# Shell Configuration
+# =============================================================================
+
+# Load the shell dotfiles
 for file in ~/.my/.{exports,aliases,functions}; do
-	[ -r "$file" ] && [ -f "$file" ] && source "$file";
-done;
-unset file;
+    [ -r "$file" ] && [ -f "$file" ] && source "$file"
+done
+unset file
 
-# i like skulls
-contains $HOST "crowntail" && export PS1="🏡  $PS1"
-contains $HOST "deltatail" && export PS1="💼  $PS1"
-contains $HOST "halfmoon" && export PS1="🎥  $PS1"
-contains $HOST "test" && export PS1="🔬  $PS1"
-export PS1="💀 $PS1"
-
-# file size limit
+# Set file size limit
 ulimit -n 10000
 
-# Append `~/bin` to the `$PATH`
-export PATH="$HOME/bin:$PATH";
+# =============================================================================
+# Prompt Configuration
+# =============================================================================
 
-# Prepend `/usr/local/sbin` to the `$PATH`
-export PATH="/usr/local/sbin:$PATH"
+# i like skulls
+case $HOST in
+    *crowntail*) export PS1="🏡  $PS1" ;;
+    *deltatail*) export PS1="💼  $PS1" ;;
+    *halfmoon*)  export PS1="🎥  $PS1" ;;
+    *test*)      export PS1="🔬  $PS1" ;;
+esac
+export PS1="💀 $PS1"
 
-# add brew bin to path if m1
-if [[ $(uname -m) == 'arm64' ]]; then
-  eval $(/opt/homebrew/bin/brew shellenv)
-fi
+# =============================================================================
+# Aliases and Completions
+# =============================================================================
 
-# add nodenv to the `$PATH`
-if hash nodenv 2>/dev/null; then
-  eval "$(nodenv init -)"
-fi
-
-# alias python to python3 if it exists
-if hash python3 2>/dev/null; then
-	alias python=/usr/bin/python3
-fi
-
-# enable direnv
-if hash direnv 2>/dev/null; then
-	eval "$(direnv hook zsh)"
+# Alias python to python3 if it exists
+if command -v python3 >/dev/null 2>&1; then
+    alias python=python3
 fi
 
 # Add tab completion for many Bash commands
-if which brew > /dev/null && [ -f "$(brew --prefix)/etc/bash_completion" ]; then
-  source "$(brew --prefix)/etc/bash_completion";
+if command -v brew >/dev/null 2>&1 && [ -f "$(brew --prefix)/etc/bash_completion" ]; then
+    source "$(brew --prefix)/etc/bash_completion"
 elif [ -f /etc/bash_completion ]; then
-  source /etc/bash_completion;
-fi;
+    source /etc/bash_completion
+fi
 
-# enable adsf
-. /opt/homebrew/opt/asdf/libexec/asdf.sh
+# =============================================================================
+# Finalization
+# =============================================================================
 
-# Created by `pipx` on 2024-01-23 17:29:22
-export PATH="$PATH:/Users/buritica/.local/bin"
+# Clean up
+unset file
 
+# Notify that dotfiles are sourced
 echo "dotfiles sourced"
