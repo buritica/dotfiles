@@ -2,13 +2,34 @@
   protocol = https
 
 [credential]
+  helper = osxkeychain
 
 [user]
   name = Juan Pablo Buriticá
   email = buritica@gmail.com
 
+[core]
+  editor = code --wait
+  pager = less -F -X
+  autocrlf = input
+  excludesfile = ~/.gitignore_global
+
+[init]
+  defaultBranch = main
+
 [push]
   default = simple
+  autoSetupRemote = true
+
+[pull]
+  rebase = true
+
+[rebase]
+  autoStash = true
+
+[merge]
+  ff = only
+  commit = no
 
 [github]
   user = buritica
@@ -17,83 +38,98 @@
   token = !security find-internet-password -a buritica -s github.com -l 'ghi token' -w
 
 [alias]
-
-  # View abbreviated SHA, description, and history graph of the latest 20 commits
-  l = log --pretty=oneline -n 20 --graph --abbrev-commit
-
-  # View the current working tree status using the short format
+  # Basic shortcuts
   s = status -s
+  st = status
+  co = checkout
+  br = branch
+  ci = commit
+  unstage = reset HEAD --
+  last = log -1 HEAD
 
-  # Show the diff between the latest commit and the current state
+  # Logging
+  lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+  l = log --pretty=oneline -n 20 --graph --abbrev-commit
+  ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+  lc = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+
+  # Diff
   d = !"git diff-index --quiet HEAD -- || clear; git --no-pager diff --patch-with-stat"
-
-  # `git di $number` shows the diff between the state `$number` revisions ago and the current state
   di = !"d() { git diff --patch-with-stat HEAD~$1; }; git diff-index --quiet HEAD -- || clear; d"
+  dc = diff --cached
+  dw = diff --word-diff
+  ds = diff --staged
 
-  # Pull in remote changes for the current repository and all its submodules
-  p = !"git pull; git submodule foreach git pull origin master"
-
-  # Clone a repository including all submodules
-  c = clone --recursive
-
-  # Commit all changes
-  ca = !git add -A && git commit -av
-
-  # Verbose commit
-  c = commit -v
-
-  # Switch to a branch, creating it if necessary
+  # Branch management
+  b = branch
+  ba = branch -a
+  bd = branch -d
+  bD = branch -D
+  bm = branch -m
   go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
+  gb = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
+  gba = branch -a
+  gbd = branch -d
+  gbD = branch -D
+  gbm = branch -m
 
-  # Show verbose output about tags, branches or remotes
+  # Remote management
+  r = remote -v
+  ra = remote add
+  rr = remote remove
+  rv = remote -v
+
+  # Stash management
+  sl = stash list
+  sa = stash apply
+  sp = stash pop
+  ss = stash save
+
+  # Submodule management
+  p = !"git pull; git submodule foreach git pull origin master"
+  c = clone --recursive
+  su = submodule update --init --recursive
+
+  # Commit management
+  ca = !git add -A && git commit -av
+  cm = commit -m
+  amend = commit --amend --no-edit
+  amendm = commit --amend -m
+  undo = reset --soft HEAD~1
+
+  # Tag management
   tags = tag -l
-  branches = branch -a
-  remotes = remote -v
+  t = tag -l
+  ta = tag -a
+  td = tag -d
 
-  # Amend the currently staged files to the latest commit
-  amend = commit --amend --reuse-message=HEAD
+  # Cleanup
+  cleanup = "!git branch --merged | grep -v '\\*\\|master\\|main' | xargs -n 1 git branch -d"
+  cleanup-remote = "!git remote prune origin"
 
-  # Credit an author on the latest commit
-  credit = "!f() { git commit --amend --author \"$1 <$2>\" -C HEAD; }; f"
+  # Work in progress
+  wip = "!git add . && git commit -m 'WIP'"
+  unwip = "!git log -n 1 | grep -q -c 'WIP' && git reset HEAD~1"
 
-  # Interactive rebase with the given number of latest commits
-  reb = "!r() { git rebase -i HEAD~$1; }; r"
+  # GitHub specific
+  pr = "!f() { git fetch origin pull/$1/head:pr-$1 && git checkout pr-$1; }; f"
+  issues = "!ghi list"
+  issue = "!ghi show"
+  create-issue = "!ghi create"
 
-  # Remove the old tag with this name and tag the latest commit with it.
-  retag = "!r() { git tag -d $1 && git push origin :refs/tags/$1 && git tag $1; }; r"
+  # Git flow shortcuts
+  feature = "!git flow feature"
+  hotfix = "!git flow hotfix"
+  release = "!git flow release"
+  support = "!git flow support"
 
-  # Find branches containing commit
-  fb = "!f() { git branch -a --contains $1; }; f"
-
-  # Find tags containing commit
-  ft = "!f() { git describe --always --contains $1; }; f"
-
-  # Find commits by source code
-  fc = "!f() { git log --pretty=format:'%C(yellow)%h  %Cblue%ad  %Creset%s%Cgreen  [%cn] %Cred%d' --decorate --date=short -S$1; }; f"
-
-  # Find commits by commit message
-  fm = "!f() { git log --pretty=format:'%C(yellow)%h  %Cblue%ad  %Creset%s%Cgreen  [%cn] %Cred%d' --decorate --date=short --grep=$1; }; f"
-
-  # List contributors with number of commits
-  contributors = shortlog --summary --numbered
+  # Debug
+  debug = "!git rev-parse --show-toplevel && git rev-parse --git-dir && git rev-parse --show-cdup"
 
 [apply]
 
   # Detect whitespace errors when applying a patch
   whitespace = fix
-
-[core]
-
-  # Use custom `.gitignore` and `.gitattributes`
-  excludesfile = ~/.gitignore
-
-  # Make `git rebase` safer on OS X
-  # More info: <http://www.git-tower.com/blog/make-git-rebase-safe-on-osx/>
-  trustctime = false
-
-  # Prevent showing files whose names contain non-ASCII symbols as unversioned.
-  # http://michael-kuehnel.de/git/2014/11/21/git-mac-osx-and-german-umlaute.html
-  precomposeunicode = false
 
 [color]
 
@@ -110,11 +146,6 @@
 
   # Automatically correct and execute mistyped commands
   autocorrect = 1
-
-[merge]
-
-  # Include summaries of merged commits in newly created merge commit messages
-  log = true
 
 # URL shorthands
 
@@ -149,9 +180,3 @@
   helper = !/opt/homebrew/bin/gh auth git-credential
 {{ else }}
 {{ end }}
-
-[init]
-	defaultBranch = main
-
-[pull]
-	rebase = true

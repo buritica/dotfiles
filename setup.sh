@@ -79,6 +79,14 @@ else
     print_status "1Password CLI already installed"
 fi
 
+# Install Homebrew packages (including Oh My Zsh)
+print_status "Installing packages from Brewfile..."
+if [ -f "$HOME/.my/.Brewfile" ]; then
+    brew bundle install --file="$HOME/.my/.Brewfile"
+else
+    print_warning "Brewfile not found. Make sure dotfiles are properly installed."
+fi
+
 # Install chezmoi
 print_status "Installing chezmoi..."
 if ! command -v chezmoi &>/dev/null; then
@@ -118,14 +126,6 @@ if [ -f "$HOME/.my/.macos" ]; then
     fi
 else
     print_warning "macOS settings script not found. Make sure dotfiles are properly installed."
-fi
-
-# Install Homebrew packages
-print_status "Installing packages from Brewfile..."
-if [ -f "$HOME/.my/.Brewfile" ]; then
-    brew bundle install --file="$HOME/.my/.Brewfile"
-else
-    print_warning "Brewfile not found. Make sure dotfiles are properly installed."
 fi
 
 print_status "Setup complete! Please restart your terminal to ensure all changes take effect."
