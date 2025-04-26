@@ -60,6 +60,17 @@ else
     print_status "Homebrew already installed"
 fi
 
+# Install Rosetta 2 on Apple Silicon if needed
+if [[ $(uname -m) == 'arm64' ]]; then
+    print_status "Checking for Rosetta 2..."
+    if ! /usr/bin/pgrep -q oahd; then
+        print_status "Installing Rosetta 2..."
+        sudo softwareupdate --install-rosetta --agree-to-license
+    else
+        print_status "Rosetta 2 already installed"
+    fi
+fi
+
 # Install 1Password CLI
 print_status "Installing 1Password CLI..."
 if ! command -v op &>/dev/null; then
@@ -110,7 +121,7 @@ else
 fi
 
 # Install Homebrew packages
-print_status "Installing Homebrew packages..."
+print_status "Installing packages from Brewfile..."
 if [ -f "$HOME/.my/.Brewfile" ]; then
     brew bundle install --file="$HOME/.my/.Brewfile"
 else
