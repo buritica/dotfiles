@@ -78,9 +78,9 @@ jobs:
           CURRENT_VERSION=$(cat VERSION)
           
           # Determine version bump type from PR labels
-          if [[ "${{ github.event.pull_request.labels.* }}" == *"major"* ]]; then
+          if [[ "${{ github.event.pull_request.labels.* }}" == *"version/major"* ]]; then
             NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. '{print $1+1".0.0"}')
-          elif [[ "${{ github.event.pull_request.labels.* }}" == *"patch"* ]]; then
+          elif [[ "${{ github.event.pull_request.labels.* }}" == *"version/patch"* ]]; then
             NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. '{print $1"."$2"."$3+1"}')
           else
             # Default to minor version bump
