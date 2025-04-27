@@ -24,13 +24,27 @@ print_warning() {
     echo -e "${YELLOW}Warning:${NC} $1"
 }
 
-# Check if running on macOS
-if [[ "$OSTYPE" != "darwin"* ]]; then
+# Check if running on macOS or in CI environment
+if [[ "$OSTYPE" != "darwin"* ]] && [[ -z "$CI" ]]; then
     print_error "This script is only for macOS"
     exit 1
 fi
 
-print_status "Starting macOS setup..."
+print_status "Starting setup..."
+
+# Skip macOS-specific steps in CI
+if [[ -n "$CI" ]]; then
+    print_status "Running in CI environment, skipping macOS-specific steps..."
+    # Initialize and apply dotfiles
+    print_status "Setting up dotfiles..."
+    if [ ! -d "$HOME/.local/share/chezmoi" ]; then
+        print_status "Using local repository..."
+        chezmoi init --apply "$(dirname "$0")"
+    else
+        print_warning "Dotfiles already initialized. Run 'chezmoi update' to update them."
+    fi
+    exit 0
+fi
 
 # Install Xcode Command Line Tools
 print_status "Installing Xcode Command Line Tools..."
