@@ -27,8 +27,29 @@ jobs:
           sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /tmp/chezmoi
           echo "/tmp/chezmoi" >> $GITHUB_PATH
           
-      - name: Run setup script
+      - name: Set up test environment
         run: |
-          # Set CI environment variable
-          export CI=true
-          ./setup.sh
+          # Create necessary directories and files
+          mkdir -p /github/home
+          echo "test_user" > /github/home/.user
+          
+          # Set environment variables
+          echo "HOME=/github/home" >> $GITHUB_ENV
+          echo "USER=test_user" >> $GITHUB_ENV
+          echo "CI=true" >> $GITHUB_ENV
+          
+      - name: Debug and Run Setup Script
+        run: |
+          # Enable bash debugging
+          set -x
+          
+          # Run setup script with debug output
+          bash -x ./setup.sh
+          
+          # Verify chezmoi initialization
+          chezmoi init --verbose --apply "$(pwd)"
+          
+      - name: Run tests
+        run: |
+          # Run tests with debug output
+          bash -x ./test.sh
