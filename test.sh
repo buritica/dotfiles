@@ -39,13 +39,13 @@ run_test() {
     fi
 }
 
-# Check if running in Docker
-if [ -f /.dockerenv ]; then
-    print_status "Running in Docker container"
-    IS_DOCKER=true
+# Check if running in Docker or CI
+if [ -f /.dockerenv ] || [ "$CI" = "true" ]; then
+    print_status "Running in CI environment"
+    IS_CI=true
 else
     print_status "Running on host system"
-    IS_DOCKER=false
+    IS_CI=false
 fi
 
 # Test 1: Verify source files exist and are not empty
@@ -79,8 +79,8 @@ done
 run_test "git configuration" "grep -q 'defaultBranch' dot_gitconfig.tmpl"
 run_test "zsh configuration" "grep -q -E '(PATH|path)' dot_zshrc"
 
-# Only run macOS-specific tests if not in Docker
-if [ "$IS_DOCKER" = false ]; then
+# Only run macOS-specific tests if not in CI
+if [ "$IS_CI" = false ]; then
     # Test 4: Verify we're on macOS
     run_test "macOS check" '[[ "$OSTYPE" == "darwin"* ]]'
     
@@ -89,6 +89,8 @@ if [ "$IS_DOCKER" = false ]; then
     
     # Test 6: Check macOS settings
     run_test "macOS settings" "grep -q 'defaults write' dot_my/executable_dot_macos"
+else
+    print_status "Skipping macOS-specific tests in CI environment"
 fi
 
 # Test 7: Verify template syntax
@@ -99,9 +101,13 @@ trap 'rm -rf "$temp_dir"' EXIT
 mkdir -p "$temp_dir/home"
 export HOME="$temp_dir/home"
 
-# Set test environment variables
-export EMAIL="test@example.com"
-export GITHUB_USER="test_user"
+# Set all necessary environment variables
+export CHEZMOI_USERNAME="test_user"
+export CHEZMOI_EMAIL="test@example.com"
+export CHEZMOI_NAME="Test User"
+export CHEZMOI_ARCH="amd64"
+export CHEZMOI_OS="linux"
+export CHEZMOI_HOSTNAME="test-host"
 
 # Create chezmoi configuration
 cat > "$temp_dir/chezmoi.toml" << EOF
