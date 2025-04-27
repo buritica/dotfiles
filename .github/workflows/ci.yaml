@@ -70,6 +70,29 @@ jobs:
         with:
           myToken: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Bump version
+        if: ${{ !env.ACT }}
+        id: bump_version
+        run: |
+          # Read current version
+          CURRENT_VERSION=$(cat VERSION)
+          
+          # Determine version bump type from PR labels
+          if [[ "${{ github.event.pull_request.labels.* }}" == *"major"* ]]; then
+            NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. '{print $1+1".0.0"}')
+          elif [[ "${{ github.event.pull_request.labels.* }}" == *"patch"* ]]; then
+            NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. '{print $1"."$2"."$3+1"}')
+          else
+            # Default to minor version bump
+            NEW_VERSION=$(echo $CURRENT_VERSION | awk -F. '{print $1"."$2+1".0"}')
+          fi
+          
+          # Update version file
+          echo $NEW_VERSION > VERSION
+          
+          # Output new version
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
       - name: Create Release
         if: ${{ !env.ACT }}
         id: create_release
@@ -77,8 +100,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: v${{ steps.bump_version.outputs.new_version }}
+          release_name: Release v${{ steps.bump_version.outputs.new_version }}
           body: ${{ steps.changelog.outputs.changelog }}
           draft: false
           prerelease: false

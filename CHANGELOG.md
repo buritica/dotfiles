@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2025-04-27
+
+### Added
+- Branch protection rules for master branch
+- Improved GitHub Actions workflow conditions for local runs
+- Fixed SARIF file paths in security workflow
+
+### Changed
+- Bumped tfsec-action from 1.0.0 to 1.0.3
+
 ## [Unreleased]
 
 ### Fixed
@@ -64,4 +74,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dockerfile and Docker-based setup
 - Legacy shell scripts and configurations
 
+[0.1.1]: https://github.com/buritica/dotfiles/releases/tag/v0.1.1
 [0.1.0]: https://github.com/buritica/dotfiles/releases/tag/v0.1.0 
