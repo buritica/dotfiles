@@ -42,6 +42,7 @@ jobs:
           directory: .
           output_format: sarif
           output_file_path: checkov.sarif
+          skip_download: true
 
       - name: Upload SARIF results
         if: ${{ !env.ACT && github.event_name != 'pull_request' }}
