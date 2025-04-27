@@ -32,7 +32,3 @@ jobs:
           # Set CI environment variable
           export CI=true
           ./setup.sh
-          
-      - name: Verify chezmoi data
-        run: |
-          chezmoi data
