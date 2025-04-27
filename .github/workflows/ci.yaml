@@ -11,11 +11,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-      - name: Install dependencies
+      - name: Install kcov
         run: |
           sudo apt-get update
-          sudo apt-get install -y kcov
+          sudo apt-get install -y cmake g++ libcurl4-openssl-dev libdw-dev libiberty-dev binutils-dev libssl-dev
+          git clone https://github.com/SimonKagstrom/kcov.git
+          cd kcov
+          mkdir build
+          cd build
+          cmake ..
+          make
+          sudo make install
+          cd ../..
 
       - name: Install BATS and helpers
         run: |
@@ -23,6 +33,7 @@ jobs:
           cd bats-core
           ./install.sh $HOME/.local
           cd ..
+          mkdir -p test/test_helper
           git clone https://github.com/bats-core/bats-support.git test/test_helper/bats-support
           git clone https://github.com/bats-core/bats-assert.git test/test_helper/bats-assert
 
