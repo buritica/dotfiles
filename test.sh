@@ -114,4 +114,8 @@ EOF
 
 run_test "template syntax" "CHEZMOI_CONFIG_FILE=$temp_dir/chezmoi.toml chezmoi init --config-path=$temp_dir/chezmoi.toml --source=$PWD --destination=$temp_dir/home test_user > /dev/null 2>&1"
 
+# Test 7: Security checks
+print_status "Running security checks..."
+run_test "security scan" "./scripts/security_scan.sh"
+
 print_status "All tests completed!" 
