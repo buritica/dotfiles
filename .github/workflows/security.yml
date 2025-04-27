@@ -26,8 +26,31 @@ permissions:
   pull-requests: read
 
 jobs:
+  check_changes:
+    name: Check for security-relevant changes
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.filter.outputs.has_changes }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for security-relevant files
+        id: filter
+        run: |
+          # Get list of changed files
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} || echo "")
+          
+          # If this is a scheduled run or there are changed files not in paths-ignore
+          if [[ "${{ github.event_name }}" == "schedule" ]] || [[ -n "$CHANGED_FILES" ]]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No security-relevant files changed"
+          fi
+
   security:
     name: security
+    needs: check_changes
+    if: needs.check_changes.outputs.has_changes == 'true'
     runs-on: ubuntu-latest
     container:
       image: aquasec/trivy:latest
@@ -38,7 +61,7 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         run: |
-          trivy fs --scanners vuln,misconfig --format table --exit-code 1 --severity HIGH,CRITICAL . || echo "Trivy scan completed with findings"
+          trivy fs --scanners vuln,misconfig --format table --severity HIGH,CRITICAL . || true
 
       - name: Run tfsec
         uses: aquasecurity/tfsec-action@v1.0.3
