@@ -31,7 +31,7 @@ jobs:
           trivy fs --scanners vuln,misconfig --format table --exit-code 1 --severity HIGH,CRITICAL .
 
       - name: Run tfsec
-        uses: aquasecurity/tfsec-action@v1.0.0
+        uses: aquasecurity/tfsec-action@v1.0.3
         with:
           format: sarif
           output-file: tfsec.sarif
