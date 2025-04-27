@@ -3,6 +3,16 @@ name: Security
 on:
   pull_request:
     branches: [ master ]
+    paths:
+      - '**/*.tf'        # Terraform files
+      - '**/Dockerfile*' # Docker files
+      - '**/package.json' # npm dependencies
+      - '**/requirements.txt' # Python dependencies
+      - '**/go.mod'      # Go dependencies
+      - '**/Cargo.toml'  # Rust dependencies
+      - '**/Gemfile'     # Ruby dependencies
+      - '**/composer.json' # PHP dependencies
+      - '**/pom.xml'     # Java dependencies
   schedule:
     - cron: '0 0 * * 0' # Weekly scan on Sundays
 
