@@ -3,6 +3,7 @@ name: security
 on:
   schedule:
     - cron: '0 0 * * 0'  # Run at midnight every Sunday
+  workflow_dispatch:  # Allow manual triggers
 
 permissions:
   security-events: write  # Required for uploading security results
