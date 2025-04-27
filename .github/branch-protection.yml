@@ -13,12 +13,6 @@ rules:
         - "ci"      # Continuous Integration checks
         - "security" # Security scanning checks
     
-    # Pull request review requirements
-    required_pull_request_reviews:
-      required_approving_review_count: 1  # At least one approval required
-      dismiss_stale_reviews: true         # Dismiss reviews when new commits are pushed
-      require_code_owner_reviews: false   # Don't require reviews from code owners
-    
     # Additional protection settings
     required_signatures: false            # Don't require signed commits
     enforce_admins: true                  # Apply rules to administrators
