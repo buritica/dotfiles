@@ -37,6 +37,8 @@ jobs:
           echo "HOME=/github/home" >> $GITHUB_ENV
           echo "USER=test_user" >> $GITHUB_ENV
           echo "CI=true" >> $GITHUB_ENV
+          echo "EMAIL=test@example.com" >> $GITHUB_ENV
+          echo "GITHUB_USER=test_user" >> $GITHUB_ENV
           
       - name: Debug and Run Setup Script
         run: |
@@ -46,8 +48,8 @@ jobs:
           # Run setup script with debug output
           bash -x ./setup.sh
           
-          # Verify chezmoi initialization
-          chezmoi init --verbose --apply "$(pwd)"
+          # Verify chezmoi initialization with non-interactive mode
+          chezmoi init --verbose --apply "$(pwd)" --prompt=false
           
       - name: Run tests
         run: |

@@ -99,10 +99,15 @@ trap 'rm -rf "$temp_dir"' EXIT
 mkdir -p "$temp_dir/home"
 export HOME="$temp_dir/home"
 
+# Set test environment variables
+export EMAIL="test@example.com"
+export GITHUB_USER="test_user"
+
 # Create chezmoi configuration
 cat > "$temp_dir/chezmoi.toml" << EOF
 [data]
 username = "test_user"
+email = "test@example.com"
 
 [data.chezmoi]
 arch = "amd64"
@@ -114,12 +119,12 @@ EOF
 
 # Run template syntax test with verbose output
 print_status "Running template syntax test with verbose output"
-if CHEZMOI_CONFIG_FILE="$temp_dir/chezmoi.toml" chezmoi init --config-path="$temp_dir/chezmoi.toml" --source="$PWD" --destination="$temp_dir/home" test_user; then
+if CHEZMOI_CONFIG_FILE="$temp_dir/chezmoi.toml" chezmoi init --config-path="$temp_dir/chezmoi.toml" --source="$PWD" --destination="$temp_dir/home" test_user --prompt=false; then
     print_status "✓ template syntax passed"
 else
     print_error "✗ template syntax failed"
     print_error "Last command output:"
-    CHEZMOI_CONFIG_FILE="$temp_dir/chezmoi.toml" chezmoi init --config-path="$temp_dir/chezmoi.toml" --source="$PWD" --destination="$temp_dir/home" test_user
+    CHEZMOI_CONFIG_FILE="$temp_dir/chezmoi.toml" chezmoi init --config-path="$temp_dir/chezmoi.toml" --source="$PWD" --destination="$temp_dir/home" test_user --prompt=false
     exit 1
 fi
 
