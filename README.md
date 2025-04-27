@@ -1,4 +1,9 @@
-# dotfiles
+# Dotfiles
+
+[![CI](https://github.com/buritica/dotfiles/actions/workflows/ci.yaml/badge.svg)](https://github.com/buritica/dotfiles/actions/workflows/ci.yaml)
+[![codecov](https://codecov.io/gh/buritica/dotfiles/branch/master/graph/badge.svg)](https://codecov.io/gh/buritica/dotfiles)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://buritica.github.io/dotfiles/)
+[![License](https://img.shields.io/github/license/buritica/dotfiles.svg)](LICENSE)
 
 My personal dotfiles and system configuration, managed with [chezmoi](https://chezmoi.io/). This repository contains everything needed to bootstrap and maintain a consistent development environment across macOS machines.
 

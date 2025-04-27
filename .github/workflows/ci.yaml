@@ -12,19 +12,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install shellcheck
-        run: sudo apt-get install -y shellcheck
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck kcov
 
       - name: Install shfmt
         run: |
           curl -sS https://webinstall.dev/shfmt | bash
           export PATH="$HOME/.local/bin:$PATH"
 
-      - name: Install BATS
+      - name: Install BATS and helpers
         run: |
           git clone https://github.com/bats-core/bats-core.git
           cd bats-core
           ./install.sh $HOME/.local
+          cd ..
+          git clone https://github.com/bats-core/bats-support.git test/test_helper/bats-support
+          git clone https://github.com/bats-core/bats-assert.git test/test_helper/bats-assert
 
       - name: ShellCheck
         run: |
@@ -42,8 +47,13 @@ jobs:
       - name: Markdown Lint
         uses: DavidAnson/markdownlint-cli2-action@v13
 
-      - name: Run BATS tests
-        run: bats test
+      - name: Run BATS tests with coverage
+        run: |
+          mkdir -p coverage
+          kcov --include-pattern=.sh,.bats coverage/ bats test/
+          bash <(curl -s https://codecov.io/bash)
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Setup chezmoi
         uses: webfactory/ssh-agent@v0.8.0
@@ -55,6 +65,24 @@ jobs:
           sh -c "$(curl -fsLS get.chezmoi.io)" -- -b $HOME/.local/bin
           export PATH="$HOME/.local/bin:$PATH"
           ./test.sh
+
+      - name: Generate documentation
+        uses: docker://pandoc/core:2.9
+        with:
+          args: >-
+            --from=markdown
+            --to=html
+            --standalone
+            --output=docs/index.html
+            --metadata title="Dotfiles Documentation"
+            --toc
+            README.md CONTRIBUTING.md
+
+      - name: Deploy documentation to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
 
   security:
     needs: test
