@@ -35,7 +35,7 @@ jobs:
         uses: bridgecrewio/checkov-action@v12.1347.0
         with:
           output_format: cli,sarif
-          output_file_path: console,./tfsec.sarif
+          output_file_path: console,./checkov.sarif
           soft_fail: true
 
       - name: Run tfsec
@@ -43,7 +43,7 @@ jobs:
         with:
           soft_fail: true
           format: sarif
-          out: ./checkov.sarif
+          out: ./tfsec.sarif
 
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
