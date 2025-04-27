@@ -36,4 +36,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Dependency Review
-        uses: actions/dependency-review-action@v3 
+        uses: actions/dependency-review-action@v4 
