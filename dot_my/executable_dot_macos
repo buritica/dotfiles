@@ -4,7 +4,7 @@
 # Source: https://mths.be/macos
 # This script customizes macOS settings to improve UI/UX, performance, and privacy.
 
-if [ "$1" = "test" ] then  # Missing semicolon, this should cause a syntax error
+if [ "$1" = "test" ]; then
   echo "Test mode enabled"
 fi
 

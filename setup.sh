@@ -24,6 +24,31 @@ print_warning() {
     echo -e "${YELLOW}Warning:${NC} ${1}"
 }
 
+# Function to install BATS test helpers
+install_bats_helpers() {
+    print_status "Installing BATS test helpers..."
+    local test_helper_dir="test/test_helper"
+    
+    # Create test helper directory if it doesn't exist
+    mkdir -p "${test_helper_dir}"
+    
+    # Install bats-support
+    if [ ! -d "${test_helper_dir}/bats-support" ]; then
+        print_status "Installing bats-support..."
+        git clone https://github.com/bats-core/bats-support.git "${test_helper_dir}/bats-support"
+    else
+        print_status "bats-support already installed"
+    fi
+    
+    # Install bats-assert
+    if [ ! -d "${test_helper_dir}/bats-assert" ]; then
+        print_status "Installing bats-assert..."
+        git clone https://github.com/bats-core/bats-assert.git "${test_helper_dir}/bats-assert"
+    else
+        print_status "bats-assert already installed"
+    fi
+}
+
 # Check if running on macOS or in CI environment
 if [[ "${OSTYPE}" != "darwin"* ]] && [[ -z "${CI}" ]]; then
     print_error "This script is only for macOS"
@@ -102,6 +127,9 @@ else
     print_error "Brewfile not found at ${HOME}/.my/.Brewfile"
     exit 1
 fi
+
+# Install BATS test helpers
+install_bats_helpers
 
 # Install chezmoi
 print_status "Installing chezmoi..."
