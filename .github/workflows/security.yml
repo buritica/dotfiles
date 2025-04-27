@@ -49,8 +49,8 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: |
-            tfsec.sarif
-            checkov.sarif
+            ./tfsec.sarif
+            ./checkov.sarif
 
       - name: Run Dependency Review
         if: ${{ !env.ACT && github.event_name == 'pull_request' }}
@@ -62,7 +62,7 @@ jobs:
             echo "Running locally - skipping SARIF file checks"
             exit 0
           fi
-          if [ -f "tfsec.sarif" ] && [ -f "checkov.sarif" ]; then
+          if [ -f "./tfsec.sarif" ] && [ -f "./checkov.sarif" ]; then
             echo "Security scan completed successfully"
           else
             echo "Security scan failed! Please check the logs for details."
