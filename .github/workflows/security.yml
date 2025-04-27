@@ -22,13 +22,5 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run CodeQL Analysis
-        uses: github/codeql-action/init@v3
-        with:
-          languages: javascript, python
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-
       - name: Run Dependency Review
         uses: actions/dependency-review-action@v4 
