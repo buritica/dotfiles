@@ -12,19 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install kcov
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake g++ libcurl4-openssl-dev libdw-dev libiberty-dev binutils-dev libssl-dev
-          git clone https://github.com/SimonKagstrom/kcov.git
-          cd kcov
-          mkdir build
-          cd build
-          cmake ..
-          make
-          sudo make install
-          cd ../..
-
       - name: Install BATS and helpers
         run: |
           # Install BATS core
@@ -46,8 +33,19 @@ jobs:
 
       - name: Run BATS tests with coverage
         run: |
+          # Install lcov if not present
+          sudo apt-get update
+          sudo apt-get install -y lcov
+          
+          # Run tests with coverage
           mkdir -p coverage
-          kcov --include-pattern=.sh,.bats coverage/ bats test/
+          lcov --directory . --zerocounters
+          bats test/
+          lcov --directory . --capture --output-file coverage/coverage.info
+          lcov --remove coverage/coverage.info '/usr/*' --output-file coverage/coverage.info
+          genhtml coverage/coverage.info --output-directory coverage/html
+          
+          # Upload coverage report
           bash <(curl -s https://codecov.io/bash)
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
