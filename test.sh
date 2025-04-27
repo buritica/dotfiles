@@ -95,6 +95,11 @@ fi
 temp_dir=$(mktemp -d)
 trap 'rm -rf "$temp_dir"' EXIT
 
+# Create test environment
+mkdir -p "$temp_dir/home"
+export HOME="$temp_dir/home"
+
+# Create chezmoi configuration
 cat > "$temp_dir/chezmoi.toml" << EOF
 [data]
 username = "test_user"
@@ -107,6 +112,15 @@ username = "test_user"
 email = "test@example.com"
 EOF
 
-run_test "template syntax" "CHEZMOI_CONFIG_FILE=$temp_dir/chezmoi.toml chezmoi init --config-path=$temp_dir/chezmoi.toml --source=$PWD --destination=$temp_dir/home test_user > /dev/null 2>&1"
+# Run template syntax test with verbose output
+print_status "Running template syntax test with verbose output"
+if CHEZMOI_CONFIG_FILE="$temp_dir/chezmoi.toml" chezmoi init --config-path="$temp_dir/chezmoi.toml" --source="$PWD" --destination="$temp_dir/home" test_user; then
+    print_status "✓ template syntax passed"
+else
+    print_error "✗ template syntax failed"
+    print_error "Last command output:"
+    CHEZMOI_CONFIG_FILE="$temp_dir/chezmoi.toml" chezmoi init --config-path="$temp_dir/chezmoi.toml" --source="$PWD" --destination="$temp_dir/home" test_user
+    exit 1
+fi
 
 print_status "All tests completed!" 
