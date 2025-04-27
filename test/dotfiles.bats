@@ -1,8 +1,17 @@
 #!/usr/bin/env bats
 
 setup() {
-    load 'test_helper/bats-support/load'
-    load 'test_helper/bats-assert/load'
+    # Try Homebrew paths first, then fall back to local paths
+    if [ -f "/opt/homebrew/lib/bats-support/load.bash" ]; then
+        load '/opt/homebrew/lib/bats-support/load.bash'
+        load '/opt/homebrew/lib/bats-assert/load.bash'
+    elif [ -f "/usr/local/lib/bats-support/load.bash" ]; then
+        load '/usr/local/lib/bats-support/load.bash'
+        load '/usr/local/lib/bats-assert/load.bash'
+    else
+        load 'test_helper/bats-support/load'
+        load 'test_helper/bats-assert/load'
+    fi
     
     # Create temp directory
     export DOTFILES_TEST_DIR="$(mktemp -d)"

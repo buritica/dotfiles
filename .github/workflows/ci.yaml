@@ -14,13 +14,11 @@ jobs:
 
       - name: Install BATS and helpers
         run: |
-          # Install BATS core
-          git clone https://github.com/bats-core/bats-core.git
-          cd bats-core
-          ./install.sh $HOME/.local
-          cd ..
+          # Install BATS and helpers via package manager
+          sudo apt-get update
+          sudo apt-get install -y bats
 
-          # Install BATS helpers
+          # Set up BATS test helper directory
           mkdir -p test/test_helper
           git clone https://github.com/bats-core/bats-support.git test/test_helper/bats-support
           git clone https://github.com/bats-core/bats-assert.git test/test_helper/bats-assert
