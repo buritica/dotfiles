@@ -9,7 +9,7 @@ on:
     - cron: '0 0 * * 0' # Weekly scan
 
 permissions:
-  security-events: read
+  security-events: write
   actions: read
   contents: read
   pull-requests: read
@@ -19,80 +19,51 @@ jobs:
     name: Security Scan
     runs-on: ubuntu-latest
     container:
-      image: catthehacker/ubuntu:act-latest
-    permissions:
-      security-events: read
-      actions: read
-      contents: read
-      pull-requests: read
+      image: aquasec/trivy:latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-
-      - name: Setup Trivy
-        uses: aquasecurity/setup-trivy@v0.2.0
-        with:
-          version: latest
-          cache: true
+          submodules: true
 
       - name: Run Trivy vulnerability scanner
-        id: trivy
-        uses: aquasecurity/trivy-action@master
-        continue-on-error: true
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-          ignore-unfixed: true
-          scanners: 'vuln,secret,misconfig'
-          skip-setup-trivy: true
-          cache: true
-        env:
-          TRIVY_SKIP_DB_UPDATE: true
-          TRIVY_SKIP_JAVA_DB_UPDATE: true
-
-      - name: Check Trivy results
-        if: steps.trivy.outcome == 'success'
         run: |
-          echo "No security issues found!"
-
-      - name: Upload Trivy results
-        if: ${{ !env.ACT && always() }}  # Skip during act runs but always try in GitHub
-        continue-on-error: true  # Don't fail the build if upload fails
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-results
-          path: trivy-results.sarif
-          retention-days: 30
-
-      - name: Run Dependency Review
-        if: github.event_name == 'pull_request'  # Only run on PRs
-        continue-on-error: true
-        uses: actions/dependency-review-action@v4
-        with:
-          base-ref: ${{ github.event.pull_request.base.ref || github.event.repository.default_branch }}
-          head-ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          trivy fs --scanners vuln,misconfig --format table --exit-code 1 --severity HIGH,CRITICAL .
 
       - name: Run tfsec
-        continue-on-error: true
         uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          format: sarif
+          output-file: tfsec.sarif
 
       - name: Run Checkov
-        continue-on-error: true
         uses: bridgecrewio/checkov-action@master
         with:
           directory: .
-          framework: all
+          output_format: sarif
+          output_file_path: checkov.sarif
+
+      - name: Upload SARIF results
+        if: ${{ !env.ACT && github.event_name != 'pull_request' }}
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: |
+            tfsec.sarif
+            checkov.sarif
+
+      - name: Run Dependency Review
+        if: ${{ !env.ACT && github.event_name == 'pull_request' }}
+        uses: actions/dependency-review-action@v4
 
       - name: Check for failures
-        if: always()
         run: |
-          if [[ "${{ steps.trivy.outcome }}" == "failure" ]]; then
-            echo "::error::Security scan failed! Please check the logs for details."
+          if [ -n "$ACT" ]; then
+            echo "Running locally - skipping SARIF file checks"
+            exit 0
+          fi
+          if [ -f "tfsec.sarif" ] && [ -f "checkov.sarif" ]; then
+            echo "Security scan completed successfully"
+          else
+            echo "Security scan failed! Please check the logs for details."
             exit 1
           fi 
