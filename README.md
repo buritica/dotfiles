@@ -1,5 +1,6 @@
 # Dotfiles
 
+[![Test](https://github.com/buritica/dotfiles/actions/workflows/test.yml/badge.svg)](https://github.com/buritica/dotfiles/actions/workflows/test.yml)
 [![CI](https://github.com/buritica/dotfiles/actions/workflows/ci.yaml/badge.svg)](https://github.com/buritica/dotfiles/actions/workflows/ci.yaml)
 [![codecov](https://codecov.io/gh/buritica/dotfiles/branch/master/graph/badge.svg)](https://codecov.io/gh/buritica/dotfiles)
 [![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://buritica.github.io/dotfiles/)

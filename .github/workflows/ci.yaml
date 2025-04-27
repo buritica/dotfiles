@@ -11,46 +11,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build test container
-        uses: docker/build-push-action@v5
         with:
-          context: .
-          load: true
-          tags: dotfiles-test:latest
+          submodules: recursive
+
+      - name: Cache chezmoi
+        uses: actions/cache@v3
+        with:
+          path: ~/.local/bin/chezmoi
+          key: ${{ runner.os }}-chezmoi-${{ hashFiles('**/setup.sh') }}
+          restore-keys: |
+            ${{ runner.os }}-chezmoi-
 
       - name: Run tests
+        run: ./test.sh
+
+      - name: Set up chezmoi
         run: |
-          # Run tests in container
-          docker run --rm -v "$(pwd):/test" dotfiles-test:latest
+          curl -sfL https://git.io/chezmoi | sh
+          ./bin/chezmoi docs
 
-      - name: Setup chezmoi
-        uses: webfactory/ssh-agent@v0.8.0
+      - name: Cache docs
+        uses: actions/cache@v3
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          path: ./docs
+          key: ${{ runner.os }}-docs-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docs-
 
-      - name: Test chezmoi templates
-        run: |
-          sh -c "$(curl -fsLS get.chezmoi.io)" -- -b $HOME/.local/bin
-          export PATH="$HOME/.local/bin:$PATH"
-          ./test.sh
-
-      - name: Generate documentation
-        uses: docker://pandoc/core:2.9
-        with:
-          args: >-
-            --from=markdown
-            --to=html
-            --standalone
-            --output=docs/index.html
-            --metadata title="Dotfiles Documentation"
-            --toc
-            README.md CONTRIBUTING.md
-
-      - name: Deploy documentation to GitHub Pages
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -63,7 +51,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          submodules: recursive
 
       - name: Generate changelog
         id: changelog
