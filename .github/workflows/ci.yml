@@ -22,7 +22,7 @@ jobs:
           # Add your test commands here 
 
   release:
-    name: Release
+    name: release
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
