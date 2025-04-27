@@ -4,6 +4,10 @@
 # Source: https://mths.be/macos
 # This script customizes macOS settings to improve UI/UX, performance, and privacy.
 
+if [ "$1" = "test" ] then  # Missing semicolon, this should cause a syntax error
+  echo "Test mode enabled"
+fi
+
 # Close System Preferences to prevent conflicts
 osascript -e 'tell application "System Preferences" to quit'
 
