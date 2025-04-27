@@ -1,6 +1,8 @@
 name: Security
 
 on:
+  push:
+    branches: [ master ]
   pull_request:
     branches: [ master ]
     paths-ignore:
@@ -42,9 +44,17 @@ jobs:
           # If this is a scheduled run or there are changed files not in paths-ignore
           if [[ "${{ github.event_name }}" == "schedule" ]] || [[ -n "$CHANGED_FILES" ]]; then
             echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Security-relevant files changed, proceeding with scan"
           else
             echo "has_changes=false" >> $GITHUB_OUTPUT
-            echo "No security-relevant files changed"
+            echo "No security-relevant files changed, skipping scan"
+          fi
+      - name: Report status
+        if: always()
+        run: |
+          if [[ "${{ steps.filter.outputs.has_changes }}" == "false" ]]; then
+            echo "Security scan skipped - no relevant files changed"
+            exit 0
           fi
 
   security:
