@@ -7,6 +7,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      CI: true
+      EMAIL: test@example.com
+      GITHUB_USER: test_user
+      CHEZMOI_USERNAME: test_user
+      CHEZMOI_EMAIL: test@example.com
+      CHEZMOI_NAME: Test User
     steps:
       - uses: actions/checkout@v3
       
@@ -29,16 +36,13 @@ jobs:
           
       - name: Set up test environment
         run: |
-          # Create necessary directories and files
-          mkdir -p /github/home
-          echo "test_user" > /github/home/.user
-          
+          # Use a writable directory for the test environment
+          mkdir -p $HOME/github/home
+          echo "test_user" > $HOME/github/home/.user
+
           # Set environment variables
-          echo "HOME=/github/home" >> $GITHUB_ENV
+          echo "HOME=$HOME/github/home" >> $GITHUB_ENV
           echo "USER=test_user" >> $GITHUB_ENV
-          echo "CI=true" >> $GITHUB_ENV
-          echo "EMAIL=test@example.com" >> $GITHUB_ENV
-          echo "GITHUB_USER=test_user" >> $GITHUB_ENV
           
       - name: Debug and Run Setup Script
         run: |
