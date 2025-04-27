@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   test:
-    name: Test
+    name: ci
     runs-on: ubuntu-latest
     permissions:
       contents: read

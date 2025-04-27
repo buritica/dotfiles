@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   security:
-    name: Security Scan
+    name: security
     runs-on: ubuntu-latest
     container:
       image: aquasec/trivy:latest
