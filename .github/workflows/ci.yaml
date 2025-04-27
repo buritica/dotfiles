@@ -6,13 +6,27 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+  actions: read
+  checks: write
+  pull-requests: read
+
 jobs:
   test:
+    name: Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      - name: Make test script executable
+        run: chmod +x test.sh
 
       - name: Cache chezmoi
         uses: actions/cache@v3
@@ -39,9 +53,14 @@ jobs:
           publish_dir: ./docs
 
   release:
+    name: Release
     needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+      issues: read
     steps:
       - uses: actions/checkout@v4
         with:
