@@ -5,14 +5,14 @@
   helper = osxkeychain
 
 [user]
-  name = Juan Pablo Buriticá
-  email = buritica@gmail.com
+  name = {{ .chezmoi.username }}
+  email = {{ .chezmoi.email }}
 
 [core]
   editor = code --wait
   pager = less -F -X
   autocrlf = input
-  excludesfile = ~/.gitignore_global
+  excludesfile = ~/.gitignore
 
 [init]
   defaultBranch = main
@@ -22,7 +22,7 @@
   autoSetupRemote = true
 
 [pull]
-  rebase = true
+  rebase = false
 
 [rebase]
   autoStash = true
@@ -95,7 +95,7 @@
   cm = commit -m
   amend = commit --amend --no-edit
   amendm = commit --amend -m
-  undo = reset --soft HEAD~1
+  undo = reset --soft HEAD^
 
   # Tag management
   tags = tag -l
@@ -104,8 +104,9 @@
   td = tag -d
 
   # Cleanup
-  cleanup = "!git branch --merged | grep -v '\\*\\|master\\|main' | xargs -n 1 git branch -d"
-  cleanup-remote = "!git remote prune origin"
+  cleanup = "!git branch --merged | grep -v '\\*\\|main\\|master' | xargs -n 1 git branch -d"
+  prune = remote prune origin
+  prune-local = "!git branch -r | awk '{print $1}' | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk '{print $1}' | xargs git branch -d"
 
   # Work in progress
   wip = "!git add . && git commit -m 'WIP'"
@@ -127,52 +128,37 @@
   debug = "!git rev-parse --show-toplevel && git rev-parse --git-dir && git rev-parse --show-cdup"
 
 [apply]
-
   # Detect whitespace errors when applying a patch
   whitespace = fix
 
 [color]
-
   # Use colors in Git commands that are capable of colored output when
   # outputting to the terminal. (This is the default setting in Git ≥ 1.8.4.)
-  ui = auto
+  ui = true
 
 [diff]
-
   # Detect copies as well as renames
   renames = copies
 
 [help]
-
   # Automatically correct and execute mistyped commands
   autocorrect = 1
 
 # URL shorthands
-
 [url "git@github.com:"]
+  insteadOf = https://github.com/
 
-  insteadOf = "gh:"
-  pushInsteadOf = "github:"
-  pushInsteadOf = "git://github.com/"
+[url "git@gitlab.com:"]
+  insteadOf = https://gitlab.com/
 
-[url "git://github.com/"]
+[url "git@bitbucket.org:"]
+  insteadOf = https://bitbucket.org/
 
-  insteadOf = "github:"
-
-[url "git@gist.github.com:"]
-
-  insteadOf = "gst:"
-  pushInsteadOf = "gist:"
-  pushInsteadOf = "git://gist.github.com/"
-
-[url "git://gist.github.com/"]
-
-  insteadOf = "gist:"
 [filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
 
 {{ if eq .chezmoi.arch "arm64" }}
 [credential "https://github.com"]

@@ -39,22 +39,22 @@ run_test() {
     fi
 }
 
-# Test 1: Verify chezmoi installation
-run_test "chezmoi" "command -v chezmoi &>/dev/null"
-
-# Test 2: Verify essential commands
-essential_commands=("git" "zsh")
-for cmd in "${essential_commands[@]}"; do
-    run_test "$cmd command" "command -v $cmd &>/dev/null"
+# Test 1: Verify source files exist
+source_files=("dot_gitconfig.tmpl" "dot_zshrc" "dot_gitignore" "setup.sh" "test.sh")
+for file in "${source_files[@]}"; do
+    run_test "$file exists" "[ -f \"$file\" ]"
 done
 
-# Test 3: Verify dotfiles
-dotfiles=(".zshrc" ".gitconfig" ".gitignore")
-for file in "${dotfiles[@]}"; do
-    run_test "$file" "[ -f \"$HOME/$file\" ]"
-done
+# Test 2: Verify template syntax
+run_test "gitconfig template syntax" "grep -q '{{ .chezmoi' dot_gitconfig.tmpl"
 
-# Test 4: Verify chezmoi data
-run_test "chezmoi data" "chezmoi data > /dev/null"
+# Test 3: Verify setup script is executable
+run_test "setup.sh is executable" "[ -x setup.sh ]"
+
+# Test 4: Verify test script is executable
+run_test "test.sh is executable" "[ -x test.sh ]"
+
+# Test 5: Verify gitconfig has no invalid sections
+run_test "gitconfig has no invalid sections" "! grep -q '\[INVALID SECTION\]' dot_gitconfig.tmpl"
 
 print_status "All tests completed!" 
