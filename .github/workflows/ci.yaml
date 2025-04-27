@@ -27,6 +27,16 @@ jobs:
 
       - name: YAML Lint
         uses: ibiqlik/action-yamllint@v3
+        with:
+          config_file: .yamllint
+          config_data: |
+            extends: default
+            rules:
+              line-length:
+                max: 80
+                level: warning
+            ignore: |
+              bats-core/
 
       - name: Markdown Lint
         uses: DavidAnson/markdownlint-cli2-action@v13
