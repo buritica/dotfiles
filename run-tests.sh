@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Exit on error
 set -e
@@ -9,9 +9,9 @@ GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
 echo -e "${GREEN}Building test container...${NC}"
-docker build -t dotfiles-test .
+docker build -t dotfiles-test:latest .
 
 echo -e "${GREEN}Running tests in container...${NC}"
-docker run --rm dotfiles-test
+docker run --rm -v "$(pwd):/test" dotfiles-test:latest
 
 echo -e "${GREEN}Tests completed!${NC}" 

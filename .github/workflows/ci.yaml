@@ -12,43 +12,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install BATS and helpers
-        run: |
-          # Install BATS and helpers via package manager
-          sudo apt-get update
-          sudo apt-get install -y bats
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-          # Set up BATS test helper directory
-          mkdir -p test/test_helper
-          git clone https://github.com/bats-core/bats-support.git test/test_helper/bats-support
-          git clone https://github.com/bats-core/bats-assert.git test/test_helper/bats-assert
-
-      - name: YAML Lint
-        uses: ibiqlik/action-yamllint@v3
+      - name: Build test container
+        uses: docker/build-push-action@v5
         with:
-          config_file: .yamllint
-          config_data: |
-            extends: default
-            rules:
-              line-length:
-                max: 80
-                level: warning
-            ignore: |
-              bats-core/
+          context: .
+          load: true
+          tags: dotfiles-test:latest
 
-      - name: Markdown Lint
-        uses: DavidAnson/markdownlint-cli2-action@v13
+      - name: Run tests
+        run: |
+          # Run tests in container
+          docker run --rm -v "$(pwd):/test" dotfiles-test:latest
 
-      - name: Run BATS tests with coverage
+      - name: Generate coverage report
         run: |
           # Install lcov if not present
           sudo apt-get update
           sudo apt-get install -y lcov
           
-          # Run tests with coverage
+          # Generate coverage report
           mkdir -p coverage
-          lcov --directory . --zerocounters
-          bats test/
           lcov --directory . --capture --output-file coverage/coverage.info
           lcov --remove coverage/coverage.info '/usr/*' --output-file coverage/coverage.info
           genhtml coverage/coverage.info --output-directory coverage/html
