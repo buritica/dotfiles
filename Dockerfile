@@ -1,22 +1,4 @@
-FROM ubuntu:latest
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    bats \
-    git \
-    curl \
-    wget \
-    sudo \
-    lcov \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install BATS helpers
-RUN mkdir -p /test/test_helper && \
-    git clone https://github.com/bats-core/bats-support.git /test/test_helper/bats-support && \
-    git clone https://github.com/bats-core/bats-assert.git /test/test_helper/bats-assert
-
-# Install chezmoi
-RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+FROM ghcr.io/linuxserver/baseimage-ubuntu:22.04
 
 # Set up test environment
 ENV HOME=/test/home
@@ -33,12 +15,11 @@ RUN mkdir -p /test/home
 # Set working directory
 WORKDIR /test
 
-# Copy test files
-COPY test/ /test/
+# Copy only necessary files
+COPY test.sh setup.sh .chezmoi.toml.tmpl .chezmoiignore dot_gitconfig.tmpl dot_gitignore dot_zshrc .yamllint /test/
 
 # Make test files executable
 RUN chmod +x /test/*.sh
 
 # Set entrypoint
-ENTRYPOINT ["bats"]
-CMD ["/test"] 
+ENTRYPOINT ["/test/test.sh"] 
