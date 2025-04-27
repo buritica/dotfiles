@@ -17,6 +17,10 @@ For complete documentation, please refer to:
   - `version/patch` for backward-compatible bug fixes
   - No label defaults to minor version bump
 - Titles must follow conventional commits format (`fix:`, `feat:`, `docs:`, `chore:`)
+- For multiline descriptions:
+  - Use `pr_body.md` temporary file
+  - Update with `gh pr edit <number> --body-file pr_body.md`
+  - File is gitignored by default
 
 ### File Standards
 - GitHub Actions: use `.yml` extension (not `.yaml`)
