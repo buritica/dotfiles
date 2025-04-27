@@ -28,15 +28,7 @@ jobs:
       - name: Set up chezmoi
         run: |
           curl -sfL https://git.io/chezmoi | sh
-          ./bin/chezmoi docs
-
-      - name: Cache docs
-        uses: actions/cache@v3
-        with:
-          path: ./docs
-          key: ${{ runner.os }}-docs-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-docs-
+          ./bin/chezmoi --version
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
