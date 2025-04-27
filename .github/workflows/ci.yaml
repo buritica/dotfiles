@@ -17,7 +17,9 @@ jobs:
       - name: Cache chezmoi
         uses: actions/cache@v3
         with:
-          path: ~/.local/bin/chezmoi
+          path: |
+            ~/bin/chezmoi
+            ~/.local/share/chezmoi
           key: ${{ runner.os }}-chezmoi-${{ hashFiles('**/setup.sh') }}
           restore-keys: |
             ${{ runner.os }}-chezmoi-
