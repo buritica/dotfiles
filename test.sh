@@ -93,7 +93,7 @@ fi
 
 # Test 7: Check for sensitive data
 run_test "no AWS keys" "! grep -r 'AKIA' . --exclude='test.sh'"
-run_test "no private keys" "! find . -type f \( -name '*.pem' -o -name '*.key' -o -name 'id_rsa' -o -name 'id_ed25519' -o -name 'id_ecdsa' \) -not -path './.git/*' -not -path './test.sh'"
+run_test "no private keys" "./scripts/check_keys.sh"
 run_test "no tokens" "! grep -r 'ghp_' ."
 
 # Test 8: Verify template syntax
