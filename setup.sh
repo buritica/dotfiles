@@ -35,11 +35,12 @@ print_status "Starting setup..."
 # Skip macOS-specific steps in CI
 if [[ -n "$CI" ]]; then
     print_status "Running in CI environment, skipping macOS-specific steps..."
+    
     # Initialize and apply dotfiles
     print_status "Setting up dotfiles..."
     if [ ! -d "$HOME/.local/share/chezmoi" ]; then
         print_status "Using local repository..."
-        chezmoi init --apply "$(dirname "$0")"
+        chezmoi init --apply --prompt=false "$(dirname "$0")"
     else
         print_warning "Dotfiles already initialized. Run 'chezmoi update' to update them."
     fi
@@ -98,7 +99,8 @@ print_status "Installing packages from Brewfile..."
 if [ -f "$HOME/.my/.Brewfile" ]; then
     brew bundle install --file="$HOME/.my/.Brewfile"
 else
-    print_warning "Brewfile not found. Make sure dotfiles are properly installed."
+    print_error "Brewfile not found at $HOME/.my/.Brewfile"
+    exit 1
 fi
 
 # Install chezmoi
