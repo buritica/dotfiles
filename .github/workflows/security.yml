@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -26,4 +26,34 @@ jobs:
         uses: actions/dependency-review-action@v4
         with:
           base-ref: ${{ github.event.pull_request.base.ref || github.event.repository.default_branch }}
-          head-ref: ${{ github.event.pull_request.head.ref || github.ref_name }} 
+          head-ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.0
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          framework: all
+
+      - name: ShellCheck
+        run: |
+          shellcheck setup.sh
+          shellcheck test.sh
+          shellcheck run-tests.sh
+
+      - name: Shell Format Check
+        run: |
+          curl -sS https://webinstall.dev/shfmt | bash
+          export PATH="$HOME/.local/bin:$PATH"
+          shfmt -d . 

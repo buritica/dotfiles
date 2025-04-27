@@ -15,12 +15,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y shellcheck kcov
-
-      - name: Install shfmt
-        run: |
-          curl -sS https://webinstall.dev/shfmt | bash
-          export PATH="$HOME/.local/bin:$PATH"
+          sudo apt-get install -y kcov
 
       - name: Install BATS and helpers
         run: |
@@ -30,16 +25,6 @@ jobs:
           cd ..
           git clone https://github.com/bats-core/bats-support.git test/test_helper/bats-support
           git clone https://github.com/bats-core/bats-assert.git test/test_helper/bats-assert
-
-      - name: ShellCheck
-        run: |
-          shellcheck setup.sh
-          shellcheck test.sh
-          shellcheck run-tests.sh
-
-      - name: Shell Format Check
-        run: |
-          shfmt -d .
 
       - name: YAML Lint
         uses: ibiqlik/action-yamllint@v3
@@ -84,32 +69,8 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
 
-  security:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          ignore-unfixed: true
-          format: 'table'
-          exit-code: '1'
-          severity: 'CRITICAL,HIGH'
-
-      - name: Run tfsec
-        uses: aquasecurity/tfsec-action@v1.0.0
-
-      - name: Run Checkov
-        uses: bridgecrewio/checkov-action@master
-        with:
-          directory: .
-          framework: all
-
   release:
-    needs: [test, security]
+    needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
