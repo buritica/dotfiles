@@ -11,21 +11,21 @@ NC='\033[0m' # No Color
 
 # Function to print status messages
 print_status() {
-    echo -e "${GREEN}==>${NC} $1"
+    echo -e "${GREEN}==>${NC} ${1}"
 }
 
 # Function to print error messages
 print_error() {
-    echo -e "${RED}Error:${NC} $1"
+    echo -e "${RED}Error:${NC} ${1}"
 }
 
 # Function to print warning messages
 print_warning() {
-    echo -e "${YELLOW}Warning:${NC} $1"
+    echo -e "${YELLOW}Warning:${NC} ${1}"
 }
 
 # Check if running on macOS or in CI environment
-if [[ "$OSTYPE" != "darwin"* ]] && [[ -z "$CI" ]]; then
+if [[ "${OSTYPE}" != "darwin"* ]] && [[ -z "${CI}" ]]; then
     print_error "This script is only for macOS"
     exit 1
 fi
@@ -33,14 +33,14 @@ fi
 print_status "Starting setup..."
 
 # Skip macOS-specific steps in CI
-if [[ -n "$CI" ]]; then
+if [[ -n "${CI}" ]]; then
     print_status "Running in CI environment, skipping macOS-specific steps..."
     
     # Initialize and apply dotfiles
     print_status "Setting up dotfiles..."
-    if [ ! -d "$HOME/.local/share/chezmoi" ]; then
+    if [ ! -d "${HOME}/.local/share/chezmoi" ]; then
         print_status "Using local repository..."
-        chezmoi init --apply --prompt=false "$(dirname "$0")"
+        chezmoi init --apply --prompt=false "$(dirname "${0}")"
     else
         print_warning "Dotfiles already initialized. Run 'chezmoi update' to update them."
     fi
@@ -65,10 +65,10 @@ if ! command -v brew &>/dev/null; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     # Add Homebrew to PATH
     if [[ "$(uname -m)" == "arm64" ]]; then
-        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "${HOME}/.zprofile"
         eval "$(/opt/homebrew/bin/brew shellenv)"
     else
-        echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zprofile
+        echo 'eval "$(/usr/local/bin/brew shellenv)"' >> "${HOME}/.zprofile"
         eval "$(/usr/local/bin/brew shellenv)"
     fi
 else
@@ -76,7 +76,7 @@ else
 fi
 
 # Install Rosetta 2 on Apple Silicon if needed
-if [[ $(uname -m) == 'arm64' ]]; then
+if [[ "$(uname -m)" == 'arm64' ]]; then
     print_status "Checking for Rosetta 2..."
     if ! /usr/bin/pgrep -q oahd; then
         print_status "Installing Rosetta 2..."
@@ -96,10 +96,10 @@ fi
 
 # Install Homebrew packages (including Oh My Zsh)
 print_status "Installing packages from Brewfile..."
-if [ -f "$HOME/.my/.Brewfile" ]; then
-    brew bundle install --file="$HOME/.my/.Brewfile"
+if [ -f "${HOME}/.my/.Brewfile" ]; then
+    brew bundle install --file="${HOME}/.my/.Brewfile"
 else
-    print_error "Brewfile not found at $HOME/.my/.Brewfile"
+    print_error "Brewfile not found at ${HOME}/.my/.Brewfile"
     exit 1
 fi
 
@@ -113,11 +113,11 @@ fi
 
 # Initialize and apply dotfiles
 print_status "Setting up dotfiles..."
-if [ ! -d "$HOME/.local/share/chezmoi" ]; then
+if [ ! -d "${HOME}/.local/share/chezmoi" ]; then
     # Check if we're running from a local repository
-    if [ -d "$(dirname "$0")/.git" ]; then
+    if [ -d "$(dirname "${0}")/.git" ]; then
         print_status "Using local repository..."
-        chezmoi init --apply "$(dirname "$0")"
+        chezmoi init --apply "$(dirname "${0}")"
     else
         print_status "Using remote repository..."
         chezmoi init --apply "https://github.com/buritica/dotfiles.git"
@@ -128,17 +128,17 @@ fi
 
 # Run macOS settings script
 print_status "Applying macOS settings..."
-if [ -f "$HOME/.my/.macos" ]; then
+if [ -f "${HOME}/.my/.macos" ]; then
     # Check if macOS settings have already been run
-    if [ ! -f "$HOME/.local/share/chezmoi/.macos_configured" ]; then
+    if [ ! -f "${HOME}/.local/share/chezmoi/.macos_configured" ]; then
         print_status "Running macOS settings for the first time..."
-        chmod +x "$HOME/.my/.macos"
-        "$HOME/.my/.macos"
+        chmod +x "${HOME}/.my/.macos"
+        "${HOME}/.my/.macos"
         # Create flag file to indicate settings have been run
-        touch "$HOME/.local/share/chezmoi/.macos_configured"
+        touch "${HOME}/.local/share/chezmoi/.macos_configured"
     else
         print_status "macOS settings have already been configured. Skipping..."
-        print_status "To run settings again, remove $HOME/.local/share/chezmoi/.macos_configured"
+        print_status "To run settings again, remove ${HOME}/.local/share/chezmoi/.macos_configured"
     fi
 else
     print_warning "macOS settings script not found. Make sure dotfiles are properly installed."
