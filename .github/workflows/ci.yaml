@@ -5,17 +5,34 @@ on:
   pull_request:
 
 jobs:
-  clone-and-install:
+  test:
     runs-on: ubuntu-latest
-    container:
-      image: mcr.microsoft.com/vscode/devcontainers/base:ubuntu
-      env:
-        CODESPACES: true
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        
+      - name: Build and run tests
+        run: |
+          # Build the test container
+          docker build -t dotfiles-test .
+          
+          # Run tests in container
+          docker run --rm dotfiles-test
+          
+      - name: Install chezmoi
+        run: |
+          # Install chezmoi
+          sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /tmp/chezmoi
+          echo "/tmp/chezmoi" >> $GITHUB_PATH
+          
       - name: Run setup script
-        run: ./setup.sh
-      - name: Run tests
-        run: ./test.sh
+        run: |
+          # Set CI environment variable
+          export CI=true
+          ./setup.sh
+          
       - name: Verify chezmoi data
-        run: '"$HOME/.local/bin/chezmoi" data'
+        run: |
+          chezmoi data
