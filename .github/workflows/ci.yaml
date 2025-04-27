@@ -13,6 +13,9 @@ jobs:
         CODESPACES: true
     steps:
       - uses: actions/checkout@v2
-      - run: ./install.sh
-      - name: chezmoi data
+      - name: Run setup script
+        run: ./setup.sh
+      - name: Run tests
+        run: ./test.sh
+      - name: Verify chezmoi data
         run: '"$HOME/.local/bin/chezmoi" data'
