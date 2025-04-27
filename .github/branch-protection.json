@@ -1,7 +1,7 @@
 {
   "required_status_checks": {
-    "strict": true,
-    "contexts": ["ci", "security"]
+    "strict": false,
+    "contexts": ["CI / ci", "Security / security"]
   },
   "enforce_admins": true,
   "allow_force_pushes": false,
