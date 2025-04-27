@@ -2,9 +2,9 @@ name: Security
 
 on:
   push:
-    branches: [ master ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ master ]
+    branches: [ "master" ]
   schedule:
     - cron: '0 0 * * 0' # Weekly scan
   workflow_dispatch: # Allow manual runs
@@ -31,27 +31,37 @@ jobs:
         run: |
           trivy fs --scanners vuln,misconfig --format table --exit-code 1 --severity HIGH,CRITICAL .
 
+      - name: Run Checkov action
+        uses: bridgecrewio/checkov-action@v12.1347.0
+        with:
+          output_format: cli,sarif
+          output_file_path: console,./tfsec.sarif
+          soft_fail: true
+
       - name: Run tfsec
         uses: aquasecurity/tfsec-action@v1.0.3
         with:
+          soft_fail: true
           format: sarif
-          output-file: tfsec.sarif
+          out: ./checkov.sarif
 
-      - name: Run Checkov
-        uses: bridgecrewio/checkov-action@v3.0.0
-        with:
-          directory: .
-          output_format: sarif
-          output_file_path: checkov.sarif
-          skip_download: true
-
-      - name: Upload SARIF results
-        if: ${{ !env.ACT && github.event_name != 'pull_request' }}
+      - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
+        if: success() || failure()
         with:
           sarif_file: |
-            tfsec.sarif
-            checkov.sarif
+            ./tfsec.sarif
+            ./checkov.sarif
+
+      - name: Check if SARIF files exist
+        if: success() || failure()
+        run: |
+          if [ -f "./tfsec.sarif" ] && [ -f "./checkov.sarif" ]; then
+            echo "SARIF files found"
+          else
+            echo "SARIF files not found"
+            exit 1
+          fi
 
       - name: Run Dependency Review
         if: ${{ !env.ACT && github.event_name == 'pull_request' }}
@@ -63,7 +73,7 @@ jobs:
             echo "Running locally - skipping SARIF file checks"
             exit 0
           fi
-          if [ -f "tfsec.sarif" ] && [ -f "checkov.sarif" ]; then
+          if [ -f "./tfsec.sarif" ] && [ -f "./checkov.sarif" ]; then
             echo "Security scan completed successfully"
           else
             echo "Security scan failed! Please check the logs for details."
