@@ -1,0 +1,13 @@
+{
+  "required_status_checks": {
+    "strict": true,
+    "contexts": ["ci", "security"]
+  },
+  "enforce_admins": true,
+  "allow_force_pushes": false,
+  "allow_deletions": false,
+  "required_conversation_resolution": true,
+  "allow_direct_pushes": false,
+  "required_pull_request_reviews": null,
+  "restrictions": null
+} 
