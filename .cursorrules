@@ -1,0 +1,94 @@
+# Repository Conventions and Rules
+
+For complete documentation, please refer to:
+- [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines
+- [README.md](README.md) for project overview and release process
+
+## Critical Conventions
+
+### Version Control
+- Branch names must use prefixes: `feature/`, `fix/`, `docs/`, `chore/`
+- Direct commits to master are not allowed
+- All changes require pull requests
+
+### Pull Requests
+- Must have version label:
+  - `version/major` for breaking changes
+  - `version/patch` for backward-compatible bug fixes
+  - No label defaults to minor version bump
+- Titles must follow conventional commits format (`fix:`, `feat:`, `docs:`, `chore:`)
+
+### File Standards
+- GitHub Actions: use `.yml` extension (not `.yaml`)
+- Templates: use `.tmpl` extension
+- All names should be lowercase with hyphens for spaces
+
+### Workflow Jobs
+- Must use lowercase names (e.g., `ci`, `security`)
+- Security runs weekly + on PRs
+- CI runs on PRs + master push
+- Release runs on master merge only
+
+### Documentation
+- README badges must be lowercase and verified
+- Keep CONTRIBUTING.md as source of truth for processes
+- Update docs when changing automated processes
+
+## Branch Naming
+- Use descriptive branch names with prefixes:
+  - `feature/` for new features
+  - `fix/` for bug fixes
+  - `docs/` for documentation updates
+  - `chore/` for maintenance tasks
+
+## Pull Requests
+- All conversations must be resolved before merging
+- Fill in the PR template with details about changes
+
+## File Extensions
+- GitHub Actions workflow files must use `.yml` extension (not `.yaml`)
+- Template files should use `.tmpl` extension
+
+## Naming Conventions
+- Workflow job names should be lowercase (e.g., `ci`, `security`)
+- Badge names in README should be lowercase
+- File names should be lowercase with hyphens for spaces
+
+## GitHub Actions
+- Security workflow runs:
+  - Weekly on Sundays at midnight
+  - On pull requests
+  - Results uploaded as SARIF format
+  - Uses tfsec and Checkov for scanning
+- CI workflow runs:
+  - On pull requests
+  - On push to master
+- Release job runs:
+  - Only on merge to master
+  - After successful CI checks
+  - Creates semantic version tag (e.g., v1.0.0)
+  - Generates changelog from commit messages
+
+## Branch Protection
+- All CI checks must pass before merging
+- Force pushes are not allowed
+- Fork syncing is allowed
+- Branch deletion is not allowed
+- Branch is not locked
+
+## Documentation
+- Keep CONTRIBUTING.md up to date with process changes
+- README badges should be standardized and verified
+- Document all automated processes (like releases)
+- Update documentation when making changes
+
+## Commits
+- Use conventional commit messages
+- Keep commits focused and atomic
+- Include context in commit messages when needed
+- Test changes thoroughly before committing
+
+## Getting Help
+- Open an issue in the repository
+- Check existing issues for similar questions
+- Review repository documentation 
