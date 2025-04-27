@@ -92,7 +92,7 @@ if [ "$IS_DOCKER" = false ]; then
 fi
 
 # Test 7: Check for sensitive data
-run_test "no AWS keys" "! grep -r 'AKIA' ."
+run_test "no AWS keys" "! grep -r 'AKIA' . --exclude='test.sh'"
 run_test "no private keys" "! find . -name '*.pem' -o -name 'id_rsa'"
 run_test "no tokens" "! grep -r 'ghp_' ."
 
