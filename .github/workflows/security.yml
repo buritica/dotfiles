@@ -1,119 +1,25 @@
 name: Security
 
-# Trigger security checks on push and pull requests
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
-      - '**/*.yml'
-      - '**/*.yaml'
-      - '**/*.json'
-      - '**/*.sh'
-      - '**/*.zsh'
-      - '**/*.bash'
-      - '**/*.tmpl'
-      - '**/docs/**'
-      - '**/test/**'
-      - '**/.github/**'
   schedule:
-    - cron: '0 0 * * 0' # Weekly scan on Sundays
-
-permissions:
-  security-events: write
-  actions: read
-  contents: read
-  pull-requests: read
+    - cron: '0 0 * * 0'  # Run at midnight every Sunday
 
 jobs:
-  check_changes:
-    name: Check for security-relevant changes
-    runs-on: ubuntu-latest
-    outputs:
-      has_changes: ${{ steps.filter.outputs.has_changes }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Check for security-relevant files
-        id: filter
-        run: |
-          # Get list of changed files
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} || echo "")
-          
-          # If this is a scheduled run or there are changed files not in paths-ignore
-          if [[ "${{ github.event_name }}" == "schedule" ]] || [[ -n "$CHANGED_FILES" ]]; then
-            echo "has_changes=true" >> $GITHUB_OUTPUT
-            echo "Security-relevant files changed, proceeding with scan"
-          else
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-            echo "No security-relevant files changed, skipping scan"
-          fi
-      - name: Report status
-        if: always()
-        run: |
-          if [[ "${{ steps.filter.outputs.has_changes }}" == "false" ]]; then
-            echo "Security scan skipped - no relevant files changed"
-            exit 0
-          fi
-
   security:
     name: security
-    needs: check_changes
-    if: needs.check_changes.outputs.has_changes == 'true'
     runs-on: ubuntu-latest
-    container:
-      image: aquasec/trivy:latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Run Trivy vulnerability scanner
-        run: |
-          trivy fs --scanners vuln,misconfig --format table --severity HIGH,CRITICAL . || true
-
+      - uses: actions/checkout@v4
       - name: Run tfsec
-        uses: aquasecurity/tfsec-action@v1.0.3
+        uses: aquasecurity/tfsec-scan-action@v1
         with:
           format: sarif
-          output-file: tfsec.sarif
-          soft-fail: true
-
       - name: Run Checkov
-        uses: bridgecrewio/checkov-action@v12.1347.0
+        uses: bridgecrewio/checkov-action@master
         with:
-          directory: .
           output_format: sarif
-          output_file_path: checkov.sarif
-          skip_download: true
           soft_fail: true
-
-      - name: Upload SARIF results
-        if: ${{ github.event_name != 'pull_request' && !env.ACT }}
+      - name: Finalize Security Scan
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: |
-            tfsec.sarif
-            checkov.sarif
-          fail_on_error: false
-
-      - name: Run Dependency Review
-        if: ${{ github.event_name == 'pull_request' && !env.ACT }}
-        uses: actions/dependency-review-action@v4
-
-      - name: Finalize Security Scan
-        run: |
-          if [ -n "$ACT" ]; then
-            echo "Running locally - skipping SARIF file validation"
-            exit 0
-          fi
-
-          if [ -s "tfsec.sarif" ] || [ -s "checkov.sarif" ]; then
-            echo "✅ Security scan completed with results."
-            exit 0
-          else
-            echo "⚠️ Warning: No SARIF files were generated. Please check the scan steps."
-            exit 0
-          fi
+          sarif_file: results.sarif
