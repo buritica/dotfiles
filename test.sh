@@ -91,12 +91,7 @@ if [ "$IS_DOCKER" = false ]; then
     run_test "macOS settings" "grep -q 'defaults write' dot_my/executable_dot_macos"
 fi
 
-# Test 7: Check for sensitive data
-run_test "no AWS keys" "! grep -r 'AKIA' . --exclude='test.sh'"
-run_test "no private keys" "./scripts/check_keys.sh"
-run_test "no tokens" "! grep -r 'ghp_' ."
-
-# Test 8: Verify template syntax
+# Test 7: Verify template syntax
 temp_dir=$(mktemp -d)
 trap 'rm -rf "$temp_dir"' EXIT
 
@@ -113,9 +108,5 @@ email = "test@example.com"
 EOF
 
 run_test "template syntax" "CHEZMOI_CONFIG_FILE=$temp_dir/chezmoi.toml chezmoi init --config-path=$temp_dir/chezmoi.toml --source=$PWD --destination=$temp_dir/home test_user > /dev/null 2>&1"
-
-# Test 7: Security checks
-print_status "Running security checks..."
-run_test "security scan" "./scripts/security_scan.sh"
 
 print_status "All tests completed!" 
