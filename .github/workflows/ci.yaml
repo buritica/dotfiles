@@ -11,8 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Install kcov
         run: |
@@ -29,10 +27,13 @@ jobs:
 
       - name: Install BATS and helpers
         run: |
+          # Install BATS core
           git clone https://github.com/bats-core/bats-core.git
           cd bats-core
           ./install.sh $HOME/.local
           cd ..
+
+          # Install BATS helpers
           mkdir -p test/test_helper
           git clone https://github.com/bats-core/bats-support.git test/test_helper/bats-support
           git clone https://github.com/bats-core/bats-assert.git test/test_helper/bats-assert
