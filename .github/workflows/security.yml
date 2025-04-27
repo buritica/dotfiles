@@ -4,22 +4,24 @@ on:
   schedule:
     - cron: '0 0 * * 0'  # Run at midnight every Sunday
 
+permissions:
+  security-events: write  # Required for uploading security results
+  contents: read
+  actions: read
+
 jobs:
   security:
     name: security
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run tfsec
-        uses: aquasecurity/tfsec-scan-action@v1
+      
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
         with:
-          format: sarif
-      - name: Run Checkov
-        uses: bridgecrewio/checkov-action@master
+          languages: javascript, python  # Adjust based on your repository languages
+      
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
         with:
-          output_format: sarif
-          soft_fail: true
-      - name: Finalize Security Scan
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: results.sarif
+          category: "/language:javascript"  # Adjust based on your repository languages
