@@ -42,7 +42,7 @@ if [[ -n "${CI}" ]]; then
         print_status "Using local repository..."
         chezmoi init --apply --prompt=false "$(dirname "${0}")"
     else
-        print_warning "Dotfiles already initialized. Run 'chezmoi update' to update them."
+        print_warning "Dotfiles already initialized. Run chezmoi update to update them."
     fi
     exit 0
 fi
@@ -65,10 +65,10 @@ if ! command -v brew &>/dev/null; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     # Add Homebrew to PATH
     if [[ "$(uname -m)" == "arm64" ]]; then
-        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "${HOME}/.zprofile"
+        echo "eval \"$(/opt/homebrew/bin/brew shellenv)\"" >> "${HOME}/.zprofile"
         eval "$(/opt/homebrew/bin/brew shellenv)"
     else
-        echo 'eval "$(/usr/local/bin/brew shellenv)"' >> "${HOME}/.zprofile"
+        echo "eval \"$(/usr/local/bin/brew shellenv)\"" >> "${HOME}/.zprofile"
         eval "$(/usr/local/bin/brew shellenv)"
     fi
 else
@@ -76,7 +76,7 @@ else
 fi
 
 # Install Rosetta 2 on Apple Silicon if needed
-if [[ "$(uname -m)" == 'arm64' ]]; then
+if [[ "$(uname -m)" == "arm64" ]]; then
     print_status "Checking for Rosetta 2..."
     if ! /usr/bin/pgrep -q oahd; then
         print_status "Installing Rosetta 2..."
@@ -123,7 +123,7 @@ if [ ! -d "${HOME}/.local/share/chezmoi" ]; then
         chezmoi init --apply "https://github.com/buritica/dotfiles.git"
     fi
 else
-    print_warning "Dotfiles already initialized. Run 'chezmoi update' to update them."
+    print_warning "Dotfiles already initialized. Run chezmoi update to update them."
 fi
 
 # Run macOS settings script
