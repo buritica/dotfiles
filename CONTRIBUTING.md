@@ -38,6 +38,10 @@ Thank you for your interest in contributing to this repository! This document ou
    - Click "New Pull Request"
    - Select your branch from your fork
    - Fill in the PR template with details about your changes
+   - Add appropriate version label if needed:
+     - `version/patch` for backward-compatible bug fixes
+     - `version/major` for breaking changes
+     - No label for minor changes (default)
    - Wait for CI checks to pass
    - Address any feedback or requested changes
 
@@ -51,6 +55,14 @@ Thank you for your interest in contributing to this repository! This document ou
   - `fix/` for bug fixes
   - `docs/` for documentation updates
   - `chore/` for maintenance tasks
+- **Version Labels**: 
+  - Default version bump is minor
+  - Use `version/patch` label for backward-compatible bug fixes
+  - Use `version/major` label for breaking changes
+- **Auto-Releasing**: 
+  - Releases are automatically created on merge to master
+  - Version is determined by PR labels
+  - If no version label is present, defaults to minor version bump
 
 ## Branch Protection Rules
 
