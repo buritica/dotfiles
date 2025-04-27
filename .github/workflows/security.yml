@@ -1,5 +1,6 @@
 name: Security
 
+# Trigger security checks on push and pull requests
 on:
   push:
     branches: [ master ]
