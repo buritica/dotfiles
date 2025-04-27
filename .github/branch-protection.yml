@@ -1,19 +1,28 @@
+# Branch protection rules for the repository
+# This configuration is used to protect important branches from direct pushes
+# and ensure proper review and testing processes are followed.
+
 rules:
   - name: "master"
     pattern: "master"
+    
+    # Status checks that must pass before merging
     required_status_checks:
-      strict: true
+      strict: true  # Require branches to be up to date
       contexts:
-        - "ci"
-        - "security"
+        - "ci"      # Continuous Integration checks
+        - "security" # Security scanning checks
+    
+    # Pull request review requirements
     required_pull_request_reviews:
-      required_approving_review_count: 1
-      dismiss_stale_reviews: true
-      require_code_owner_reviews: false
-    required_signatures: false
-    enforce_admins: true
-    allow_force_pushes: false
-    allow_deletions: false
-    required_conversation_resolution: true
-    # Prevent direct pushes to master
-    allow_direct_pushes: false 
+      required_approving_review_count: 1  # At least one approval required
+      dismiss_stale_reviews: true         # Dismiss reviews when new commits are pushed
+      require_code_owner_reviews: false   # Don't require reviews from code owners
+    
+    # Additional protection settings
+    required_signatures: false            # Don't require signed commits
+    enforce_admins: true                  # Apply rules to administrators
+    allow_force_pushes: false             # Prevent force pushes
+    allow_deletions: false                # Prevent branch deletion
+    required_conversation_resolution: true # Require all conversations to be resolved
+    allow_direct_pushes: false            # Prevent direct pushes to master 
