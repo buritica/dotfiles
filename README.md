@@ -72,6 +72,23 @@ The `setup.sh` script:
 5. Configures macOS system settings
 6. Sets up development environment
 
+## Release Process
+
+This repository uses an automated release process through GitHub Actions. When changes are merged to the master branch:
+
+1. Tests are run to ensure stability
+2. A new version is automatically determined based on PR labels:
+   - `version/major`: Bumps the major version (e.g., 1.0.0 → 2.0.0)
+   - `version/patch`: Bumps the patch version (e.g., 1.0.0 → 1.0.1)
+   - No label: Bumps the minor version (e.g., 1.0.0 → 1.1.0)
+3. A changelog is automatically generated from commit messages
+4. A new GitHub release is created with:
+   - Semantic version tag (e.g., v1.0.0)
+   - Release notes from the changelog
+   - Associated commit history
+
+To trigger a specific version bump, simply add the appropriate label to your pull request before merging.
+
 ## License
 
 MIT
