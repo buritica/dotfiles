@@ -31,7 +31,7 @@ jobs:
         uses: github/codeql-action/analyze@v2
 
       - name: Run Secret Scanning
-        uses: github/secret-scanning-action@v1
+        uses: github/codeql-action/secret-scanning@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -39,4 +39,4 @@ jobs:
         uses: actions/dependency-review-action@v3
 
       - name: Run Security Alerts
-        uses: github/security-alerts@v1 
+        uses: github/codeql-action/security-alerts@v2 
