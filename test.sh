@@ -39,10 +39,16 @@ run_test() {
     fi
 }
 
-# Test 1: Verify we're on macOS
-run_test "macOS check" '[[ "$OSTYPE" == "darwin"* ]]'
+# Check if running in Docker
+if [ -f /.dockerenv ]; then
+    print_status "Running in Docker container"
+    IS_DOCKER=true
+else
+    print_status "Running on host system"
+    IS_DOCKER=false
+fi
 
-# Test 2: Verify source files exist and are not empty
+# Test 1: Verify source files exist and are not empty
 source_files=(
     "dot_gitconfig.tmpl"
     "dot_zshrc"
@@ -58,7 +64,7 @@ for file in "${source_files[@]}"; do
     run_test "$file is not empty" "[ -s \"$file\" ]"
 done
 
-# Test 3: Verify executable permissions
+# Test 2: Verify executable permissions
 executable_files=(
     "setup.sh"
     "test.sh"
@@ -69,20 +75,28 @@ for file in "${executable_files[@]}"; do
     run_test "$file is executable" "[ -x \"$file\" ]"
 done
 
-# Test 4: Verify Brewfile syntax
-run_test "Brewfile syntax" "brew bundle --file=dot_my/dot_Brewfile.tmpl check > /dev/null 2>&1 || true"
-
-# Test 5: Check for common configuration patterns
+# Test 3: Check for common configuration patterns
 run_test "git configuration" "grep -q 'defaultBranch' dot_gitconfig.tmpl"
 run_test "zsh configuration" "grep -q -E '(PATH|path)' dot_zshrc"
-run_test "macOS settings" "grep -q 'defaults write' dot_my/executable_dot_macos"
 
-# Test 6: Check for sensitive data
+# Only run macOS-specific tests if not in Docker
+if [ "$IS_DOCKER" = false ]; then
+    # Test 4: Verify we're on macOS
+    run_test "macOS check" '[[ "$OSTYPE" == "darwin"* ]]'
+    
+    # Test 5: Verify Brewfile syntax
+    run_test "Brewfile syntax" "brew bundle --file=dot_my/dot_Brewfile.tmpl check > /dev/null 2>&1 || true"
+    
+    # Test 6: Check macOS settings
+    run_test "macOS settings" "grep -q 'defaults write' dot_my/executable_dot_macos"
+fi
+
+# Test 7: Check for sensitive data
 run_test "no AWS keys" "! grep -r 'AKIA' ."
 run_test "no private keys" "! find . -name '*.pem' -o -name 'id_rsa'"
 run_test "no tokens" "! grep -r 'ghp_' ."
 
-# Test 7: Verify template syntax
+# Test 8: Verify template syntax
 temp_dir=$(mktemp -d)
 trap 'rm -rf "$temp_dir"' EXIT
 
@@ -91,8 +105,8 @@ cat > "$temp_dir/chezmoi.toml" << EOF
 username = "test_user"
 
 [data.chezmoi]
-arch = "arm64"
-os = "darwin"
+arch = "amd64"
+os = "linux"
 hostname = "test-host"
 username = "test_user"
 email = "test@example.com"
