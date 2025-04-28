@@ -86,10 +86,12 @@ jobs:
           PR_NUMBER=${{ steps.pr_info.outputs.pr_number }}
           DATE=$(date +"%Y-%m-%d")
 
-          echo -e "## v$NEW_VERSION - $DATE\n\n- $PR_TITLE (#$PR_NUMBER)\n" > temp_changelog
+          printf "## v%s - %s\n\n- %s (#%s)\n" "$NEW_VERSION" "$DATE" "$PR_TITLE" "$PR_NUMBER" > temp_changelog
+
           if [ -f CHANGELOG.md ]; then
             cat CHANGELOG.md >> temp_changelog
           fi
+
           mv temp_changelog CHANGELOG.md
 
       - name: Create Release
