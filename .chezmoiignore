@@ -3,14 +3,16 @@ LICENSE
 README.md
 CONTRIBUTING.md
 .cursorrules
+CHANGELOG.md
 
 # GitHub specific
 .github/
 pr_body.md
 
 # Build and temp files
-.macos_configured
 setup.sh
+test.sh
+.yamllint
 
 # OS generated files
 .DS_Store
@@ -23,4 +25,3 @@ Thumbs.db
 
 # Git files
 .gitignore
-.gitmodules
