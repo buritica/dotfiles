@@ -1,8 +1,14 @@
-{{- $codespaces:= env "CODESPACES" | not | not -}}
-{{- $ci:= env "CI" | not | not -}}
+{{- $codespaces := env "CODESPACES" | not | not -}}
+{{- $ci := env "CI" | not | not -}}
+
+encryption = "age"
+[age]
+  identity = "~/.chez.txt"
+  recipient = "age1n4nhw67j8ds89gavcf7s8d9ty2ceu7z8g93d3f3r3rg57er9lqfq8cttyp"
+
 sourceDir = "{{ .chezmoi.sourceDir }}"
 
 [data]
   name = "Juan Pablo Buritica"
-  codespaces = {{ $codespaces }}
+  codespaces = {{ env "CODESPACES" | not | not }}
   email = "buritica@gmail.com"
