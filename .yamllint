@@ -4,6 +4,3 @@ rules:
   line-length:
     max: 80
     level: warning
-
-ignore: |
-  bats-core/ 
