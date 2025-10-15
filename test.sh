@@ -192,4 +192,17 @@ run_test "Check for deprecated hub CLI" '
     return 0
 '
 
+# Test 11: Check for essential config files
+run_test "Check for essential config files" '
+    if [ ! -f ".gitattributes" ]; then
+        echo "Missing .gitattributes file"
+        return 1
+    fi
+    if [ ! -f ".editorconfig" ]; then
+        echo "Missing .editorconfig file"
+        return 1
+    fi
+    return 0
+'
+
 print_status "All tests completed successfully!" 
