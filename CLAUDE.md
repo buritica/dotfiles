@@ -115,8 +115,8 @@ See `.chezmoiignore` for full list. Key items:
 ## CI/CD
 
 ### Workflows
-- **ci** (`.github/workflows/ci.yml`): Runs `test.sh` on PRs
-- **security** (`.github/workflows/security.yml`): Weekly scans + PR checks (tfsec, Checkov)
+- **ci** (`.github/workflows/ci.yml`): Runs ShellCheck and `test.sh` on PRs
+- **security** (`.github/workflows/security.yml`): Weekly scans + PR checks (ShellCheck, Trivy)
 - **release**: Auto-creates semantic version tags on merge to master based on PR labels
 
 ### Branch Protection
@@ -135,6 +135,11 @@ The `test.sh` script validates:
 4. Shell script syntax (bash -n)
 5. macOS-specific files (skipped in CI)
 6. Template syntax (validates Go template structure)
+7. Python 3 compatibility (no Python 2 code)
+8. Dangerous git operations (with proper warnings)
+9. Modern git configuration (no deprecated options)
+10. No deprecated hub CLI usage
+11. Essential config files exist (.gitattributes, .editorconfig)
 
 ## Important Files
 
@@ -143,3 +148,21 @@ The `test.sh` script validates:
 - `~/.my/.{exports,aliases,functions}`: Custom shell configuration
 - `~/.chez.txt`: Age encryption private key (REQUIRED, not in repo)
 - `.chezmoiignore`: Files excluded from home directory deployment
+- `.gitattributes`: Line ending normalization and binary file handling
+- `.editorconfig`: Consistent editor settings across team
+
+## Shell Function Notes
+
+### Safe Git Operations
+- **fixit**: Legacy alias with force push warning (use `fixup` instead)
+- **fixup()**: Safer alternative using `--force-with-lease` instead of `-f`
+
+### Python 3 Only
+All shell functions use Python 3:
+- `urlencode`: Uses `urllib.parse` (Python 3)
+- `server()`: Uses `http.server` module (Python 3)
+- `json()`: Explicitly calls `python3`
+
+### Git Config Features
+- `fetch.prune = true`: Auto-cleanup stale remote branches
+- `rerere.enabled = true`: Remember conflict resolutions
