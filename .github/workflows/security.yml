@@ -3,6 +3,8 @@ name: security
 on:
   schedule:
     - cron: '0 0 * * 0'  # Run at midnight every Sunday
+  pull_request:
+    branches: [ master ]
   workflow_dispatch:  # Allow manual triggers
 
 permissions:

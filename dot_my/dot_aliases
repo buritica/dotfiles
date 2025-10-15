@@ -7,8 +7,9 @@ alias ls="ls -lahG"
 # pretty one line git log
 alias glog="git log --pretty=oneline"
 
-# fix some git shit
-alias fixit="git add . && git commit --amend --no-edit && git push -f"
+# DANGEROUS: Use fixup instead - safer alternative that doesn't force push
+# Kept for backwards compatibility but use 'fixup' for new workflows
+alias fixit="echo 'WARNING: fixit uses force push. Use fixup instead for safer workflow.' && sleep 2 && git add . && git commit --amend --no-edit && git push -f"
 
 # clean current npm directory
 alias npm-clean="rm -rf ./node_modules && npm install"

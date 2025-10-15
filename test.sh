@@ -152,4 +152,14 @@ run_test "Check Python 3 compatibility" '
     return 0
 '
 
+# Test 8: Check for dangerous aliases
+run_test "Check for dangerous git operations" '
+    # fixit should not exist or should require confirmation
+    if grep -q "alias fixit=" dot_my/dot_aliases && ! grep -q "# DANGEROUS" dot_my/dot_aliases; then
+        echo "Found dangerous fixit alias without warning"
+        return 1
+    fi
+    return 0
+'
+
 print_status "All tests completed successfully!" 

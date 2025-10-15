@@ -125,6 +125,12 @@ function tre() {
 }
 
 
+# Safer alternative to fixit - amend and push without force
+# Uses --force-with-lease which is safer than --force
+fixup() {
+    git add . && git commit --amend --no-edit && git push --force-with-lease
+}
+
 # contains(string, substring)
 #
 # Returns 0 if the specified string contains the specified substring,
