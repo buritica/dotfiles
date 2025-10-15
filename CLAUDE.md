@@ -27,6 +27,27 @@ chezmoi add ~/.myfile       # Track a new dotfile
 chezmoi edit ~/.myfile      # Edit tracked file in source
 ```
 
+### Brewfile Management
+```bash
+brew-diff                   # Show diff between Brewfile and installed packages
+brew-installed-only         # List packages installed but not in Brewfile
+brew-missing                # List packages in Brewfile but not installed
+brew-sync                   # Interactively sync Brewfile with installed packages
+```
+
+**Workflow:**
+1. Install new package: `brew install packagename`
+2. Check what's different: `brew-diff`
+3. Decide if you want to track it in Brewfile
+4. If yes: `brew-sync` to add it (or manually edit Brewfile)
+5. Commit Brewfile changes
+
+**Philosophy:**
+- Only track essential packages you want on every machine
+- Test new tools (like ghostty, raycast) before adding to Brewfile
+- Dependencies are auto-installed, don't track them
+- Use `brew-diff` to periodically audit installed vs tracked packages
+
 ## Architecture
 
 ### Chezmoi File Structure
@@ -140,6 +161,7 @@ The `test.sh` script validates:
 9. Modern git configuration (no deprecated options)
 10. No deprecated hub CLI usage
 11. Essential config files exist (.gitattributes, .editorconfig)
+12. Brew management functions exist (brew-diff, brew-sync, etc.)
 
 ## Important Files
 
@@ -166,3 +188,11 @@ All shell functions use Python 3:
 ### Git Config Features
 - `fetch.prune = true`: Auto-cleanup stale remote branches
 - `rerere.enabled = true`: Remember conflict resolutions
+
+### Brew Management Functions
+- `brew-diff()`: Shows complete diff between Brewfile and installed packages
+- `brew-installed-only()`: Lists only packages installed but not tracked
+- `brew-missing()`: Lists only packages in Brewfile but not installed
+- `brew-sync()`: Interactive tool to sync Brewfile with installed packages
+- All functions work in both chezmoi source directory and deployed location
+- Formulas filter out dependencies (only shows explicitly installed packages)
