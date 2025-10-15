@@ -1,6 +1,10 @@
 # Temporary files
 pr_body.md
 
+# Claude Code
+.claude/
+.tool-versions
+
 # OS generated files
 .DS_Store
 .DS_Store?
