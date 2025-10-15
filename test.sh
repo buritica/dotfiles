@@ -162,4 +162,24 @@ run_test "Check for dangerous git operations" '
     return 0
 '
 
+# Test 9: Check modern git config
+run_test "Check modern git configuration" '
+    # Check for deprecated GREP_OPTIONS
+    if grep -q "GREP_OPTIONS" dot_my/dot_exports; then
+        echo "Found deprecated GREP_OPTIONS in exports"
+        return 1
+    fi
+    # Check for templated GOPATH
+    if grep -q "/Users/buritica/go" dot_my/dot_exports; then
+        echo "Found hardcoded user path in GOPATH"
+        return 1
+    fi
+    # Check for modern git features (either fetch section or rerere section)
+    if ! grep -q "\[fetch\]" dot_gitconfig.tmpl && ! grep -q "\[rerere\]" dot_gitconfig.tmpl; then
+        echo "Missing modern git config features"
+        return 1
+    fi
+    return 0
+'
+
 print_status "All tests completed successfully!" 
