@@ -205,4 +205,25 @@ run_test "Check for essential config files" '
     return 0
 '
 
+# Test 12: Check brew management functions exist
+run_test "Check brew management functions" '
+    if ! grep -q "brew-diff()" dot_my/dot_functions; then
+        echo "Missing brew-diff function"
+        return 1
+    fi
+    if ! grep -q "brew-sync()" dot_my/dot_functions; then
+        echo "Missing brew-sync function"
+        return 1
+    fi
+    if ! grep -q "brew-installed-only()" dot_my/dot_functions; then
+        echo "Missing brew-installed-only function"
+        return 1
+    fi
+    if ! grep -q "brew-missing()" dot_my/dot_functions; then
+        echo "Missing brew-missing function"
+        return 1
+    fi
+    return 0
+'
+
 print_status "All tests completed successfully!" 

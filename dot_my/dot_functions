@@ -145,3 +145,166 @@ contains() {
         return 1    # $substring is not in $string
     fi
 }
+
+# Show what's installed but not in Brewfile
+brew-installed-only() {
+    local brewfile="${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
+
+    # If in chezmoi source directory, use the template file
+    if [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
+        brewfile="dot_my/dot_Brewfile.tmpl"
+    fi
+
+    echo "📦 Formulas installed but not in Brewfile:"
+    comm -13 \
+        <(grep '^brew "' "$brewfile" | sed 's/brew "\([^"]*\)".*/\1/' | sort) \
+        <(brew list --formula | sort) | \
+        grep -v "^$(brew deps --installed --formula | sort -u | paste -sd "|" -)$" || echo "  (none)"
+
+    echo ""
+    echo "🖥️  Casks installed but not in Brewfile:"
+    comm -13 \
+        <(grep '^cask "' "$brewfile" | sed 's/cask "\([^"]*\)".*/\1/' | sort) \
+        <(brew list --cask | sort) || echo "  (none)"
+}
+
+# Show what's in Brewfile but not installed
+brew-missing() {
+    local brewfile="${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
+
+    # If in chezmoi source directory, use the template file
+    if [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
+        brewfile="dot_my/dot_Brewfile.tmpl"
+    fi
+
+    echo "📦 Formulas in Brewfile but not installed:"
+    comm -23 \
+        <(grep '^brew "' "$brewfile" | sed 's/brew "\([^"]*\)".*/\1/' | sort) \
+        <(brew list --formula | sort) || echo "  (none)"
+
+    echo ""
+    echo "🖥️  Casks in Brewfile but not installed:"
+    comm -23 \
+        <(grep '^cask "' "$brewfile" | sed 's/cask "\([^"]*\)".*/\1/' | sort) \
+        <(brew list --cask | sort) || echo "  (none)"
+}
+
+# Show diff between Brewfile and installed packages
+brew-diff() {
+    echo "=== Brewfile vs Installed Packages ==="
+    echo ""
+    brew-installed-only
+    echo ""
+    brew-missing
+}
+
+# Interactively sync Brewfile with installed packages
+brew-sync() {
+    local brewfile="${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
+    local temp_brewfile="/tmp/Brewfile.new"
+
+    # If in chezmoi source directory, use the template file
+    if [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
+        brewfile="dot_my/dot_Brewfile.tmpl"
+    fi
+
+    if [[ ! -f "$brewfile" ]]; then
+        echo "❌ Brewfile not found at $brewfile"
+        return 1
+    fi
+
+    echo "🔍 Analyzing installed packages..."
+    echo ""
+
+    # Generate current Brewfile
+    brew bundle dump --file="$temp_brewfile" --force
+
+    # Get lists of differences
+    local new_formulas=($(comm -13 \
+        <(grep '^brew "' "$brewfile" | sed 's/brew "\([^"]*\)".*/\1/' | sort) \
+        <(grep '^brew "' "$temp_brewfile" | sed 's/brew "\([^"]*\)".*/\1/' | sort)))
+
+    local new_casks=($(comm -13 \
+        <(grep '^cask "' "$brewfile" | sed 's/cask "\([^"]*\)".*/\1/' | sort) \
+        <(grep '^cask "' "$temp_brewfile" | sed 's/cask "\([^"]*\)".*/\1/' | sort)))
+
+    local removed_formulas=($(comm -23 \
+        <(grep '^brew "' "$brewfile" | sed 's/brew "\([^"]*\)".*/\1/' | sort) \
+        <(brew list --formula | sort)))
+
+    local removed_casks=($(comm -23 \
+        <(grep '^cask "' "$brewfile" | sed 's/cask "\([^"]*\)".*/\1/' | sort) \
+        <(brew list --cask | sort)))
+
+    local changes_made=false
+
+    # Show new formulas
+    if [[ ${#new_formulas[@]} -gt 0 ]]; then
+        echo "➕ New formulas installed (not in Brewfile):"
+        for formula in "${new_formulas[@]}"; do
+            echo "   - $formula"
+        done
+        echo ""
+        read -p "Add all new formulas to Brewfile? [y/N] " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            changes_made=true
+        else
+            echo "ℹ️  Skipping formulas. Run 'brew-sync' again to reconsider."
+        fi
+    fi
+
+    # Show new casks
+    if [[ ${#new_casks[@]} -gt 0 ]]; then
+        echo "➕ New casks installed (not in Brewfile):"
+        for cask in "${new_casks[@]}"; do
+            echo "   - $cask"
+        done
+        echo ""
+        read -p "Add all new casks to Brewfile? [y/N] " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            changes_made=true
+        fi
+    fi
+
+    # Show removed items
+    if [[ ${#removed_formulas[@]} -gt 0 ]] || [[ ${#removed_casks[@]} -gt 0 ]]; then
+        if [[ ${#removed_formulas[@]} -gt 0 ]]; then
+            echo "➖ Formulas in Brewfile but not installed:"
+            for formula in "${removed_formulas[@]}"; do
+                echo "   - $formula"
+            done
+        fi
+        if [[ ${#removed_casks[@]} -gt 0 ]]; then
+            echo "➖ Casks in Brewfile but not installed:"
+            for cask in "${removed_casks[@]}"; do
+                echo "   - $cask"
+            done
+        fi
+        echo ""
+        read -p "Remove uninstalled items from Brewfile? [y/N] " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            changes_made=true
+        fi
+    fi
+
+    if [[ "$changes_made" == true ]]; then
+        echo ""
+        echo "📝 Updating Brewfile..."
+        cp "$temp_brewfile" "$brewfile"
+
+        if command -v chezmoi &>/dev/null; then
+            echo "🔄 Syncing with chezmoi..."
+            chezmoi add "$brewfile"
+            echo "✅ Brewfile updated and added to chezmoi!"
+        else
+            echo "✅ Brewfile updated!"
+        fi
+    else
+        echo "✅ No changes made to Brewfile"
+    fi
+
+    rm -f "$temp_brewfile"
+}
