@@ -182,4 +182,14 @@ run_test "Check modern git configuration" '
     return 0
 '
 
+# Test 10: Check for deprecated hub usage
+run_test "Check for deprecated hub CLI" '
+    # hub is deprecated, should use gh instead
+    if grep -q "hub alias" dot_my/dot_aliases; then
+        echo "Found deprecated hub alias command"
+        return 1
+    fi
+    return 0
+'
+
 print_status "All tests completed successfully!" 

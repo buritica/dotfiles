@@ -27,11 +27,6 @@ alias blank="defaults write com.apple.dock persistent-apps -array-add '{\"tile-t
 # simple command line prompt
 alias cursor="export PS1='$ '"
 
-# alias hub to git because its better
-if hash hub 2>/dev/null; then
-  eval "$(hub alias -s)"
-fi
-
 # Empty the Trash on all mounted volumes and the main HDD
 # Also, clear Apple’s System Logs to improve shell startup speed
 alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl"
