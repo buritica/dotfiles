@@ -20,8 +20,9 @@ jobs:
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
         with:
-          scandir: './scripts'
-          severity: warning  # Report warnings and errors
+          scandir: '.'
+          severity: warning
+          ignore_paths: .git .github
           
       - name: Run Trivy Config Scanner
         uses: aquasecurity/trivy-action@master
