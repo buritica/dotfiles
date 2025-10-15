@@ -134,4 +134,22 @@ EOF
     validate_template .chezmoi.toml.tmpl
 '
 
+# Test 7: Check Python 3 compatibility
+run_test "Check Python 3 compatibility" '
+    # Check that shell functions use Python 3, not Python 2
+    if grep -q "python -c.*urllib" dot_my/dot_aliases; then
+        echo "Found Python 2 urllib in dot_aliases"
+        return 1
+    fi
+    if grep -q "SimpleHTTPServer" dot_my/dot_functions; then
+        echo "Found Python 2 SimpleHTTPServer in dot_functions"
+        return 1
+    fi
+    if grep -q "python -mjson.tool" dot_my/dot_functions; then
+        echo "Found python without version specification in dot_functions"
+        return 1
+    fi
+    return 0
+'
+
 print_status "All tests completed successfully!" 
