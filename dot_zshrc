@@ -40,17 +40,6 @@ else
     echo "Warning: Oh My Zsh not found at $ZSH/oh-my-zsh.sh"
 fi
 
-# Install external plugins if needed
-if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]; then
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
-      ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-fi
-
-if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]; then
-    git clone https://github.com/zsh-users/zsh-autosuggestions \
-      ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-fi
-
 # =============================================================================
 # Path Configuration
 # =============================================================================
@@ -99,7 +88,6 @@ unset _asdf_path
 # fzf configuration
 if command -v fzf >/dev/null 2>&1; then
     # Key bindings (Ctrl+R, Ctrl+T, Alt+C)
-    [ -f ~/.fzf.zsh ] || $(brew --prefix)/opt/fzf/install --key-bindings --completion --no-update-rc
     [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
     # Default commands

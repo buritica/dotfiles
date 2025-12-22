@@ -331,20 +331,28 @@ npm-clean() {
 
 # fzf-powered directory navigation
 fcd() {
+    if ! command -v fd &>/dev/null || ! command -v fzf &>/dev/null || ! command -v eza &>/dev/null; then
+        echo "Error: fcd requires fd, fzf, and eza to be installed"
+        return 1
+    fi
     local dir
     dir=$(fd --type d --hidden --follow --exclude .git | fzf --preview 'eza --tree --level=2 --icons {}') && cd "$dir" || return
 }
 
 # fzf-powered file editing
 fe() {
+    if ! command -v fzf &>/dev/null || ! command -v bat &>/dev/null || ! command -v code &>/dev/null; then
+        echo "Error: fe requires fzf, bat, and code to be installed"
+        return 1
+    fi
     local files
-    files=$(fzf --multi --preview 'bat --color=always --style=numbers --line-range=:500 {}') && code $files
+    files=$(fzf --multi --preview 'bat --color=always --style=numbers --line-range=:500 {}') && code "$files"
 }
 
 # fzf-powered git branch switching
 fbr() {
     local branch
-    branch=$(git branch --all | grep -v HEAD | sed 's/remotes\/origin\///' | sort -u | fzf --preview 'git log --oneline --graph --date=short --pretty="format:%C(auto)%cd %h%d %s" {}') && git checkout $(echo "$branch" | sed 's/^[ *]*//')
+    branch=$(git branch --all | grep -v HEAD | sed 's/remotes\/origin\///' | sort -u | fzf --preview 'git log --oneline --graph --date=short --pretty="format:%C(auto)%cd %h%d %s" {}') && git checkout "$(echo "$branch" | sed 's/^[ *]*//')"
 }
 
 # fzf-powered git log viewer
@@ -377,11 +385,19 @@ frg() {
 
 # GitHub CLI - PR viewer
 ghpr() {
+    if ! command -v gh &>/dev/null || ! command -v fzf &>/dev/null; then
+        echo "Error: ghpr requires gh and fzf to be installed"
+        return 1
+    fi
     gh pr list | fzf --preview 'gh pr view {1}' --preview-window=right:60% | awk '{print $1}' | xargs gh pr view --web
 }
 
 # GitHub CLI - Issue viewer
 ghissue() {
+    if ! command -v gh &>/dev/null || ! command -v fzf &>/dev/null; then
+        echo "Error: ghissue requires gh and fzf to be installed"
+        return 1
+    fi
     gh issue list | fzf --preview 'gh issue view {1}' --preview-window=right:60% | awk '{print $1}' | xargs gh issue view --web
 }
 
@@ -408,22 +424,19 @@ brew-export() {
 brew-orphans() {
     echo "🔍 Checking for orphaned packages..."
 
+    # Get all leaves (top-level packages)
     local leaves=$(brew leaves)
+
+    # Get all dependencies of leaves in one call
+    local all_deps=$(brew deps --installed --for-each $leaves 2>/dev/null | awk '{print $NF}')
+
+    # Get all installed packages
     local installed=$(brew list --formula)
 
+    # Find packages that are neither leaves nor dependencies
     for package in $installed; do
-        if ! echo "$leaves" | grep -q "^${package}$"; then
-            local is_dep=false
-            for leaf in $leaves; do
-                if brew deps "$leaf" | grep -q "^${package}$"; then
-                    is_dep=true
-                    break
-                fi
-            done
-
-            if [ "$is_dep" = false ]; then
-                echo "  $package"
-            fi
+        if ! echo "$leaves" | grep -q "^${package}$" && ! echo "$all_deps" | grep -q "^${package}$"; then
+            echo "  $package"
         fi
     done
 }

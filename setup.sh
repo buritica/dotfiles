@@ -132,6 +132,34 @@ else
     print_warning "Dotfiles already initialized. Run chezmoi update to update them."
 fi
 
+# Install Zsh plugins
+print_status "Installing Zsh plugins..."
+if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]; then
+    print_status "Installing zsh-syntax-highlighting..."
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
+      "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
+else
+    print_status "zsh-syntax-highlighting already installed"
+fi
+
+if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]; then
+    print_status "Installing zsh-autosuggestions..."
+    git clone https://github.com/zsh-users/zsh-autosuggestions \
+      "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
+else
+    print_status "zsh-autosuggestions already installed"
+fi
+
+# Install fzf keybindings
+if command -v fzf &>/dev/null; then
+    if [ ! -f "$HOME/.fzf.zsh" ]; then
+        print_status "Installing fzf keybindings..."
+        "$(brew --prefix)/opt/fzf/install" --key-bindings --completion --no-update-rc
+    else
+        print_status "fzf keybindings already installed"
+    fi
+fi
+
 # Run macOS settings script
 print_status "Applying macOS settings..."
 if [ -f "${HOME}/.my/.macos" ]; then
