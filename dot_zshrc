@@ -74,16 +74,19 @@ fi
 # Lazy asdf - defers loading until first managed command is called
 # Performance: saves ~100-200ms on shell startup
 # Note: Migrated from nodenv to asdf for unified version management
-if [ -f "/opt/homebrew/opt/asdf/libexec/asdf.sh" ]; then
+_asdf_path="${HOMEBREW_PREFIX}/opt/asdf/libexec/asdf.sh"
+if [ -f "$_asdf_path" ]; then
     _asdf_cmds=(node npm npx python python3 ruby gem rustc cargo go)
     _asdf_load() {
         unset -f $_asdf_cmds
-        . "/opt/homebrew/opt/asdf/libexec/asdf.sh"
+        . "$_asdf_path"
     }
+    # Use 'command' builtin to call the real binary after unset
     for cmd in $_asdf_cmds; do
-        eval "$cmd() { _asdf_load && $cmd \"\$@\" }"
+        eval "$cmd() { _asdf_load && command $cmd \"\$@\" }"
     done
 fi
+unset _asdf_path
 
 # =============================================================================
 # Shell Configuration
