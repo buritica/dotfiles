@@ -166,23 +166,6 @@ sudo rm /private/var/vm/sleepimage
 sudo touch /private/var/vm/sleepimage
 sudo chflags uchg /private/var/vm/sleepimage
 
-############################# Power Management ##############################
-
-# Set sleep settings (only if systemsetup is available)
-if command -v systemsetup &> /dev/null; then
-    # Set display sleep to 10 minutes
-    sudo pmset -a displaysleep 10
-    # Set system sleep to 20 minutes
-    sudo pmset -a sleep 20
-    # Set disk sleep to 30 minutes
-    sudo pmset -a disksleep 30
-fi
-
-# Disable sleep image to save disk space
-if [ -f /private/var/vm/sleepimage ]; then
-    sudo rm /private/var/vm/sleepimage
-fi
-
 ########################### Screen Settings #################################
 
 # Require password immediately after sleep or screen saver begins
