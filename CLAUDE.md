@@ -128,7 +128,7 @@ gh pr create --title "feat: add new feature" --body-file pr_body.md
 
 ### Ignored by Chezmoi
 See `.chezmoiignore` for full list. Key items:
-- Documentation files (README.md, LICENSE, CONTRIBUTING.md, etc.)
+- Documentation files (README.md, LICENSE, CONTRIBUTING.md, CLAUDE.md, CHANGELOG.md)
 - GitHub workflows and configs
 - Repository scripts (setup.sh, test.sh)
 - OS generated files
@@ -136,9 +136,8 @@ See `.chezmoiignore` for full list. Key items:
 ## CI/CD
 
 ### Workflows
-- **ci** (`.github/workflows/ci.yml`): Runs ShellCheck and `test.sh` on PRs
-- **security** (`.github/workflows/security.yml`): Weekly scans + PR checks (ShellCheck, Trivy)
-- **release**: Auto-creates semantic version tags on merge to master based on PR labels
+- **ci** (`.github/workflows/ci.yml`): Runs ShellCheck and `test.sh` on PRs (manual trigger available)
+- **security** (`.github/workflows/security.yml`): Weekly scans (Sundays at midnight) + PR checks with ShellCheck and Trivy config scanner
 
 ### Branch Protection
 Master branch requires:
@@ -188,11 +187,3 @@ All shell functions use Python 3:
 ### Git Config Features
 - `fetch.prune = true`: Auto-cleanup stale remote branches
 - `rerere.enabled = true`: Remember conflict resolutions
-
-### Brew Management Functions
-- `brew-diff()`: Shows complete diff between Brewfile and installed packages
-- `brew-installed-only()`: Lists only packages installed but not tracked
-- `brew-missing()`: Lists only packages in Brewfile but not installed
-- `brew-sync()`: Interactive tool to sync Brewfile with installed packages
-- All functions work in both chezmoi source directory and deployed location
-- Formulas filter out dependencies (only shows explicitly installed packages)
