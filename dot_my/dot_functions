@@ -383,7 +383,11 @@ ghpr() {
         echo "Error: ghpr requires gh and fzf to be installed"
         return 1
     fi
-    gh pr list | fzf --preview 'gh pr view {1}' --preview-window=right:60% | awk '{print $1}' | xargs gh pr view --web
+    local pr_number
+    pr_number=$(gh pr list | fzf --preview 'gh pr view {1}' --preview-window=right:60% | awk '{print $1}')
+    if [[ -n "$pr_number" ]]; then
+        gh pr view --web "$pr_number"
+    fi
 }
 
 # GitHub CLI - Issue viewer
@@ -392,7 +396,11 @@ ghissue() {
         echo "Error: ghissue requires gh and fzf to be installed"
         return 1
     fi
-    gh issue list | fzf --preview 'gh issue view {1}' --preview-window=right:60% | awk '{print $1}' | xargs gh issue view --web
+    local issue_number
+    issue_number=$(gh issue list | fzf --preview 'gh issue view {1}' --preview-window=right:60% | awk '{print $1}')
+    if [[ -n "$issue_number" ]]; then
+        gh issue view --web "$issue_number"
+    fi
 }
 
 # Export Brewfile from current installation
