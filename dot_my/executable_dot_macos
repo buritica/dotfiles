@@ -135,8 +135,12 @@ sudo pmset -a lidwake 1
 sudo pmset -a autorestart 1
 
 # Restart automatically if the computer freezes
-# Note: systemsetup is deprecated, using pmset (fails silently if unsupported)
-sudo pmset -a restartfreeze 1 2>/dev/null || true
+# Note: systemsetup is deprecated, using pmset instead
+if sudo pmset -a restartfreeze 1 2>/dev/null; then
+    echo "  ✓ restartfreeze enabled"
+else
+    echo "  ⚠ restartfreeze not supported on this macOS version"
+fi
 
 # Sleep the display after 15 minutes
 sudo pmset -a displaysleep 15
