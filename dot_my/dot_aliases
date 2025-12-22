@@ -12,8 +12,7 @@ alias glog="git log --pretty=oneline"
 # Kept for backwards compatibility but use 'fixup' for new workflows
 alias fixit="echo 'WARNING: fixit uses force push. Use fixup instead for safer workflow.' && sleep 2 && git add . && git commit --amend --no-edit && git push -f"
 
-# clean current npm directory
-alias npm-clean="rm -rf ./node_modules && npm install"
+# npm-clean is defined as a function in .functions (with confirmation prompt)
 
 # reload source
 alias reload="source ~/.zshrc"
@@ -56,9 +55,6 @@ alias dots="dot"
 
 # go to provision folder
 alias provision="cd ~/.my/provision"
-
-# project files
-
 
 # my todo's
 alias doing="~/.my/doing"
