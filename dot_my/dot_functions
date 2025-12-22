@@ -80,13 +80,12 @@ function fs() {
   fi;
 }
 
-# Use Git’s colored diff when available
-hash git &>/dev/null;
-if [ $? -eq 0 ]; then
+# Use Git's colored diff when available
+if command -v git &>/dev/null; then
   function diff() {
     git diff --no-index --color-words "$@";
   }
-fi;
+fi
 
 # Start an HTTP server from a directory, optionally specifying the port
 function server() {
@@ -124,7 +123,6 @@ function tre() {
   tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX;
 }
 
-
 # Safer alternative to fixit - amend and push without force
 # Uses --force-with-lease which is safer than --force
 fixup() {
@@ -138,22 +136,26 @@ fixup() {
 contains() {
     string="$1"
     substring="$2"
-    if test "${string#*$substring}" != "$string"
-    then
+    if test "${string#*$substring}" != "$string"; then
         return 0    # $substring is in $string
     else
         return 1    # $substring is not in $string
     fi
 }
 
+# Helper: Get the Brewfile path (handles chezmoi source directory)
+_get_brewfile_path() {
+    if [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
+        echo "dot_my/dot_Brewfile.tmpl"
+    else
+        echo "${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
+    fi
+}
+
 # Show what's installed but not in Brewfile
 brew-installed-only() {
-    local brewfile="${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
-
-    # If in chezmoi source directory, use the template file
-    if [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
-        brewfile="dot_my/dot_Brewfile.tmpl"
-    fi
+    local brewfile
+    brewfile=$(_get_brewfile_path)
 
     echo "📦 Formulas installed but not in Brewfile:"
     comm -13 \
@@ -170,12 +172,8 @@ brew-installed-only() {
 
 # Show what's in Brewfile but not installed
 brew-missing() {
-    local brewfile="${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
-
-    # If in chezmoi source directory, use the template file
-    if [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
-        brewfile="dot_my/dot_Brewfile.tmpl"
-    fi
+    local brewfile
+    brewfile=$(_get_brewfile_path)
 
     echo "📦 Formulas in Brewfile but not installed:"
     comm -23 \
@@ -200,13 +198,9 @@ brew-diff() {
 
 # Interactively sync Brewfile with installed packages
 brew-sync() {
-    local brewfile="${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
+    local brewfile
     local temp_brewfile="/tmp/Brewfile.new"
-
-    # If in chezmoi source directory, use the template file
-    if [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
-        brewfile="dot_my/dot_Brewfile.tmpl"
-    fi
+    brewfile=$(_get_brewfile_path)
 
     if [[ ! -f "$brewfile" ]]; then
         echo "❌ Brewfile not found at $brewfile"
@@ -307,4 +301,152 @@ brew-sync() {
     fi
 
     rm -f "$temp_brewfile"
+}
+
+# Safe process grep with modern tool
+pg() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: pg <search_term>"
+        return 1
+    fi
+    procs --or "${@}" 2>/dev/null || ps aux | grep -v grep | grep -i --color=auto "${@}"
+}
+
+# Safe npm clean with confirmation
+npm-clean() {
+    echo "This will delete node_modules and reinstall. Continue? [y/N]"
+    read -r response
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        rm -rf ./node_modules && npm install
+    else
+        echo "Cancelled"
+    fi
+}
+
+# fzf-powered directory navigation
+fcd() {
+    if ! command -v fd &>/dev/null || ! command -v fzf &>/dev/null || ! command -v eza &>/dev/null; then
+        echo "Error: fcd requires fd, fzf, and eza to be installed"
+        return 1
+    fi
+    local dir
+    dir=$(fd --type d --hidden --follow --exclude .git | fzf --preview 'eza --tree --level=2 --icons {}') && cd "$dir" || return
+}
+
+# fzf-powered file editing
+fe() {
+    if ! command -v fzf &>/dev/null || ! command -v bat &>/dev/null || ! command -v code &>/dev/null; then
+        echo "Error: fe requires fzf, bat, and code to be installed"
+        return 1
+    fi
+    local files
+    files=$(fzf --multi --preview 'bat --color=always --style=numbers --line-range=:500 {}') && code "$files"
+}
+
+# fzf-powered git branch switching
+fbr() {
+    local branch
+    branch=$(git branch --all | grep -v HEAD | sed 's/remotes\/origin\///' | sort -u | fzf --preview 'git log --oneline --graph --date=short --pretty="format:%C(auto)%cd %h%d %s" {}') && git switch "$(echo "$branch" | sed 's/^[ *]*//')"
+}
+
+# fzf-powered git log viewer
+fshow() {
+    git log --graph --color=always \
+        --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" "$@" |
+    fzf --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+        --bind "ctrl-m:execute:
+                (grep -o '[a-f0-9]\{7\}' | head -1 |
+                xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
+                {}
+FZF-EOF"
+}
+
+# fzf-powered ripgrep search
+frg() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: frg <search_term>"
+        return 1
+    fi
+
+    rg --color=always --line-number --no-heading --smart-case "${*:-}" |
+      fzf --ansi \
+          --color "hl:-1:underline,hl+:-1:underline:reverse" \
+          --delimiter : \
+          --preview 'bat --color=always {1} --highlight-line {2}' \
+          --preview-window 'up,60%,border-bottom,+{2}+3/3,~3' \
+          --bind 'enter:become(code {1}:{2})'
+}
+
+# GitHub CLI - PR viewer
+ghpr() {
+    if ! command -v gh &>/dev/null || ! command -v fzf &>/dev/null; then
+        echo "Error: ghpr requires gh and fzf to be installed"
+        return 1
+    fi
+    local pr_number
+    pr_number=$(gh pr list | fzf --preview 'gh pr view {1}' --preview-window=right:60% | awk '{print $1}')
+    if [[ -n "$pr_number" ]]; then
+        gh pr view --web "$pr_number"
+    fi
+}
+
+# GitHub CLI - Issue viewer
+ghissue() {
+    if ! command -v gh &>/dev/null || ! command -v fzf &>/dev/null; then
+        echo "Error: ghissue requires gh and fzf to be installed"
+        return 1
+    fi
+    local issue_number
+    issue_number=$(gh issue list | fzf --preview 'gh issue view {1}' --preview-window=right:60% | awk '{print $1}')
+    if [[ -n "$issue_number" ]]; then
+        gh issue view --web "$issue_number"
+    fi
+}
+
+# Export Brewfile from current installation
+brew-export() {
+    local brewfile
+    brewfile=$(_get_brewfile_path)
+
+    echo "📝 Generating Brewfile from current installation..."
+    if ! brew bundle dump --file="$brewfile" --force; then
+        echo "❌ Failed to generate Brewfile"
+        return 1
+    fi
+
+    if command -v chezmoi &>/dev/null && [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
+        echo "🔄 Syncing with chezmoi..."
+        chezmoi add "$brewfile"
+    fi
+
+    echo "✅ Brewfile exported to $brewfile"
+}
+
+# Detect orphaned packages
+brew-orphans() {
+    echo "🔍 Checking for orphaned packages..."
+
+    # Get all leaves (top-level packages)
+    local leaves=$(brew leaves)
+
+    # Get all dependencies of leaves in one call
+    local all_deps=$(brew deps --installed --for-each $leaves 2>/dev/null | awk '{print $NF}')
+
+    # Get all installed packages
+    local installed=$(brew list --formula)
+
+    # Find packages that are neither leaves nor dependencies
+    for package in $installed; do
+        if ! echo "$leaves" | grep -q "^${package}$" && ! echo "$all_deps" | grep -q "^${package}$"; then
+            echo "  $package"
+        fi
+    done
+}
+
+# Clean up brew cache
+brew-cleanup() {
+    echo "🧹 Cleaning up Homebrew..."
+    brew cleanup --prune=all
+    brew autoremove
+    echo "✅ Cleanup complete"
 }

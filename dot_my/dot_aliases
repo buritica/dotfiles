@@ -1,8 +1,9 @@
-# grep running processes
-alias pg='ps aux | grep'
-
-# better ls
-alias ls="ls -lahG"
+# better ls (now using eza)
+alias ls="eza --long --all --header --git --icons"
+alias ll="eza --long --header --git --icons"
+alias la="eza --long --all --header --git --icons"
+alias lt="eza --tree --level=2 --icons"
+alias lta="eza --tree --level=2 --all --icons"
 
 # pretty one line git log
 alias glog="git log --pretty=oneline"
@@ -11,8 +12,7 @@ alias glog="git log --pretty=oneline"
 # Kept for backwards compatibility but use 'fixup' for new workflows
 alias fixit="echo 'WARNING: fixit uses force push. Use fixup instead for safer workflow.' && sleep 2 && git add . && git commit --amend --no-edit && git push -f"
 
-# clean current npm directory
-alias npm-clean="rm -rf ./node_modules && npm install"
+# npm-clean is defined as a function in .functions (with confirmation prompt)
 
 # reload source
 alias reload="source ~/.zshrc"
@@ -26,6 +26,20 @@ alias blank="defaults write com.apple.dock persistent-apps -array-add '{\"tile-t
 
 # simple command line prompt
 alias cursor="export PS1='$ '"
+
+# Modern search tools
+alias rg="rg --smart-case --hidden --follow"
+alias rgf="rg --files-with-matches"
+alias fd="fd --hidden --follow"
+
+# Bat aliases
+alias cat="bat --paging=never"
+alias catp="bat"
+alias bathelp="bat --plain --language=help"
+
+# Terminal guide
+alias termguide="bat ~/.my/TERMINAL_GUIDE.md"
+alias tg="termguide"
 
 # Empty the Trash on all mounted volumes and the main HDD
 # Also, clear Apple’s System Logs to improve shell startup speed
@@ -41,9 +55,6 @@ alias dots="dot"
 
 # go to provision folder
 alias provision="cd ~/.my/provision"
-
-# project files
-
 
 # my todo's
 alias doing="~/.my/doing"
@@ -65,7 +76,7 @@ alias ehosts="e /etc/hosts"
 alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; npm install npm -g; npm update -g; sudo gem update --system; sudo gem update'
 
 # IP addresses
-alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+alias ip="curl -s ifconfig.me"
 alias localip="ipconfig getifaddr en0"
 alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
 
@@ -106,11 +117,6 @@ alias badge="tput bel"
 # For example, to list all directories that contain a certain file:
 # find . -name .gitattributes | map dirname
 alias map="xargs -n1"
-
-# One of @janmoesen’s ProTip™s
-for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
-  alias "$method"="lwp-request -m '$method'"
-done
 
 # Stuff I never really use but cannot delete either because of http://xkcd.com/530/
 alias stfu="osascript -e 'set volume output muted true'"

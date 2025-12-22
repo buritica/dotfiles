@@ -226,4 +226,54 @@ run_test "Check brew management functions" '
     return 0
 '
 
+# Test 13: Check modern tools configured
+run_test "Check modern tool configuration" '
+    if [ -f "dot_ripgreprc" ] && [ -s "dot_ripgreprc" ]; then
+        if ! grep -q "hidden" dot_ripgreprc; then
+            echo "Missing --hidden in ripgrep config"
+            return 1
+        fi
+    fi
+
+    if ! grep -q "FZF_DEFAULT_COMMAND" dot_zshrc; then
+        echo "Missing fzf configuration"
+        return 1
+    fi
+
+    if ! grep -q "zoxide init" dot_zshrc; then
+        echo "Missing zoxide initialization"
+        return 1
+    fi
+
+    return 0
+'
+
+# Test 14: Check delta configuration
+run_test "Check git delta configuration" '
+    if ! grep -q "pager = delta" dot_gitconfig.tmpl; then
+        echo "Missing delta as git pager"
+        return 1
+    fi
+    if ! grep -q "\[delta\]" dot_gitconfig.tmpl; then
+        echo "Missing delta configuration"
+        return 1
+    fi
+    return 0
+'
+
+# Test 15: Check modern aliases
+run_test "Check modern tool aliases" '
+    if ! grep -q "eza" dot_my/dot_aliases && ! grep -q "eza" dot_zshrc; then
+        echo "Missing eza aliases"
+        return 1
+    fi
+
+    if ! grep -q "BAT_THEME" dot_zshrc; then
+        echo "Missing bat configuration"
+        return 1
+    fi
+
+    return 0
+'
+
 print_status "All tests completed successfully!" 
