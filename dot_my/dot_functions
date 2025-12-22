@@ -304,9 +304,9 @@ brew-sync() {
 }
 
 # Safe process grep with modern tool
-pg() {
+psg() {
     if [ $# -eq 0 ]; then
-        echo "Usage: pg <search_term>"
+        echo "Usage: psg <search_term>"
         return 1
     fi
     procs --or "${@}" 2>/dev/null || ps aux | grep -v grep | grep -i --color=auto "${@}"

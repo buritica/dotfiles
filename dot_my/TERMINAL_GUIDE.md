@@ -361,7 +361,7 @@ Tools you'll use occasionally but are great to know:
 
 ### 11. **procs** - Modern ps
 ```bash
-pg chrome             # Find Chrome processes (uses procs if available)
+psg chrome            # Find Chrome processes (uses procs if available)
 procs --tree          # Show process tree
 procs --sort cpu      # Sort by CPU usage
 ```
