@@ -15,7 +15,7 @@ This is a personal dotfiles repository managed with [chezmoi](https://chezmoi.io
 
 ### Setup and Deployment
 ```bash
-./setup.sh                   # Full setup (macOS only, requires ~/chez.txt Age key)
+./setup.sh                   # Full setup (macOS only, requires ~/.chez.txt Age key)
 chezmoi apply                # Apply dotfile changes
 chezmoi update              # Pull and apply latest changes
 ```
@@ -76,7 +76,7 @@ brew-sync                   # Interactively sync Brewfile with installed package
 - **Architecture-aware Homebrew paths**: Auto-detects ARM64 vs Intel
 
 ### Setup Script Flow
-1. Checks for required Age key (`~/chez.txt`)
+1. Checks for required Age key (`~/.chez.txt`)
 2. Validates macOS or CI environment
 3. Installs Xcode Command Line Tools (if needed)
 4. Installs Homebrew and Rosetta 2 (Apple Silicon)

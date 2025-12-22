@@ -25,8 +25,8 @@ print_warning() {
 }
 
 # Check for Age private key
-if [ ! -f "${HOME}/chez.txt" ]; then
-  print_error "Missing Age private key (~/chez.txt). Cannot proceed."
+if [ ! -f "${HOME}/.chez.txt" ]; then
+  print_error "Missing Age private key (~/.chez.txt). Cannot proceed."
   exit 1
 fi
 
