@@ -99,7 +99,7 @@ fi
 # Note: Migrated from nodenv to asdf for unified version management
 _asdf_path="${HOMEBREW_PREFIX}/opt/asdf/libexec/asdf.sh"
 if [ -f "$_asdf_path" ]; then
-    _asdf_cmds=(node npm npx vercel wrangler python python3 ruby gem rustc cargo go)
+    _asdf_cmds=(node npm npx bun vercel wrangler python python3 ruby gem rustc cargo go)
     _asdf_load() {
         unset -f $_asdf_cmds
         unset _asdf_cmds
