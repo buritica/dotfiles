@@ -80,13 +80,12 @@ function fs() {
   fi;
 }
 
-# Use Git’s colored diff when available
-hash git &>/dev/null;
-if [ $? -eq 0 ]; then
+# Use Git's colored diff when available
+if command -v git &>/dev/null; then
   function diff() {
     git diff --no-index --color-words "$@";
   }
-fi;
+fi
 
 # Start an HTTP server from a directory, optionally specifying the port
 function server() {
@@ -124,7 +123,6 @@ function tre() {
   tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX;
 }
 
-
 # Safer alternative to fixit - amend and push without force
 # Uses --force-with-lease which is safer than --force
 fixup() {
@@ -138,22 +136,26 @@ fixup() {
 contains() {
     string="$1"
     substring="$2"
-    if test "${string#*$substring}" != "$string"
-    then
+    if test "${string#*$substring}" != "$string"; then
         return 0    # $substring is in $string
     else
         return 1    # $substring is not in $string
     fi
 }
 
+# Helper: Get the Brewfile path (handles chezmoi source directory)
+_get_brewfile_path() {
+    if [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
+        echo "dot_my/dot_Brewfile.tmpl"
+    else
+        echo "${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
+    fi
+}
+
 # Show what's installed but not in Brewfile
 brew-installed-only() {
-    local brewfile="${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
-
-    # If in chezmoi source directory, use the template file
-    if [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
-        brewfile="dot_my/dot_Brewfile.tmpl"
-    fi
+    local brewfile
+    brewfile=$(_get_brewfile_path)
 
     echo "📦 Formulas installed but not in Brewfile:"
     comm -13 \
@@ -170,12 +172,8 @@ brew-installed-only() {
 
 # Show what's in Brewfile but not installed
 brew-missing() {
-    local brewfile="${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
-
-    # If in chezmoi source directory, use the template file
-    if [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
-        brewfile="dot_my/dot_Brewfile.tmpl"
-    fi
+    local brewfile
+    brewfile=$(_get_brewfile_path)
 
     echo "📦 Formulas in Brewfile but not installed:"
     comm -23 \
@@ -200,13 +198,9 @@ brew-diff() {
 
 # Interactively sync Brewfile with installed packages
 brew-sync() {
-    local brewfile="${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
+    local brewfile
     local temp_brewfile="/tmp/Brewfile.new"
-
-    # If in chezmoi source directory, use the template file
-    if [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
-        brewfile="dot_my/dot_Brewfile.tmpl"
-    fi
+    brewfile=$(_get_brewfile_path)
 
     if [[ ! -f "$brewfile" ]]; then
         echo "❌ Brewfile not found at $brewfile"
@@ -352,7 +346,7 @@ fe() {
 # fzf-powered git branch switching
 fbr() {
     local branch
-    branch=$(git branch --all | grep -v HEAD | sed 's/remotes\/origin\///' | sort -u | fzf --preview 'git log --oneline --graph --date=short --pretty="format:%C(auto)%cd %h%d %s" {}') && git checkout "$(echo "$branch" | sed 's/^[ *]*//')"
+    branch=$(git branch --all | grep -v HEAD | sed 's/remotes\/origin\///' | sort -u | fzf --preview 'git log --oneline --graph --date=short --pretty="format:%C(auto)%cd %h%d %s" {}') && git switch "$(echo "$branch" | sed 's/^[ *]*//')"
 }
 
 # fzf-powered git log viewer
@@ -403,14 +397,14 @@ ghissue() {
 
 # Export Brewfile from current installation
 brew-export() {
-    local brewfile="${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
-
-    if [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
-        brewfile="dot_my/dot_Brewfile.tmpl"
-    fi
+    local brewfile
+    brewfile=$(_get_brewfile_path)
 
     echo "📝 Generating Brewfile from current installation..."
-    brew bundle dump --file="$brewfile" --force
+    if ! brew bundle dump --file="$brewfile" --force; then
+        echo "❌ Failed to generate Brewfile"
+        return 1
+    fi
 
     if command -v chezmoi &>/dev/null && [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
         echo "🔄 Syncing with chezmoi..."

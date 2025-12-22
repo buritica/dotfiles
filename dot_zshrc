@@ -68,6 +68,8 @@ fi
 # =============================================================================
 # Tool Initialization
 # =============================================================================
+# Note: Lazy loading was removed to fix bash compatibility issues.
+# This adds ~150-300ms to shell startup time but ensures reliable tool access.
 
 # direnv initialization
 if command -v direnv >/dev/null 2>&1; then
@@ -170,9 +172,6 @@ fi
 # =============================================================================
 # Finalization
 # =============================================================================
-
-# Clean up
-unset file
 
 # Notify that dotfiles are sourced
 echo "dotfiles sourced"
