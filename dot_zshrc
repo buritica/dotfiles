@@ -19,9 +19,6 @@ plugins=(
 	# Git ecosystem
 	git git-extras github
 
-	# macOS integration
-	macos
-
 	# File operations
 	cp copypath copyfile extract
 
@@ -29,9 +26,12 @@ plugins=(
 	npm docker docker-compose
 
 	# Shell enhancements
-	zsh-syntax-highlighting zsh-autosuggestions
-	fzf z colored-man-pages
+	colored-man-pages
 )
+
+# Add optional plugins if they exist
+[[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]] && plugins+=(zsh-syntax-highlighting)
+[[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]] && plugins+=(zsh-autosuggestions)
 
 # source other profile files
 if [ -f "$ZSH/oh-my-zsh.sh" ]; then
