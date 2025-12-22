@@ -58,14 +58,14 @@ fi
 # Tool Initialization
 # =============================================================================
 
-# Initialize nodenv if available
-if command -v nodenv >/dev/null 2>&1; then
-    eval "$(nodenv init -)"
-fi
-
-# Initialize direnv if available
+# Lazy direnv - only init on first prompt for faster startup
 if command -v direnv >/dev/null 2>&1; then
-    eval "$(direnv hook zsh)"
+    _direnv_hook() {
+        unfunction _direnv_hook
+        eval "$(command direnv hook zsh)"
+        _direnv_hook
+    }
+    precmd_functions+=(_direnv_hook)
 fi
 
 # Initialize asdf if available
