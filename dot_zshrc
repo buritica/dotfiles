@@ -77,41 +77,20 @@ else
 fi
 
 # =============================================================================
-# Tool Initialization (lazy loaded for ~200-500ms faster startup)
+# Tool Initialization
 # =============================================================================
 
-# Lazy direnv - defers eval until first prompt
-# Performance: saves ~50-100ms on shell startup
-# Note: .envrc in startup dir loads at first prompt, not immediately
+# direnv initialization
 if command -v direnv >/dev/null 2>&1; then
-    _direnv_init=false
-    precmd_functions+=(_direnv_lazy)
-    _direnv_lazy() {
-        if [ "$_direnv_init" = false ]; then
-            _direnv_init=true
-            eval "$(direnv hook zsh)"
-        fi
-    }
+    eval "$(direnv hook zsh)"
 fi
 
-# Lazy asdf - defers loading until first managed command is called
-# Performance: saves ~100-200ms on shell startup
-# Note: Migrated from nodenv to asdf for unified version management
+# asdf initialization
 _asdf_path="${HOMEBREW_PREFIX}/opt/asdf/libexec/asdf.sh"
 if [ -f "$_asdf_path" ]; then
-    _asdf_cmds=(node npm npx bun vercel wrangler python python3 ruby gem rustc cargo go)
-    _asdf_load() {
-        unset -f $_asdf_cmds
-        unset _asdf_cmds
-        . "$_asdf_path"
-        unset _asdf_path
-    }
-    # 'command' ensures PATH lookup after asdf adds shims to PATH
-    for cmd in $_asdf_cmds; do
-        eval "$cmd() { _asdf_load && command $cmd \"\$@\" }"
-    done
-    unset cmd
+    . "$_asdf_path"
 fi
+unset _asdf_path
 
 # =============================================================================
 # Modern Tool Initialization
