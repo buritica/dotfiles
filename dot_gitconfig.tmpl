@@ -10,9 +10,19 @@
 
 [core]
   editor = code --wait
-  pager = less -F -X
+  pager = delta
   autocrlf = input
   excludesfile = ~/.gitignore
+
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  navigate = true
+  light = false
+  side-by-side = true
+  line-numbers = true
+  syntax-theme = Monokai Extended
 
 [init]
   defaultBranch = main
@@ -20,6 +30,7 @@
 [push]
   default = simple
   autoSetupRemote = true
+  followTags = true
 
 [pull]
   rebase = false
@@ -30,6 +41,7 @@
 [merge]
   ff = only
   commit = no
+  conflictstyle = diff3
 
 [fetch]
   prune = true
@@ -73,7 +85,6 @@
   bD = branch -D
   bm = branch -m
   go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
-  gb = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
   gba = branch -a
   gbd = branch -d
   gbD = branch -D
@@ -133,6 +144,26 @@
   # Debug
   debug = "!git rev-parse --show-toplevel && git rev-parse --git-dir && git rev-parse --show-cdup"
 
+  # Modern git commands
+  sw = switch
+  swc = switch -c
+  restore = restore
+
+  # Interactive rebase
+  ri = rebase -i
+  rc = rebase --continue
+  ra = rebase --abort
+
+  # Worktree management
+  wt = worktree
+  wta = worktree add
+  wtl = worktree list
+  wtr = worktree remove
+
+  # Sync workflow
+  fp = fetch --prune
+  sync = !git fetch --prune && git pull --rebase
+
 [apply]
   # Detect whitespace errors when applying a patch
   whitespace = fix
@@ -145,6 +176,7 @@
 [diff]
   # Detect copies as well as renames
   renames = copies
+  colorMoved = default
 
 [help]
   # Automatically correct and execute mistyped commands

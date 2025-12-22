@@ -1,0 +1,26 @@
+# Search hidden files by default
+--hidden
+
+# Follow symlinks
+--follow
+
+# Smart case searching
+--smart-case
+
+# Max columns before wrapping
+--max-columns=150
+
+# Max file size (10MB)
+--max-filesize=10M
+
+# Exclude patterns
+--glob=!.git/*
+--glob=!node_modules/*
+--glob=!.DS_Store
+--glob=!*.min.js
+--glob=!*.min.css
+--glob=!package-lock.json
+--glob=!yarn.lock
+--glob=!dist/*
+--glob=!build/*
+--glob=!coverage/*

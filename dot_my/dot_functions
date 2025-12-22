@@ -308,3 +308,130 @@ brew-sync() {
 
     rm -f "$temp_brewfile"
 }
+
+# Safe process grep with modern tool
+pg() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: pg <search_term>"
+        return 1
+    fi
+    procs --or "${@}" 2>/dev/null || ps aux | grep -v grep | grep -i --color=auto "${@}"
+}
+
+# Safe npm clean with confirmation
+npm-clean() {
+    echo "This will delete node_modules and reinstall. Continue? [y/N]"
+    read -r response
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        rm -rf ./node_modules && npm install
+    else
+        echo "Cancelled"
+    fi
+}
+
+# fzf-powered directory navigation
+fcd() {
+    local dir
+    dir=$(fd --type d --hidden --follow --exclude .git | fzf --preview 'eza --tree --level=2 --icons {}') && cd "$dir" || return
+}
+
+# fzf-powered file editing
+fe() {
+    local files
+    files=$(fzf --multi --preview 'bat --color=always --style=numbers --line-range=:500 {}') && code $files
+}
+
+# fzf-powered git branch switching
+fbr() {
+    local branch
+    branch=$(git branch --all | grep -v HEAD | sed 's/remotes\/origin\///' | sort -u | fzf --preview 'git log --oneline --graph --date=short --pretty="format:%C(auto)%cd %h%d %s" {}') && git checkout $(echo "$branch" | sed 's/^[ *]*//')
+}
+
+# fzf-powered git log viewer
+fshow() {
+    git log --graph --color=always \
+        --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" "$@" |
+    fzf --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+        --bind "ctrl-m:execute:
+                (grep -o '[a-f0-9]\{7\}' | head -1 |
+                xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
+                {}
+FZF-EOF"
+}
+
+# fzf-powered ripgrep search
+frg() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: frg <search_term>"
+        return 1
+    fi
+
+    rg --color=always --line-number --no-heading --smart-case "${*:-}" |
+      fzf --ansi \
+          --color "hl:-1:underline,hl+:-1:underline:reverse" \
+          --delimiter : \
+          --preview 'bat --color=always {1} --highlight-line {2}' \
+          --preview-window 'up,60%,border-bottom,+{2}+3/3,~3' \
+          --bind 'enter:become(code {1}:{2})'
+}
+
+# GitHub CLI - PR viewer
+ghpr() {
+    gh pr list | fzf --preview 'gh pr view {1}' --preview-window=right:60% | awk '{print $1}' | xargs gh pr view --web
+}
+
+# GitHub CLI - Issue viewer
+ghissue() {
+    gh issue list | fzf --preview 'gh issue view {1}' --preview-window=right:60% | awk '{print $1}' | xargs gh issue view --web
+}
+
+# Export Brewfile from current installation
+brew-export() {
+    local brewfile="${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
+
+    if [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
+        brewfile="dot_my/dot_Brewfile.tmpl"
+    fi
+
+    echo "📝 Generating Brewfile from current installation..."
+    brew bundle dump --file="$brewfile" --force
+
+    if command -v chezmoi &>/dev/null && [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
+        echo "🔄 Syncing with chezmoi..."
+        chezmoi add "$brewfile"
+    fi
+
+    echo "✅ Brewfile exported to $brewfile"
+}
+
+# Detect orphaned packages
+brew-orphans() {
+    echo "🔍 Checking for orphaned packages..."
+
+    local leaves=$(brew leaves)
+    local installed=$(brew list --formula)
+
+    for package in $installed; do
+        if ! echo "$leaves" | grep -q "^${package}$"; then
+            local is_dep=false
+            for leaf in $leaves; do
+                if brew deps "$leaf" | grep -q "^${package}$"; then
+                    is_dep=true
+                    break
+                fi
+            done
+
+            if [ "$is_dep" = false ]; then
+                echo "  $package"
+            fi
+        fi
+    done
+}
+
+# Clean up brew cache
+brew-cleanup() {
+    echo "🧹 Cleaning up Homebrew..."
+    brew cleanup --prune=all
+    brew autoremove
+    echo "✅ Cleanup complete"
+}
