@@ -17,10 +17,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Lazy loading for direnv (~50-100ms startup savings)
+- Lazy loading for asdf (~100-200ms startup savings)
+- User feedback for pmset restartfreeze support detection
+
+### Changed
+- Migrated from nodenv to asdf for unified version management
+- Replaced deprecated macOS commands with modern equivalents:
+  - System Preferences → System Settings (Ventura+)
+  - systemsetup → pmset for power management
+- Removed docker formula and cask (using Colima for containers)
+
 ### Fixed
 - GitHub Actions workflow conditions for local runs using `act`
 - Environment variable handling in CI and security workflows
 - Linter warnings in workflow files
+- Deprecated launchctl notification center command
+- Conflicting pmset sleep settings
+- Duplicate emptytrash alias
+- Intel Mac compatibility for asdf path (uses HOMEBREW_PREFIX)
+- SIP-safe error handling for sleepimage operations
+
+### Removed
+- nodenv initialization (replaced by asdf)
+- docker brew formula (using Colima)
+- docker-desktop cask (using Colima)
+- Duplicate power management settings block
 
 ## [0.1.0] - 2024-04-27
 
