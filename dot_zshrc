@@ -60,6 +60,7 @@ fi
 
 # Lazy direnv - defers eval until first prompt
 # Performance: saves ~50-100ms on shell startup
+# Note: .envrc in startup dir loads at first prompt, not immediately
 if command -v direnv >/dev/null 2>&1; then
     _direnv_init=false
     precmd_functions+=(_direnv_lazy)
@@ -81,9 +82,9 @@ if [ -f "$_asdf_path" ]; then
         unset -f $_asdf_cmds
         . "$_asdf_path"
     }
-    # Use 'command' builtin to call the real binary after unset
+    # After unset, $cmd resolves via PATH to asdf shims
     for cmd in $_asdf_cmds; do
-        eval "$cmd() { _asdf_load && command $cmd \"\$@\" }"
+        eval "$cmd() { _asdf_load && $cmd \"\$@\" }"
     done
 fi
 unset _asdf_path

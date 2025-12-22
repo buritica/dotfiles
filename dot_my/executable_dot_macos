@@ -159,9 +159,10 @@ sudo pmset -a standbydelay 86400
 sudo pmset -a hibernatemode 0
 
 # Remove the sleep image file to save disk space
-sudo rm /private/var/vm/sleepimage
-sudo touch /private/var/vm/sleepimage
-sudo chflags uchg /private/var/vm/sleepimage
+# Note: May fail with SIP enabled on modern macOS
+sudo rm -f /private/var/vm/sleepimage 2>/dev/null || true
+sudo touch /private/var/vm/sleepimage 2>/dev/null || true
+sudo chflags uchg /private/var/vm/sleepimage 2>/dev/null || true
 
 ########################### Screen Settings #################################
 
