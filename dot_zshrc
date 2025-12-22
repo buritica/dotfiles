@@ -70,13 +70,18 @@ fi
 
 # Lazy asdf - defer loading until first command needs it
 if [ -f "/opt/homebrew/opt/asdf/libexec/asdf.sh" ]; then
+    _asdf_loaded=false
     _asdf_load() {
-        unset -f node npm npx python python3 ruby gem rustc cargo go
-        . "/opt/homebrew/opt/asdf/libexec/asdf.sh"
+        if [ "$_asdf_loaded" = false ]; then
+            _asdf_loaded=true
+            unset -f node npm npx python python3 ruby gem rustc cargo go
+            . "/opt/homebrew/opt/asdf/libexec/asdf.sh"
+        fi
     }
     # Wrapper functions for common asdf-managed commands
+    # Use 'command' builtin to call the real binary after loading
     for cmd in node npm npx python python3 ruby gem rustc cargo go; do
-        eval "$cmd() { _asdf_load && $cmd \"\$@\" }"
+        eval "$cmd() { _asdf_load && command $cmd \"\$@\" }"
     done
 fi
 

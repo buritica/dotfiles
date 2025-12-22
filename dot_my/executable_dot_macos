@@ -136,7 +136,10 @@ sudo pmset -a autorestart 1
 
 # Restart automatically if the computer freezes
 # Note: systemsetup is deprecated in modern macOS, using pmset instead
-sudo pmset -a restartfreeze 1 2>/dev/null || true
+# restartfreeze may not be available on all macOS versions
+if pmset -g 2>/dev/null | grep -q restartfreeze; then
+    sudo pmset -a restartfreeze 1
+fi
 
 # Sleep the display after 15 minutes
 sudo pmset -a displaysleep 15
@@ -150,9 +153,10 @@ sudo pmset -b sleep 5
 # Set standby delay to 24 hours (default is 1 hour)
 sudo pmset -a standbydelay 86400
 
-# Never go into computer sleep mode
-# Note: systemsetup is deprecated in modern macOS, using pmset instead
-sudo pmset -a sleep 0 2>/dev/null || true
+# Note: Sleep settings are configured per-power-source above:
+# - Charging (-c): sleep disabled (0)
+# - Battery (-b): 5 minutes
+# Removed redundant -a flag that would override these settings
 
 # Set hibernation mode (0 = disable hibernation)
 sudo pmset -a hibernatemode 0
