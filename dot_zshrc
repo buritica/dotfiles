@@ -16,10 +16,21 @@ ZSH_THEME="geoffgarside"
 
 # oh-my-zsh plugins
 plugins=(
-	git git-extras github \
-	macos \
-	cp copypath copyfile \
-	npm \
+	# Git ecosystem
+	git git-extras github
+
+	# macOS integration
+	macos
+
+	# File operations
+	cp copypath copyfile extract
+
+	# Development tools
+	npm docker docker-compose
+
+	# Shell enhancements
+	zsh-syntax-highlighting zsh-autosuggestions
+	fzf z colored-man-pages
 )
 
 # source other profile files
@@ -27,6 +38,17 @@ if [ -f "$ZSH/oh-my-zsh.sh" ]; then
     source "$ZSH/oh-my-zsh.sh"
 else
     echo "Warning: Oh My Zsh not found at $ZSH/oh-my-zsh.sh"
+fi
+
+# Install external plugins if needed
+if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]; then
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
+      ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+fi
+
+if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]; then
+    git clone https://github.com/zsh-users/zsh-autosuggestions \
+      ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 fi
 
 # =============================================================================
@@ -55,40 +77,64 @@ else
 fi
 
 # =============================================================================
-# Tool Initialization (lazy loaded for ~200-500ms faster startup)
+# Tool Initialization
 # =============================================================================
 
-# Lazy direnv - defers eval until first prompt
-# Performance: saves ~50-100ms on shell startup
-# Note: .envrc in startup dir loads at first prompt, not immediately
+# direnv initialization
 if command -v direnv >/dev/null 2>&1; then
-    _direnv_init=false
-    precmd_functions+=(_direnv_lazy)
-    _direnv_lazy() {
-        if [ "$_direnv_init" = false ]; then
-            _direnv_init=true
-            eval "$(direnv hook zsh)"
-        fi
-    }
+    eval "$(direnv hook zsh)"
 fi
 
-# Lazy asdf - defers loading until first managed command is called
-# Performance: saves ~100-200ms on shell startup
-# Note: Migrated from nodenv to asdf for unified version management
+# asdf initialization
 _asdf_path="${HOMEBREW_PREFIX}/opt/asdf/libexec/asdf.sh"
 if [ -f "$_asdf_path" ]; then
-    _asdf_cmds=(node npm npx vercel wrangler python python3 ruby gem rustc cargo go)
-    _asdf_load() {
-        unset -f $_asdf_cmds
-        unset _asdf_cmds
-        . "$_asdf_path"
-        unset _asdf_path
-    }
-    # 'command' ensures PATH lookup after asdf adds shims to PATH
-    for cmd in $_asdf_cmds; do
-        eval "$cmd() { _asdf_load && command $cmd \"\$@\" }"
-    done
-    unset cmd
+    . "$_asdf_path"
+fi
+unset _asdf_path
+
+# =============================================================================
+# Modern Tool Initialization
+# =============================================================================
+
+# fzf configuration
+if command -v fzf >/dev/null 2>&1; then
+    # Key bindings (Ctrl+R, Ctrl+T, Alt+C)
+    [ -f ~/.fzf.zsh ] || $(brew --prefix)/opt/fzf/install --key-bindings --completion --no-update-rc
+    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+    # Default commands
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+
+    # Preview options
+    export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
+    export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --icons {}'"
+
+    # Color scheme
+    export FZF_DEFAULT_OPTS='--color=bg+:#3e3d32,bg:#272822,spinner:#e6db74,hl:#a6e22e --color=fg:#f8f8f2,header:#a6e22e,info:#e6db74,pointer:#e6db74 --color=marker:#e6db74,fg+:#f8f8f2,prompt:#e6db74,hl+:#a6e22e'
+fi
+
+# zoxide initialization
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh)"
+fi
+
+# bat configuration
+if command -v bat >/dev/null 2>&1; then
+    export BAT_THEME="Monokai Extended"
+    export BAT_PAGER="less -FR"
+    alias -g -- --help='--help 2>&1 | bat --plain --language=help'
+fi
+
+# eza configuration
+if command -v eza >/dev/null 2>&1; then
+    export EZA_COLORS="da=37:di=34:ln=36:ex=32"
+fi
+
+# ripgrep configuration
+if command -v rg >/dev/null 2>&1; then
+    export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
 fi
 
 # =============================================================================
