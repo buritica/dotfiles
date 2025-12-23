@@ -133,23 +133,9 @@ else
     exit 1
 fi
 
-# Install Zsh plugins
-print_status "Installing Zsh plugins..."
-if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]; then
-    print_status "Installing zsh-syntax-highlighting..."
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
-      "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
-else
-    print_status "zsh-syntax-highlighting already installed"
-fi
-
-if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]; then
-    print_status "Installing zsh-autosuggestions..."
-    git clone https://github.com/zsh-users/zsh-autosuggestions \
-      "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
-else
-    print_status "zsh-autosuggestions already installed"
-fi
+# Zsh plugins are now managed by chezmoi via .chezmoiexternal.toml
+# They will be automatically installed/updated when chezmoi apply runs
+print_status "Zsh plugins will be installed by chezmoi on next apply"
 
 # Install fzf keybindings
 if command -v fzf &>/dev/null; then

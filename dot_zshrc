@@ -66,20 +66,29 @@ else
 fi
 
 # =============================================================================
-# Tool Initialization
+# Tool Initialization with Lazy Loading
 # =============================================================================
-# Note: Lazy loading was removed to fix bash compatibility issues.
-# This adds ~150-300ms to shell startup time but ensures reliable tool access.
+# Using zsh-defer for lazy loading to improve shell startup time
+# Target: < 100ms startup (2-3x improvement from ~150-300ms)
 
-# direnv initialization
+# Load zsh-defer first (managed by chezmoi via .chezmoiexternal.toml)
+if [ -f "${HOME}/.oh-my-zsh/custom/plugins/zsh-defer/zsh-defer.plugin.zsh" ]; then
+    source "${HOME}/.oh-my-zsh/custom/plugins/zsh-defer/zsh-defer.plugin.zsh"
+fi
+
+# direnv initialization (keep eager - needed for project contexts)
 if command -v direnv >/dev/null 2>&1; then
     eval "$(direnv hook zsh)"
 fi
 
-# asdf initialization
+# asdf initialization (defer - only needed when using version-managed tools)
 _asdf_path="${HOMEBREW_PREFIX}/opt/asdf/libexec/asdf.sh"
 if [ -f "$_asdf_path" ]; then
-    . "$_asdf_path"
+    if command -v zsh-defer >/dev/null 2>&1; then
+        zsh-defer . "$_asdf_path"
+    else
+        . "$_asdf_path"
+    fi
 fi
 unset _asdf_path
 
@@ -87,27 +96,31 @@ unset _asdf_path
 # Modern Tool Initialization
 # =============================================================================
 
-# fzf configuration
+# fzf configuration (defer - only needed when fuzzy finding)
 if command -v fzf >/dev/null 2>&1; then
-    # Key bindings (Ctrl+R, Ctrl+T, Alt+C)
-    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-    # Default commands
+    # Export environment variables immediately (needed for command availability)
     export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
     export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
-
-    # Preview options
     export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
     export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --icons {}'"
-
-    # Color scheme
     export FZF_DEFAULT_OPTS='--color=bg+:#3e3d32,bg:#272822,spinner:#e6db74,hl:#a6e22e --color=fg:#f8f8f2,header:#a6e22e,info:#e6db74,pointer:#e6db74 --color=marker:#e6db74,fg+:#f8f8f2,prompt:#e6db74,hl+:#a6e22e'
+
+    # Defer loading key bindings (Ctrl+R, Ctrl+T, Alt+C)
+    if command -v zsh-defer >/dev/null 2>&1; then
+        zsh-defer -c '[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh'
+    else
+        [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+    fi
 fi
 
-# zoxide initialization
+# zoxide initialization (defer - only needed when using z command)
 if command -v zoxide >/dev/null 2>&1; then
-    eval "$(zoxide init zsh)"
+    if command -v zsh-defer >/dev/null 2>&1; then
+        zsh-defer -c 'eval "$(zoxide init zsh)"'
+    else
+        eval "$(zoxide init zsh)"
+    fi
 fi
 
 # bat configuration
