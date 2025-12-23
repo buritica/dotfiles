@@ -21,10 +21,28 @@ chezmoi update              # Pull and apply latest changes
 ```
 
 ### Development Workflow
+
+**Simplified Dotfiles Commands:**
 ```bash
-gh pr create --title "type: description" --body-file pr_body.md    # Create PR with body file
+# Easy-to-remember helpers (no chezmoi knowledge required)
+dsync                       # Pull and apply latest changes (= chezmoi update)
+dapply                      # Apply pending changes (= chezmoi apply)
+ddiff                       # Show what would change (= chezmoi diff)
+dedit ~/.zshrc              # Edit dotfile source (= chezmoi edit)
+dadd ~/.myfile              # Track new file (= chezmoi add)
+dstatus                     # Check status (= chezmoi status)
+dcd                         # Go to dotfiles source directory
+
+# Traditional chezmoi commands (still work)
+chezmoi update              # Pull and apply latest changes
+chezmoi apply               # Apply dotfile changes
 chezmoi add ~/.myfile       # Track a new dotfile
 chezmoi edit ~/.myfile      # Edit tracked file in source
+```
+
+**Pull Request Creation:**
+```bash
+gh pr create --title "type: description" --body-file pr_body.md    # Create PR with body file
 ```
 
 ### Brewfile Management
@@ -33,6 +51,10 @@ brew-diff                   # Show diff between Brewfile and installed packages
 brew-installed-only         # List packages installed but not in Brewfile
 brew-missing                # List packages in Brewfile but not installed
 brew-sync                   # Interactively sync Brewfile with installed packages
+brew-edit                   # Edit Brewfile source template via chezmoi
+brew-export                 # Export current installation to Brewfile
+brew-orphans                # Detect orphaned packages (not dependencies)
+brew-cleanup                # Clean up Homebrew cache and autoremove
 ```
 
 **Workflow:**
@@ -43,10 +65,34 @@ brew-sync                   # Interactively sync Brewfile with installed package
 5. Commit Brewfile changes
 
 **Philosophy:**
-- Only track essential packages you want on every machine
-- Test new tools (like ghostty, raycast) before adding to Brewfile
+- Core packages shared across all machines (1password, chrome, vscode, etc.)
+- Machine-specific packages for home/work/media (see Machine Profiles below)
+- Test new tools before adding to Brewfile
 - Dependencies are auto-installed, don't track them
 - Use `brew-diff` to periodically audit installed vs tracked packages
+
+### Machine Profiles
+
+**Available Profiles:**
+```bash
+machine-list                # List all configured machine profiles
+machine-info                # Show current machine profile information
+```
+
+**Configured Machines:**
+- **crowntail (home 🏡)**: Personal home workstation
+  - Home apps: discord, minecraft, spotify
+- **deltatail (work 💼)**: Work laptop
+  - Work tools: microsoft-teams, slack
+- **halfmoon (media 🎥)**: Video editing station
+  - Media apps: obs, streamlabs, adobe-creative-cloud, audio-hijack, loopback, soundsource
+  - Media tools: ffmpeg, gifsicle
+- **default (🔬)**: Test/unknown machines
+
+The machine profile is automatically detected from hostname and configures:
+- Shell prompt emoji (PS1)
+- Machine-specific Brewfile packages
+- Profile metadata in chezmoi templates
 
 ## Architecture
 
@@ -58,7 +104,7 @@ brew-sync                   # Interactively sync Brewfile with installed package
 - **Executable files** (`executable_` prefix): Made executable when applied
   - `dot_my/executable_dot_macos`: macOS system settings script
 - **Dotfiles** (`dot_` prefix): Mapped to hidden files in home directory
-  - `dot_zshrc` → `~/.zshrc`
+  - `dot_zshrc.tmpl` → `~/.zshrc` (uses machine profile for PS1)
   - `dot_my/` → `~/.my/` (custom shell scripts and configs)
 
 ### Encryption
@@ -69,21 +115,29 @@ brew-sync                   # Interactively sync Brewfile with installed package
 ### Shell Configuration
 - **Primary shell**: Zsh with Oh My Zsh
 - **Theme**: `geoffgarside`
+- **Plugin management**: Via `.chezmoiexternal.toml` (auto-updates weekly)
+  - zsh-syntax-highlighting
+  - zsh-autosuggestions
+  - zsh-defer (for lazy loading)
 - **Plugin loading order**:
-  1. Oh My Zsh plugins (git, git-extras, github, macos, npm, etc.)
-  2. Tool initialization (nodenv, direnv, asdf)
+  1. Oh My Zsh plugins (git, git-extras, github, npm, etc.)
+  2. Tool initialization with lazy loading (direnv eager, asdf/fzf/zoxide deferred)
   3. Custom dotfiles from `~/.my/` (.exports, .aliases, .functions)
 - **Architecture-aware Homebrew paths**: Auto-detects ARM64 vs Intel
+- **Performance**: Lazy loading achieves < 100ms startup time (2-3x improvement)
 
 ### Setup Script Flow
 1. Checks for required Age key (`~/.chez.txt`)
 2. Validates macOS or CI environment
 3. Installs Xcode Command Line Tools (if needed)
 4. Installs Homebrew and Rosetta 2 (Apple Silicon)
-5. Installs 1Password CLI
-6. Runs Brewfile bundle install from `~/.my/.Brewfile`
-7. Initializes chezmoi and applies dotfiles
-8. Runs macOS settings (once, tracked by `.macos_configured` flag)
+5. **Installs chezmoi first** (needed to bootstrap dotfiles)
+6. **Initializes and applies dotfiles** (creates Brewfile and other configs)
+7. Installs 1Password CLI
+8. Runs Brewfile bundle install from `~/.my/.Brewfile`
+9. ZSH plugins managed by chezmoi (via `.chezmoiexternal.toml`)
+10. Installs fzf keybindings
+11. Runs macOS settings (once, tracked by `~/.my/.macos_configured` flag)
 
 ## Branch and PR Conventions
 
