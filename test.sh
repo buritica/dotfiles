@@ -57,7 +57,7 @@ run_test "Check source files" '
     [ -f ".chezmoi.toml.tmpl" ] && [ -s ".chezmoi.toml.tmpl" ] &&
     [ -f ".chezmoiignore" ] && [ -s ".chezmoiignore" ] &&
     [ -f ".yamllint" ] && [ -s ".yamllint" ] &&
-    [ -f "dot_zshrc" ] && [ -s "dot_zshrc" ]
+    [ -f "dot_zshrc.tmpl" ] && [ -s "dot_zshrc.tmpl" ]
 '
 
 # Test 2: Check executable permissions
@@ -235,12 +235,12 @@ run_test "Check modern tool configuration" '
         fi
     fi
 
-    if ! grep -q "FZF_DEFAULT_COMMAND" dot_zshrc; then
+    if ! grep -q "FZF_DEFAULT_COMMAND" dot_zshrc.tmpl; then
         echo "Missing fzf configuration"
         return 1
     fi
 
-    if ! grep -q "zoxide init" dot_zshrc; then
+    if ! grep -q "zoxide init" dot_zshrc.tmpl; then
         echo "Missing zoxide initialization"
         return 1
     fi
@@ -263,12 +263,12 @@ run_test "Check git delta configuration" '
 
 # Test 15: Check modern aliases
 run_test "Check modern tool aliases" '
-    if ! grep -q "eza" dot_my/dot_aliases && ! grep -q "eza" dot_zshrc; then
+    if ! grep -q "eza" dot_my/dot_aliases && ! grep -q "eza" dot_zshrc.tmpl; then
         echo "Missing eza aliases"
         return 1
     fi
 
-    if ! grep -q "BAT_THEME" dot_zshrc; then
+    if ! grep -q "BAT_THEME" dot_zshrc.tmpl; then
         echo "Missing bat configuration"
         return 1
     fi

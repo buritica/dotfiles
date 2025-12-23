@@ -12,3 +12,23 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
   name = "Juan Pablo Buritica"
   codespaces = {{ env "CODESPACES" | not | not }}
   email = "buritica@gmail.com"
+
+[data.machine]
+  hostname = "{{ .chezmoi.hostname }}"
+  {{- if eq .chezmoi.hostname "crowntail" }}
+  profile = "home"
+  emoji = "🏡"
+  description = "Personal home workstation"
+  {{- else if eq .chezmoi.hostname "deltatail" }}
+  profile = "work"
+  emoji = "💼"
+  description = "Work laptop"
+  {{- else if eq .chezmoi.hostname "halfmoon" }}
+  profile = "media"
+  emoji = "🎥"
+  description = "Video editing station"
+  {{- else }}
+  profile = "default"
+  emoji = "🔬"
+  description = "Test machine"
+  {{- end }}

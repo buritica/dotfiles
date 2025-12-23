@@ -157,14 +157,16 @@ ulimit -n 10000
 # Prompt Configuration
 # =============================================================================
 
-# i like skulls
-case $HOST in
-    *crowntail*) export PS1="🏡  $PS1" ;;
-    *deltatail*) export PS1="💼  $PS1" ;;
-    *halfmoon*)  export PS1="🎥  $PS1" ;;
-    *test*)      export PS1="🔬  $PS1" ;;
-esac
-export PS1="💀 $PS1"
+# Machine profile-based prompt (skull always included)
+{{- if eq .machine.profile "home" }}
+export PS1="🏡  💀 $PS1"
+{{- else if eq .machine.profile "work" }}
+export PS1="💼  💀 $PS1"
+{{- else if eq .machine.profile "media" }}
+export PS1="🎥  💀 $PS1"
+{{- else }}
+export PS1="🔬  💀 $PS1"
+{{- end }}
 
 # =============================================================================
 # Aliases and Completions

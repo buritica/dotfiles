@@ -1,3 +1,4 @@
+# Core development tools (all machines)
 brew "asdf"
 brew "awscli"
 brew "chezmoi"
@@ -5,10 +6,8 @@ brew "colima"
 brew "coreutils"
 brew "direnv"
 brew "docker-compose"
-brew "ffmpeg"
 brew "findutils"
 brew "gh"
-brew "gifsicle"
 brew "gist"
 brew "git-extras"
 brew "gnu-tar"
@@ -26,6 +25,12 @@ brew "subversion"
 brew "tree"
 brew "wget"
 
+{{- if eq .machine.profile "media" }}
+# Video/audio processing (halfmoon only)
+brew "ffmpeg"
+brew "gifsicle"
+{{- end }}
+
 # Modern CLI tools
 brew "bat"           # Syntax-highlighted cat
 brew "eza"           # Modern ls with git integration
@@ -40,12 +45,10 @@ brew "procs"         # Modern ps
 brew "tldr"          # Simplified man pages
 brew "hyperfine"     # Benchmarking tool
 
+# Core applications (all machines)
 cask "1password"
 cask "1password-cli"
-cask "adobe-creative-cloud"
 cask "alfred"
-cask "audio-hijack"
-cask "discord"
 cask "figma"
 cask "font-inconsolata"
 cask "font-montserrat"
@@ -61,27 +64,42 @@ cask "grammarly-desktop"
 cask "iterm2"
 cask "ledger-live"
 cask "loom"
-cask "loopback"
 cask "microsoft-auto-update"
 cask "microsoft-office"
-cask "microsoft-teams"
-cask "minecraft"
 cask "notion"
-cask "obs"
 cask "obsidian"
 cask "qfinder-pro"
 cask "raycast"
 cask "rectangle"
 cask "signal"
-cask "slack"
-cask "soundsource"
-cask "spotify"
 cask "stats"
-cask "streamlabs"
 cask "visual-studio-code"
 cask "vlc"
 cask "whatsapp"
 cask "zoom"
+
+{{- if eq .machine.profile "media" }}
+# Video editing and streaming (halfmoon only)
+cask "adobe-creative-cloud"
+cask "audio-hijack"
+cask "loopback"
+cask "obs"
+cask "soundsource"
+cask "streamlabs"
+{{- end }}
+
+{{- if eq .machine.profile "work" }}
+# Work tools (deltatail only)
+cask "microsoft-teams"
+cask "slack"
+{{- end }}
+
+{{- if eq .machine.profile "home" }}
+# Home entertainment (crowntail only)
+cask "discord"
+cask "minecraft"
+cask "spotify"
+{{- end }}
 
 mas "1Password for Safari", id: 1569813296
 mas "Bear", id: 1091189122

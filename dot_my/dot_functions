@@ -143,6 +143,23 @@ contains() {
     fi
 }
 
+# Show current machine profile information
+machine-info() {
+    echo "Hostname: $(hostname -s)"
+    chezmoi data | grep -A 4 'machine:' | sed 's/^/  /'
+}
+
+# List all configured machine profiles
+machine-list() {
+    echo "Configured machine profiles:"
+    echo "  🏡 crowntail (home)    - Personal home workstation"
+    echo "  💼 deltatail (work)    - Work laptop"
+    echo "  🎥 halfmoon (media)    - Video editing station"
+    echo ""
+    echo "Current machine:"
+    machine-info
+}
+
 # Helper: Get the Brewfile path (always uses deployed version)
 _get_brewfile_path() {
     echo "${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
@@ -451,4 +468,59 @@ brew-cleanup() {
     brew cleanup --prune=all
     brew autoremove
     echo "✅ Cleanup complete"
+}
+
+# =============================================================================
+# Dotfiles Workflow Helpers
+# =============================================================================
+# Simplify common chezmoi operations to reduce knowledge required
+
+# Pull and apply latest changes from dotfiles repo
+dotfiles-sync() {
+    chezmoi update
+}
+
+# Apply pending changes without pulling
+dotfiles-apply() {
+    chezmoi apply
+}
+
+# Show what would change
+dotfiles-diff() {
+    chezmoi diff
+}
+
+# Edit a dotfile in the source directory
+dotfiles-edit() {
+    if [ -z "$1" ]; then
+        echo "Usage: dotfiles-edit <file>"
+        echo "Example: dotfiles-edit ~/.zshrc"
+        return 1
+    fi
+    chezmoi edit "$1"
+}
+
+# Add a file to dotfiles tracking
+dotfiles-add() {
+    if [ -z "$1" ]; then
+        echo "Usage: dotfiles-add <file>"
+        echo "Example: dotfiles-add ~/.myconfig"
+        return 1
+    fi
+    chezmoi add "$1"
+}
+
+# Check status of dotfiles
+dotfiles-status() {
+    chezmoi status
+}
+
+# Go to dotfiles source directory
+dotfiles-cd() {
+    cd "$(chezmoi source-path)"
+}
+
+# Re-run setup script
+dotfiles-setup() {
+    "$(chezmoi source-path)/setup.sh"
 }
