@@ -92,24 +92,7 @@ if [[ "$(uname -m)" == "arm64" ]]; then
     fi
 fi
 
-# Install 1Password CLI
-print_status "Installing 1Password CLI..."
-if ! command -v op &>/dev/null; then
-    brew install --cask 1password-cli
-else
-    print_status "1Password CLI already installed"
-fi
-
-# Install Homebrew packages (including Oh My Zsh)
-print_status "Installing packages from Brewfile..."
-if [ -f "${HOME}/.my/.Brewfile" ]; then
-    brew bundle install --file="${HOME}/.my/.Brewfile"
-else
-    print_error "Brewfile not found at ${HOME}/.my/.Brewfile"
-    exit 1
-fi
-
-# Install chezmoi
+# Install chezmoi (needed to bootstrap dotfiles)
 print_status "Installing chezmoi..."
 if ! command -v chezmoi &>/dev/null; then
     brew install chezmoi
@@ -117,7 +100,7 @@ else
     print_status "chezmoi already installed"
 fi
 
-# Initialize and apply dotfiles
+# Initialize and apply dotfiles (this creates the Brewfile and other configs)
 print_status "Setting up dotfiles..."
 if [ ! -d "${HOME}/.local/share/chezmoi" ]; then
     # Check if we're running from a local repository
@@ -130,6 +113,24 @@ if [ ! -d "${HOME}/.local/share/chezmoi" ]; then
     fi
 else
     print_warning "Dotfiles already initialized. Run chezmoi update to update them."
+fi
+
+# Install 1Password CLI (after chezmoi so Brewfile exists)
+print_status "Installing 1Password CLI..."
+if ! command -v op &>/dev/null; then
+    brew install --cask 1password-cli
+else
+    print_status "1Password CLI already installed"
+fi
+
+# Install Homebrew packages from Brewfile (now that chezmoi created it)
+print_status "Installing packages from Brewfile..."
+if [ -f "${HOME}/.my/.Brewfile" ]; then
+    brew bundle install --file="${HOME}/.my/.Brewfile"
+else
+    print_error "Brewfile not found at ${HOME}/.my/.Brewfile"
+    print_error "This should have been created by chezmoi init. Something went wrong."
+    exit 1
 fi
 
 # Install Zsh plugins
@@ -164,15 +165,15 @@ fi
 print_status "Applying macOS settings..."
 if [ -f "${HOME}/.my/.macos" ]; then
     # Check if macOS settings have already been run
-    if [ ! -f "${HOME}/.local/share/chezmoi/.macos_configured" ]; then
+    if [ ! -f "${HOME}/.my/.macos_configured" ]; then
         print_status "Running macOS settings for the first time..."
         chmod +x "${HOME}/.my/.macos"
         "${HOME}/.my/.macos"
         # Create flag file to indicate settings have been run
-        touch "${HOME}/.local/share/chezmoi/.macos_configured"
+        touch "${HOME}/.my/.macos_configured"
     else
         print_status "macOS settings have already been configured. Skipping..."
-        print_status "To run settings again, remove ${HOME}/.local/share/chezmoi/.macos_configured"
+        print_status "To run settings again, remove ${HOME}/.my/.macos_configured"
     fi
 else
     print_warning "macOS settings script not found. Make sure dotfiles are properly installed."

@@ -26,3 +26,6 @@ Thumbs.db
 
 # Git files
 .gitignore
+
+# State files (should persist outside chezmoi)
+.my/.macos_configured

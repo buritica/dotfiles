@@ -143,13 +143,14 @@ contains() {
     fi
 }
 
-# Helper: Get the Brewfile path (handles chezmoi source directory)
+# Helper: Get the Brewfile path (always uses deployed version)
 _get_brewfile_path() {
-    if [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
-        echo "dot_my/dot_Brewfile.tmpl"
-    else
-        echo "${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
-    fi
+    echo "${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
+}
+
+# Edit Brewfile in chezmoi (opens the source template for editing)
+brew-edit() {
+    chezmoi edit ~/.my/.Brewfile
 }
 
 # Show what's installed but not in Brewfile
@@ -415,7 +416,7 @@ brew-export() {
         return 1
     fi
 
-    if command -v chezmoi &>/dev/null && [[ -f "dot_my/dot_Brewfile.tmpl" ]]; then
+    if command -v chezmoi &>/dev/null; then
         echo "🔄 Syncing with chezmoi..."
         chezmoi add "$brewfile"
     fi
