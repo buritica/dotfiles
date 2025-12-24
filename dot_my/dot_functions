@@ -679,11 +679,20 @@ bench-compare() {
 
 # List worktrees
 gwt() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
   git worktree list
 }
 
 # Add worktree with branch creation
 gwta() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
+
   local branch="$1"
   local path="${2:-../${branch}}"
 
@@ -699,6 +708,11 @@ gwta() {
 
 # Remove worktree interactively
 gwtr() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
+
   if ! command -v fzf &>/dev/null; then
     echo "❌ gwtr requires fzf"
     return 1
@@ -711,6 +725,11 @@ gwtr() {
 
 # Switch to worktree (cd)
 gwts() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
+
   if ! command -v fzf &>/dev/null; then
     echo "❌ gwts requires fzf"
     return 1
@@ -723,6 +742,11 @@ gwts() {
 
 # fzf-powered stash browser with preview
 fstash() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
+
   if ! command -v fzf &>/dev/null; then
     echo "❌ fstash requires fzf"
     return 1
@@ -739,6 +763,11 @@ fstash() {
 
 # Interactive stash show
 fstash-show() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
+
   if ! command -v fzf &>/dev/null; then
     echo "❌ fstash-show requires fzf"
     return 1
@@ -755,6 +784,11 @@ fstash-show() {
 
 # Delete merged branches (interactive)
 git-cleanup() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
+
   local branches
   branches=$(git branch --merged | grep -v '\*\|master\|main\|develop')
 
@@ -779,6 +813,11 @@ git-cleanup() {
 
 # Delete all local branches not on remote
 git-prune-local() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
+
   git fetch -p
   local branches
   branches=$(git branch -vv | grep ': gone]' | awk '{print $1}')
@@ -796,23 +835,23 @@ git-prune-local() {
 
   if [[ $REPLY =~ ^[Yy]$ ]]; then
     # Try safe delete first
-    local failed_branches=""
+    local -a failed_branches
     while IFS= read -r branch; do
       if ! git branch -d "$branch" 2>/dev/null; then
-        failed_branches="$failed_branches $branch"
+        failed_branches+=("$branch")
       fi
     done <<< "$branches"
 
     # Force delete unmerged branches with warning
-    if [[ -n "$failed_branches" ]]; then
+    if (( ${#failed_branches[@]} > 0 )); then
       echo ""
       echo "⚠️  The following branches have unmerged changes:"
-      echo "$failed_branches"
+      printf '  %s\n' "${failed_branches[@]}"
       echo ""
       read -p "Force delete these unmerged branches? [y/N] " -n 1 -r
       echo
       if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo "$failed_branches" | xargs git branch -D
+        git branch -D "${failed_branches[@]}"
         echo "✅ All branches deleted (some forced)"
       else
         echo "❌ Cancelled force delete"
@@ -881,8 +920,17 @@ killport() {
     return 1
   fi
 
+  # Verify process exists before killing
+  if ! kill -0 "$pid" 2>/dev/null; then
+    echo "⚠️  Process $pid exited before kill (race condition avoided)"
+    return 0
+  fi
+
   echo "🛑 Stopping process $pid on port $port (SIGTERM)..."
-  kill -15 "$pid" 2>/dev/null
+  if ! kill -15 "$pid" 2>/dev/null; then
+    echo "⚠️  Process already exited"
+    return 0
+  fi
 
   # Wait up to 3 seconds for graceful shutdown
   local count=0
@@ -894,7 +942,10 @@ killport() {
   # Force kill if still running
   if kill -0 "$pid" 2>/dev/null; then
     echo "⚠️  Process didn't stop gracefully, force killing (SIGKILL)..."
-    kill -9 "$pid" 2>/dev/null
+    if ! kill -9 "$pid" 2>/dev/null; then
+      echo "⚠️  Process exited during force kill"
+      return 0
+    fi
   fi
 
   echo "✅ Process stopped"
@@ -908,8 +959,16 @@ ports() {
 
 # List available .env files
 envs() {
+  local env_files
+  env_files=$(ls -1 .env* 2>/dev/null)
+
+  if [[ -z "$env_files" ]]; then
+    echo "❌ No .env files found in current directory"
+    return 1
+  fi
+
   echo "Available environment files:"
-  ls -1 .env* 2>/dev/null | nl
+  echo "$env_files" | nl
 }
 
 # Switch .env file
@@ -983,11 +1042,6 @@ clip() {
   else
     pbcopy && echo "✅ Copied to clipboard"
   fi
-}
-
-# Paste
-paste() {
-  pbpaste
 }
 
 # Copy file content
