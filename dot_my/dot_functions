@@ -1,3 +1,74 @@
+# Show all new shell functions with brief descriptions
+shellhelp() {
+  cat << 'HELP'
+# New Shell Functions Quick Reference
+
+## Port Management (Stage 7)
+port 3000           # What's using this port?
+killport 3000       # Stop process on port (graceful SIGTERM → SIGKILL)
+ports               # List all listening ports
+
+## Environment Switcher (Stage 7)
+envs                # List available .env files
+envswitch dev       # Switch to .env.dev (auto-backup, keeps last 3)
+envnew staging      # Create new .env.staging from template
+
+## Clipboard Helpers (Stage 7)
+clip "text"         # Copy text to clipboard
+copypath            # Copy current directory path
+copyfile config.yml # Copy file contents to clipboard
+cat file | clip     # Pipe anything to clipboard
+
+## Git Workflows (Stage 4.5)
+gwt                 # List git worktrees
+gwta feature-x      # Create worktree for feature-x
+gwtr                # Remove worktree (interactive with fzf)
+gwts                # Switch to worktree (interactive)
+
+fstash              # Browse stashes with preview, pop on Enter
+fstash-show         # Browse stashes, show diff
+
+git-cleanup         # Delete merged branches (interactive)
+git-prune-local     # Delete branches removed from remote (safe -d first)
+
+gcommit feat "msg"  # Conventional commit helper
+gcfeat "msg"        # Shortcut for feat commits
+gcfix "msg"         # Shortcut for fix commits
+gcdocs "msg"        # Shortcut for docs commits
+gcchore "msg"       # Shortcut for chore commits
+
+## Modern Tool Integration (Stage 3)
+zi                  # Interactive zoxide with fzf picker
+bench "npm build"   # Benchmark command with hyperfine
+bench-compare "cmd1" "cmd2"  # Compare two commands
+tre                 # Tree view with eza (depth 3)
+tree-all            # Tree with hidden files (depth 2)
+
+## Enhanced Functions
+diff file1 file2    # Now uses delta for side-by-side diffs
+fs                  # File size - now uses dust if available
+
+## Brew Management
+brew-diff           # Show diff between Brewfile and installed
+brew-sync           # Interactive Brewfile sync
+brew-orphans        # Find orphaned packages (optimized O(n))
+
+## Quick Access
+termguide           # View full terminal guide
+tg                  # Short alias for termguide
+
+## Learn More
+- Run any command without args to see usage
+- Check TERMINAL_GUIDE.md for detailed examples
+- See CLAUDE.md for migration guide
+
+HELP
+}
+
+# Aliases for discovery
+alias new='shellhelp'
+alias whatsnew='shellhelp'
+
 # `e` with no arguments opens the current directory in VSCode, otherwise
 # opens the given location
 function e() {
@@ -37,6 +108,10 @@ function dr() {
 
 # empty commit as todo
 todo() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
   git commit --allow-empty -m "TODO: $*"
 }
 
@@ -45,11 +120,11 @@ todo() {
 gifify() {
   if [[ -n "$1" ]]; then
     if [[ $2 == '--good' ]]; then
-      ffmpeg -i $1 -r 10 -vcodec png out-static-%05d.png
-      time convert -verbose +dither -layers Optimize -resize 600x600\> out-static*.png  GIF:- | gifsicle --colors 128 --delay=5 --loop --optimize=3 --multifile - > $1.gif
-      rm out-static*.png
+      ffmpeg -i "$1" -r 10 -vcodec png out-static-%05d.png
+      time convert -verbose +dither -layers Optimize -resize 600x600\> out-static-*.png  GIF:- | gifsicle --colors 128 --delay=5 --loop --optimize=3 --multifile - > "$1.gif"
+      rm out-static-*.png
     else
-      ffmpeg -i $1 -s 600x400 -pix_fmt rgb24 -r 10 -f gif - | gifsicle --optimize=3 --delay=3 > $1.gif
+      ffmpeg -i "$1" -s 600x400 -pix_fmt rgb24 -r 10 -f gif - | gifsicle --optimize=3 --delay=3 > "$1.gif"
     fi
   else
     echo "proper usage: gifify <input_movie.mov>. You DO need to include extension."
@@ -68,22 +143,40 @@ function cdf() { # short for `cdfinder`
 
 # Determine size of a file or total size of a directory
 function fs() {
-  if du -b /dev/null > /dev/null 2>&1; then
-    local arg=-sbh;
+  if command -v dust &>/dev/null; then
+    dust -d 1 -r "$@"
   else
-    local arg=-sh;
+    # Fallback to traditional du
+    if du -b /dev/null > /dev/null 2>&1; then
+      local arg=-sbh;
+    else
+      local arg=-sh;
+    fi
+    if [[ -n "$@" ]]; then
+      du "$arg" -- "$@";
+    else
+      du "$arg" .[^.]* *;
+    fi
   fi
-  if [[ -n "$@" ]]; then
-    du $arg -- "$@";
-  else
-    du $arg .[^.]* *;
-  fi;
 }
 
-# Use Git's colored diff when available
+# Dust wrapper for common patterns
+disk() {
+  if ! command -v dust &>/dev/null; then
+    echo "❌ disk requires dust: brew install dust"
+    return 1
+  fi
+  dust -d "${1:-2}" -r "${2:-.}"
+}
+
+# Use Git's colored diff when available, with delta enhancement
 if command -v git &>/dev/null; then
   function diff() {
-    git diff --no-index --color-words "$@";
+    if command -v delta &>/dev/null; then
+      git diff --no-index --color-words "$@" | delta
+    else
+      git diff --no-index --color-words "$@"
+    fi
   }
 fi
 
@@ -120,13 +213,21 @@ function o() {
 # `less` with options to preserve color and line numbers, unless the output is
 # small enough for one screen.
 function tre() {
-  tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX;
+  eza --tree --git-ignore --icons --level="${1:-3}" "${@:2}" | less -FRN;
 }
+
+# Tree variants using eza
+tree() { eza --tree --git-ignore --icons --level="${1:-3}"; }
+tree-all() { eza --tree --all --icons --level="${1:-2}"; }  # Default depth 2 (--all is verbose)
 
 # Safer alternative to fixit - amend and push without force
 # Uses --force-with-lease which is safer than --force
 fixup() {
-    git add . && git commit --amend --no-edit && git push --force-with-lease
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
+  git add . && git commit --amend --no-edit && git push --force-with-lease
 }
 
 # contains(string, substring)
@@ -331,7 +432,7 @@ psg() {
 }
 
 # Safe npm clean with confirmation
-unalias npm-clean 2>/dev/null  # Remove old alias if it exists
+unalias npm-clean 2>/dev/null || true  # Remove old alias if it exists
 npm-clean() {
     echo "This will delete node_modules and reinstall. Continue? [y/N]"
     read -r response
@@ -441,25 +542,31 @@ brew-export() {
     echo "✅ Brewfile exported to $brewfile"
 }
 
-# Detect orphaned packages
+# Detect orphaned packages (optimized with zsh arrays)
 brew-orphans() {
-    echo "🔍 Checking for orphaned packages..."
+  echo "🔍 Checking for orphaned packages..."
 
-    # Get all leaves (top-level packages)
-    local leaves=$(brew leaves)
+  local -a installed leaves all_deps orphans
 
-    # Get all dependencies of leaves in one call
-    local all_deps=$(brew deps --installed --for-each $leaves 2>/dev/null | awk '{print $NF}')
+  # Build arrays once
+  installed=(${(f)"$(brew list --formula)"})
+  leaves=(${(f)"$(brew leaves)"})
+  all_deps=(${(f)"$(brew deps --installed --formula)"})
 
-    # Get all installed packages
-    local installed=$(brew list --formula)
+  # Find packages that are neither leaves nor dependencies
+  for package in $installed; do
+    if [[ ! ${leaves[(ie)$package]} -le ${#leaves} ]] &&
+       [[ ! ${all_deps[(ie)$package]} -le ${#all_deps} ]]; then
+      orphans+=($package)
+    fi
+  done
 
-    # Find packages that are neither leaves nor dependencies
-    for package in $installed; do
-        if ! echo "$leaves" | grep -q "^${package}$" && ! echo "$all_deps" | grep -q "^${package}$"; then
-            echo "  $package"
-        fi
-    done
+  if (( ${#orphans} > 0 )); then
+    echo "  📦 Found ${#orphans} orphaned package(s):"
+    printf '  %s\n' "${orphans[@]}"
+  else
+    echo "  ✨ No orphaned packages found"
+  fi
 }
 
 # Clean up brew cache
@@ -523,4 +630,433 @@ dotfiles-cd() {
 # Re-run setup script
 dotfiles-setup() {
     "$(chezmoi source-path)/setup.sh"
+}
+
+# =============================================================================
+# Modern CLI Tools (zoxide, hyperfine)
+# =============================================================================
+
+# Interactive zoxide with fzf
+zi() {
+  if ! command -v fzf &>/dev/null; then
+    echo "❌ zi requires fzf"
+    return 1
+  fi
+
+  local dir
+  dir=$(zoxide query -l | fzf --height 40% --reverse --query "$*") && cd "$dir"
+}
+
+# Benchmark commands easily
+bench() {
+  if ! command -v hyperfine &>/dev/null; then
+    echo "❌ hyperfine not installed: brew install hyperfine"
+    return 1
+  fi
+
+  if [[ -z "$1" ]]; then
+    echo "Usage: bench <command> [command2...]"
+    echo "Example: bench 'npm run build' 'yarn build'"
+    return 1
+  fi
+
+  hyperfine --warmup 3 "$@"
+}
+
+# Compare two commands
+bench-compare() {
+  if [[ -z "$2" ]]; then
+    echo "Usage: bench-compare <command1> <command2>"
+    return 1
+  fi
+
+  hyperfine --warmup 3 "$1" "$2"
+}
+
+# =============================================================================
+# Git Workflow Helpers (worktrees, stash, cleanup)
+# =============================================================================
+
+# List worktrees
+gwt() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
+  git worktree list
+}
+
+# Add worktree with branch creation
+gwta() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
+
+  local branch="$1"
+  local path="${2:-../${branch}}"
+
+  if [[ -z "$branch" ]]; then
+    echo "Usage: gwta <branch-name> [path]"
+    echo "Example: gwta feature-auth"
+    echo "Example: gwta feature-auth ../my-feature"
+    return 1
+  fi
+
+  git worktree add -b "$branch" "$path" && cd "$path"
+}
+
+# Remove worktree interactively
+gwtr() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
+
+  if ! command -v fzf &>/dev/null; then
+    echo "❌ gwtr requires fzf"
+    return 1
+  fi
+
+  local worktree
+  worktree=$(git worktree list | sed '1d' | fzf --height 40% | awk '{print $1}')
+  [[ -n "$worktree" ]] && git worktree remove "$worktree"
+}
+
+# Switch to worktree (cd)
+gwts() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
+
+  if ! command -v fzf &>/dev/null; then
+    echo "❌ gwts requires fzf"
+    return 1
+  fi
+
+  local worktree
+  worktree=$(git worktree list | fzf --height 40% | awk '{print $1}')
+  [[ -n "$worktree" ]] && cd "$worktree"
+}
+
+# fzf-powered stash browser with preview
+fstash() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
+
+  if ! command -v fzf &>/dev/null; then
+    echo "❌ fstash requires fzf"
+    return 1
+  fi
+
+  local stash
+  stash=$(git stash list | fzf \
+    --height 40% \
+    --preview 'git stash show -p {1}' \
+    --preview-window=right:60%)
+
+  [[ -n "$stash" ]] && git stash pop "${stash%%:*}"
+}
+
+# Interactive stash show
+fstash-show() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
+
+  if ! command -v fzf &>/dev/null; then
+    echo "❌ fstash-show requires fzf"
+    return 1
+  fi
+
+  local stash
+  stash=$(git stash list | fzf \
+    --height 40% \
+    --preview 'git stash show -p {1}' \
+    --preview-window=right:60%)
+
+  [[ -n "$stash" ]] && git stash show -p "${stash%%:*}"
+}
+
+# Delete merged branches (interactive)
+git-cleanup() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
+
+  local branches
+  branches=$(git branch --merged | grep -v '\*\|master\|main\|develop')
+
+  if [[ -z "$branches" ]]; then
+    echo "✨ No merged branches to clean up"
+    return 0
+  fi
+
+  echo "🗑️  Merged branches:"
+  echo "$branches"
+  echo ""
+  read -p "Delete these branches? [y/N] " -n 1 -r
+  echo
+
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo "$branches" | xargs git branch -d
+    echo "✅ Branches deleted"
+  else
+    echo "❌ Cancelled"
+  fi
+}
+
+# Delete all local branches not on remote
+git-prune-local() {
+  if ! git rev-parse --git-dir &>/dev/null; then
+    echo "❌ Not a git repository"
+    return 1
+  fi
+
+  git fetch -p
+  local branches
+  branches=$(git branch -vv | grep ': gone]' | awk '{print $1}')
+
+  if [[ -z "$branches" ]]; then
+    echo "✨ No orphaned branches"
+    return 0
+  fi
+
+  echo "🗑️  Branches not on remote:"
+  echo "$branches"
+  echo ""
+  read -p "Delete these branches? [y/N] " -n 1 -r
+  echo
+
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    # Try safe delete first
+    local -a failed_branches
+    while IFS= read -r branch; do
+      [[ -z "$branch" ]] && continue
+      if ! git branch -d "$branch" 2>/dev/null; then
+        failed_branches+=("$branch")
+      fi
+    done <<< "$branches"
+
+    # Force delete unmerged branches with warning
+    if (( ${#failed_branches[@]} > 0 )); then
+      echo ""
+      echo "⚠️  The following branches have unmerged changes:"
+      printf '  %s\n' "${failed_branches[@]}"
+      echo ""
+      read -p "Force delete these unmerged branches? [y/N] " -n 1 -r
+      echo
+      if [[ $REPLY =~ ^[Yy]$ ]]; then
+        git branch -D "${failed_branches[@]}"
+        echo "✅ All branches deleted (some forced)"
+      else
+        echo "❌ Cancelled force delete"
+      fi
+    else
+      echo "✅ Branches deleted"
+    fi
+  fi
+}
+
+# Quick conventional commits
+gcommit() {
+  local type="${1}"
+  local scope="${2}"
+  local message="${3:-}"
+
+  if [[ -z "$type" ]] || [[ -z "$message" && -z "$scope" ]]; then
+    echo "Usage: gcommit <type> [scope] <message>"
+    echo ""
+    echo "Types: feat, fix, docs, style, refactor, test, chore"
+    echo "Example: gcommit feat api \"add user endpoint\""
+    echo "Example: gcommit fix \"resolve memory leak\""
+    return 1
+  fi
+
+  # If only 2 args, second is message not scope
+  if [[ -z "$message" ]]; then
+    message="$scope"
+    scope=""
+  fi
+
+  local commit_msg="${type}"
+  [[ -n "$scope" ]] && commit_msg="${commit_msg}(${scope})"
+  commit_msg="${commit_msg}: ${message}"
+
+  git commit -m "$commit_msg"
+}
+
+# =============================================================================
+# Developer Productivity Tools
+# =============================================================================
+
+# Find what's using a port
+port() {
+  local port="${1}"
+  if [[ -z "$port" ]]; then
+    echo "Usage: port <port-number>"
+    echo "Example: port 3000"
+    return 1
+  fi
+  lsof -i ":$port"
+}
+
+# Kill process on port
+killport() {
+  local port="${1}"
+  if [[ -z "$port" ]]; then
+    echo "Usage: killport <port-number>"
+    echo "Example: killport 3000"
+    return 1
+  fi
+
+  local pid=$(lsof -ti ":$port")
+  if [[ -z "$pid" ]]; then
+    echo "❌ No process found on port $port"
+    return 1
+  fi
+
+  # Verify process exists before killing
+  if ! kill -0 "$pid" 2>/dev/null; then
+    echo "⚠️  Process $pid exited before kill (race condition avoided)"
+    return 0
+  fi
+
+  echo "🛑 Stopping process $pid on port $port (SIGTERM)..."
+  if ! kill -15 "$pid" 2>/dev/null; then
+    echo "⚠️  Process already exited"
+    return 0
+  fi
+
+  # Wait up to 3 seconds for graceful shutdown
+  local count=0
+  while kill -0 "$pid" 2>/dev/null && [[ $count -lt 6 ]]; do
+    sleep 0.5
+    count=$((count + 1))
+  done
+
+  # Force kill if still running
+  if kill -0 "$pid" 2>/dev/null; then
+    echo "⚠️  Process didn't stop gracefully, force killing (SIGKILL)..."
+    if ! kill -9 "$pid" 2>/dev/null; then
+      echo "⚠️  Process exited during force kill"
+      return 0
+    fi
+  fi
+
+  echo "✅ Process stopped"
+}
+
+# List all listening ports
+ports() {
+  echo "📡 Listening ports:"
+  lsof -iTCP -sTCP:LISTEN -n -P
+}
+
+# List available .env files
+envs() {
+  local env_files
+  env_files=$(ls -1 .env* 2>/dev/null)
+
+  if [[ -z "$env_files" ]]; then
+    echo "❌ No .env files found in current directory"
+    return 1
+  fi
+
+  echo "Available environment files:"
+  echo "$env_files" | nl
+}
+
+# Switch .env file
+envswitch() {
+  local env_file=".env.${1}"
+
+  if [[ -z "$1" ]]; then
+    echo "Usage: envswitch <environment>"
+    echo "Example: envswitch dev, envswitch prod"
+    envs
+    return 1
+  fi
+
+  if [[ ! -f "$env_file" ]]; then
+    echo "❌ $env_file not found"
+    envs
+    return 1
+  fi
+
+  # Backup existing .env if it exists
+  if [[ -f .env ]]; then
+    local timestamp=$(date +%Y%m%d_%H%M%S)
+    cp .env ".env.backup.$timestamp"
+    echo "💾 Backed up current .env to .env.backup.$timestamp"
+
+    # Keep only last 3 backups
+    local backup_count=$(ls -1 .env.backup.* 2>/dev/null | wc -l | tr -d ' ')
+    if [[ $backup_count -gt 3 ]]; then
+      ls -1t .env.backup.* | tail -n +4 | xargs -r rm -f
+      echo "🧹 Cleaned up old backups (kept last 3)"
+    fi
+  fi
+
+  cp "$env_file" .env
+  echo "✅ Switched to $env_file"
+}
+
+# Create .env from template
+envnew() {
+  local env_name="${1}"
+
+  if [[ -z "$env_name" ]]; then
+    echo "Usage: envnew <environment>"
+    echo "Example: envnew staging"
+    return 1
+  fi
+
+  local env_file=".env.${env_name}"
+
+  if [[ -f "$env_file" ]]; then
+    echo "❌ $env_file already exists"
+    return 1
+  fi
+
+  if [[ -f ".env.template" ]]; then
+    cp .env.template "$env_file"
+    echo "✅ Created $env_file from template"
+  else
+    touch "$env_file"
+    echo "✅ Created empty $env_file"
+  fi
+
+  ${EDITOR:-code} "$env_file"
+}
+
+# Copy with confirmation
+# Copy to clipboard (renamed from 'copy' to avoid conflict with cp plugin)
+clip() {
+  if [[ -t 0 ]]; then
+    echo -n "$*" | pbcopy && echo "✅ Copied to clipboard"
+  else
+    pbcopy && echo "✅ Copied to clipboard"
+  fi
+}
+
+# Copy file content
+copyfile() {
+  if [[ -z "$1" ]] || [[ ! -f "$1" ]]; then
+    echo "Usage: copyfile <file>"
+    return 1
+  fi
+  cat "$1" | pbcopy
+  echo "✅ Copied $1 to clipboard"
+}
+
+# Copy current directory path
+copypath() {
+  pwd | tr -d '\n' | pbcopy
+  echo "✅ Copied: $(pwd)"
 }

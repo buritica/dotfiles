@@ -1,6 +1,3 @@
-[hub]
-  protocol = https
-
 [credential]
   helper = osxkeychain
 
@@ -51,9 +48,6 @@
 
 [github]
   user = buritica
-
-[ghi]
-  token = !security find-internet-password -a buritica -s github.com -l 'ghi token' -w
 
 [alias]
   # Basic shortcuts
@@ -127,9 +121,6 @@
 
   # GitHub specific
   pr = "!f() { git fetch origin pull/$1/head:pr-$1 && git checkout pr-$1; }; f"
-  issues = "!ghi list"
-  issue = "!ghi show"
-  create-issue = "!ghi create"
 
   # Git flow shortcuts
   feature = "!git flow feature"

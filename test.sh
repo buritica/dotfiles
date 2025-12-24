@@ -276,4 +276,290 @@ run_test "Check modern tool aliases" '
     return 0
 '
 
+# Test 16: Check new productivity functions exist
+run_test "Check new productivity functions" '
+    # Port management
+    if ! grep -q "^port()" dot_my/dot_functions; then
+        echo "Missing port() function"
+        return 1
+    fi
+    if ! grep -q "^killport()" dot_my/dot_functions; then
+        echo "Missing killport() function"
+        return 1
+    fi
+    if ! grep -q "^ports()" dot_my/dot_functions; then
+        echo "Missing ports() function"
+        return 1
+    fi
+
+    # Environment switcher
+    if ! grep -q "^envs()" dot_my/dot_functions; then
+        echo "Missing envs() function"
+        return 1
+    fi
+    if ! grep -q "^envswitch()" dot_my/dot_functions; then
+        echo "Missing envswitch() function"
+        return 1
+    fi
+    if ! grep -q "^envnew()" dot_my/dot_functions; then
+        echo "Missing envnew() function"
+        return 1
+    fi
+
+    # Clipboard helpers
+    if ! grep -q "^clip()" dot_my/dot_functions; then
+        echo "Missing clip() function"
+        return 1
+    fi
+    if ! grep -q "^copyfile()" dot_my/dot_functions; then
+        echo "Missing copyfile() function"
+        return 1
+    fi
+    if ! grep -q "^copypath()" dot_my/dot_functions; then
+        echo "Missing copypath() function"
+        return 1
+    fi
+
+    return 0
+'
+
+# Test 17: Check new git workflow functions exist
+run_test "Check new git workflow functions" '
+    # Worktree helpers
+    if ! grep -q "^gwt()" dot_my/dot_functions; then
+        echo "Missing gwt() function"
+        return 1
+    fi
+    if ! grep -q "^gwta()" dot_my/dot_functions; then
+        echo "Missing gwta() function"
+        return 1
+    fi
+    if ! grep -q "^gwtr()" dot_my/dot_functions; then
+        echo "Missing gwtr() function"
+        return 1
+    fi
+    if ! grep -q "^gwts()" dot_my/dot_functions; then
+        echo "Missing gwts() function"
+        return 1
+    fi
+
+    # Stash browser
+    if ! grep -q "^fstash()" dot_my/dot_functions; then
+        echo "Missing fstash() function"
+        return 1
+    fi
+    if ! grep -q "^fstash-show()" dot_my/dot_functions; then
+        echo "Missing fstash-show() function"
+        return 1
+    fi
+
+    # Branch cleanup
+    if ! grep -q "^git-cleanup()" dot_my/dot_functions; then
+        echo "Missing git-cleanup() function"
+        return 1
+    fi
+    if ! grep -q "^git-prune-local()" dot_my/dot_functions; then
+        echo "Missing git-prune-local() function"
+        return 1
+    fi
+
+    # Conventional commits
+    if ! grep -q "^gcommit()" dot_my/dot_functions; then
+        echo "Missing gcommit() function"
+        return 1
+    fi
+
+    return 0
+'
+
+# Test 18: Check error handling in new functions
+run_test "Check error handling in new functions" '
+    # Port functions should check for arguments
+    if ! grep -q "Usage: port" dot_my/dot_functions; then
+        echo "port() missing usage message"
+        return 1
+    fi
+    if ! grep -q "Usage: killport" dot_my/dot_functions; then
+        echo "killport() missing usage message"
+        return 1
+    fi
+
+    # Environment switcher should check for arguments
+    if ! grep -q "Usage: envswitch" dot_my/dot_functions; then
+        echo "envswitch() missing usage message"
+        return 1
+    fi
+    if ! grep -q "Usage: envnew" dot_my/dot_functions; then
+        echo "envnew() missing usage message"
+        return 1
+    fi
+
+    # Clipboard helpers should check for arguments
+    if ! grep -q "Usage: copyfile" dot_my/dot_functions; then
+        echo "copyfile() missing usage message"
+        return 1
+    fi
+
+    # Git functions should check for repo
+    if ! grep -q "git rev-parse --git-dir" dot_my/dot_functions; then
+        echo "Git functions missing repo validation"
+        return 1
+    fi
+
+    return 0
+'
+
+# Test 19: Check modern tool integration
+run_test "Check modern tool integration" '
+    # Zoxide integration
+    if ! grep -q "^zi()" dot_my/dot_functions; then
+        echo "Missing zi() zoxide integration"
+        return 1
+    fi
+
+    # Hyperfine benchmarking
+    if ! grep -q "^bench()" dot_my/dot_functions; then
+        echo "Missing bench() function"
+        return 1
+    fi
+    if ! grep -q "^bench-compare()" dot_my/dot_functions; then
+        echo "Missing bench-compare() function"
+        return 1
+    fi
+
+    # Modern tre with eza
+    if ! grep -q "function tre()" dot_my/dot_functions && ! grep -q "^tre()" dot_my/dot_functions; then
+        echo "Missing tre() function"
+        return 1
+    fi
+    if ! grep -q "eza --tree" dot_my/dot_functions; then
+        echo "tre() not using eza"
+        return 1
+    fi
+
+    # Modern aliases
+    if ! grep -q "alias df=\"duf\"" dot_my/dot_aliases; then
+        echo "Missing df=duf alias"
+        return 1
+    fi
+    if ! grep -q "alias du=\"dust\"" dot_my/dot_aliases; then
+        echo "Missing du=dust alias"
+        return 1
+    fi
+    if ! grep -q "alias help=\"tldr\"" dot_my/dot_aliases; then
+        echo "Missing help=tldr alias"
+        return 1
+    fi
+
+    return 0
+'
+
+# Test 20: Check bug fixes applied
+run_test "Check critical bug fixes" '
+    # Man pages should use bat, not undefined variable
+    if ! grep -q "MANPAGER" dot_my/dot_exports; then
+        echo "Missing MANPAGER fix"
+        return 1
+    fi
+    if grep -q "\${yellow}" dot_my/dot_exports; then
+        echo "Still has undefined \${yellow} variable"
+        return 1
+    fi
+
+    # SSH_AUTH_SOCK should be properly quoted
+    if grep -q "SSH_AUTH_SOCK=\$HOME/Library" dot_my/dot_exports; then
+        echo "SSH_AUTH_SOCK not properly quoted"
+        return 1
+    fi
+
+    # Git functions should check for repo
+    if ! grep -q "git rev-parse --git-dir" dot_my/dot_functions || \
+       ! grep -q "&>/dev/null" dot_my/dot_functions; then
+        echo "Git functions missing proper repo checks"
+        return 1
+    fi
+
+    # gifify() should quote variables
+    if ! grep -A 10 "gifify()" dot_my/dot_functions | grep -q "ffmpeg -i \"\$1\""; then
+        echo "gifify() missing quoted \$1"
+        return 1
+    fi
+
+    # fs() should use dust with quoted variables
+    if ! grep -A 5 "function fs()" dot_my/dot_functions | grep -q "dust.*\"\$@\""; then
+        echo "fs() missing dust or quoted variables"
+        return 1
+    fi
+
+    # diff() should use delta when available
+    if ! grep -A 5 "function diff()" dot_my/dot_functions | grep -q "delta"; then
+        echo "diff() missing delta integration"
+        return 1
+    fi
+
+    return 0
+'
+
+# Test 21: Check deprecated tools removed
+run_test "Check deprecated tools removed" '
+    # hub should be removed
+    if grep -q "\[hub\]" dot_gitconfig.tmpl; then
+        echo "hub section still present"
+        return 1
+    fi
+
+    # ghi should be removed
+    if grep -q "\[ghi\]" dot_gitconfig.tmpl; then
+        echo "ghi section still present"
+        return 1
+    fi
+
+    # bash completion should be removed
+    if grep -q "bash-completion" dot_zshrc.tmpl; then
+        echo "bash-completion still present"
+        return 1
+    fi
+
+    # Duplicate aliases should be removed
+    if grep -q "^alias refresh=" dot_my/dot_aliases; then
+        echo "refresh alias still present (should be removed)"
+        return 1
+    fi
+    if grep -q "^alias glog=" dot_my/dot_aliases; then
+        echo "glog alias still present (should be removed)"
+        return 1
+    fi
+
+    # Compinit optimization should be present
+    if ! grep -q "autoload -Uz compinit" dot_zshrc.tmpl; then
+        echo "Missing compinit autoload"
+        return 1
+    fi
+    if ! grep -q "\.zcompdump.*mh+24" dot_zshrc.tmpl; then
+        echo "Missing 24h cache optimization"
+        return 1
+    fi
+
+    return 0
+'
+
+# Test 22: Verify function syntax by sourcing
+if [ "$IS_CI" = "false" ]; then
+    run_test "Verify functions can be sourced" '
+        # Source in a subshell to avoid polluting current environment
+        (
+            set -e
+            source dot_my/dot_functions >/dev/null 2>&1
+
+            # Verify critical functions are defined
+            for func in shellhelp port killport envswitch clip copyfile copypath gwt fstash git-cleanup gcommit zi bench tre; do
+                type "$func" >/dev/null 2>&1 || {
+                    echo "Function $func not found after sourcing"
+                    exit 1
+                }
+            done
+        )
+    '
+fi
+
 print_status "All tests completed successfully!" 
