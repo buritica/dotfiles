@@ -837,6 +837,7 @@ git-prune-local() {
     # Try safe delete first
     local -a failed_branches
     while IFS= read -r branch; do
+      [[ -z "$branch" ]] && continue
       if ! git branch -d "$branch" 2>/dev/null; then
         failed_branches+=("$branch")
       fi
@@ -997,7 +998,7 @@ envswitch() {
     # Keep only last 3 backups
     local backup_count=$(ls -1 .env.backup.* 2>/dev/null | wc -l | tr -d ' ')
     if [[ $backup_count -gt 3 ]]; then
-      ls -1t .env.backup.* | tail -n +4 | xargs rm -f
+      ls -1t .env.backup.* | tail -n +4 | xargs -r rm -f
       echo "🧹 Cleaned up old backups (kept last 3)"
     fi
   fi
