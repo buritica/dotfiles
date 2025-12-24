@@ -361,7 +361,7 @@ psg() {
 }
 
 # Safe npm clean with confirmation
-unalias npm-clean 2>/dev/null  # Remove old alias if it exists
+unalias npm-clean 2>/dev/null || true  # Remove old alias if it exists
 npm-clean() {
     echo "This will delete node_modules and reinstall. Continue? [y/N]"
     read -r response
