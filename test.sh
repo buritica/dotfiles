@@ -479,6 +479,24 @@ run_test "Check critical bug fixes" '
         return 1
     fi
 
+    # gifify() should quote variables
+    if ! grep -A 10 "gifify()" dot_my/dot_functions | grep -q "ffmpeg -i \"\$1\""; then
+        echo "gifify() missing quoted \$1"
+        return 1
+    fi
+
+    # fs() should use dust with quoted variables
+    if ! grep -A 5 "function fs()" dot_my/dot_functions | grep -q "dust.*\"\$@\""; then
+        echo "fs() missing dust or quoted variables"
+        return 1
+    fi
+
+    # diff() should use delta when available
+    if ! grep -A 5 "function diff()" dot_my/dot_functions | grep -q "delta"; then
+        echo "diff() missing delta integration"
+        return 1
+    fi
+
     return 0
 '
 
@@ -499,6 +517,26 @@ run_test "Check deprecated tools removed" '
     # bash completion should be removed
     if grep -q "bash-completion" dot_zshrc.tmpl; then
         echo "bash-completion still present"
+        return 1
+    fi
+
+    # Duplicate aliases should be removed
+    if grep -q "^alias refresh=" dot_my/dot_aliases; then
+        echo "refresh alias still present (should be removed)"
+        return 1
+    fi
+    if grep -q "^alias glog=" dot_my/dot_aliases; then
+        echo "glog alias still present (should be removed)"
+        return 1
+    fi
+
+    # Compinit optimization should be present
+    if ! grep -q "autoload -Uz compinit" dot_zshrc.tmpl; then
+        echo "Missing compinit autoload"
+        return 1
+    fi
+    if ! grep -q "\.zcompdump.*mh+24" dot_zshrc.tmpl; then
+        echo "Missing 24h cache optimization"
         return 1
     fi
 
