@@ -147,7 +147,7 @@ function tre() {
 
 # Tree variants using eza
 tree() { eza --tree --git-ignore --icons --level="${1:-3}"; }
-tree-all() { eza --tree --all --icons --level="${1:-3}"; }
+tree-all() { eza --tree --all --icons --level="${1:-2}"; }  # Default depth 2 (--all is verbose)
 
 # Safer alternative to fixit - amend and push without force
 # Uses --force-with-lease which is safer than --force
@@ -491,6 +491,7 @@ brew-orphans() {
   done
 
   if (( ${#orphans} > 0 )); then
+    echo "  📦 Found ${#orphans} orphaned package(s):"
     printf '  %s\n' "${orphans[@]}"
   else
     echo "  ✨ No orphaned packages found"
@@ -723,8 +724,31 @@ git-prune-local() {
   echo
 
   if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "$branches" | xargs git branch -D
-    echo "✅ Branches deleted"
+    # Try safe delete first
+    local failed_branches=""
+    while IFS= read -r branch; do
+      if ! git branch -d "$branch" 2>/dev/null; then
+        failed_branches="$failed_branches $branch"
+      fi
+    done <<< "$branches"
+
+    # Force delete unmerged branches with warning
+    if [[ -n "$failed_branches" ]]; then
+      echo ""
+      echo "⚠️  The following branches have unmerged changes:"
+      echo "$failed_branches"
+      echo ""
+      read -p "Force delete these unmerged branches? [y/N] " -n 1 -r
+      echo
+      if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "$failed_branches" | xargs git branch -D
+        echo "✅ All branches deleted (some forced)"
+      else
+        echo "❌ Cancelled force delete"
+      fi
+    else
+      echo "✅ Branches deleted"
+    fi
   fi
 }
 
@@ -786,9 +810,23 @@ killport() {
     return 1
   fi
 
-  echo "🔫 Killing process $pid on port $port"
-  kill -9 "$pid"
-  echo "✅ Process killed"
+  echo "🛑 Stopping process $pid on port $port (SIGTERM)..."
+  kill -15 "$pid" 2>/dev/null
+
+  # Wait up to 3 seconds for graceful shutdown
+  local count=0
+  while kill -0 "$pid" 2>/dev/null && [[ $count -lt 6 ]]; do
+    sleep 0.5
+    count=$((count + 1))
+  done
+
+  # Force kill if still running
+  if kill -0 "$pid" 2>/dev/null; then
+    echo "⚠️  Process didn't stop gracefully, force killing (SIGKILL)..."
+    kill -9 "$pid" 2>/dev/null
+  fi
+
+  echo "✅ Process stopped"
 }
 
 # List all listening ports
@@ -822,8 +860,16 @@ envswitch() {
 
   # Backup existing .env if it exists
   if [[ -f .env ]]; then
-    cp .env .env.backup
-    echo "💾 Backed up current .env to .env.backup"
+    local timestamp=$(date +%Y%m%d_%H%M%S)
+    cp .env ".env.backup.$timestamp"
+    echo "💾 Backed up current .env to .env.backup.$timestamp"
+
+    # Keep only last 3 backups
+    local backup_count=$(ls -1 .env.backup.* 2>/dev/null | wc -l | tr -d ' ')
+    if [[ $backup_count -gt 3 ]]; then
+      ls -1t .env.backup.* | tail -n +4 | xargs rm -f
+      echo "🧹 Cleaned up old backups (kept last 3)"
+    fi
   fi
 
   cp "$env_file" .env
@@ -859,13 +905,13 @@ envnew() {
 }
 
 # Copy with confirmation
-copy() {
+# Copy to clipboard (renamed from 'copy' to avoid conflict with cp plugin)
+clip() {
   if [[ -t 0 ]]; then
-    echo -n "$*" | pbcopy
+    echo -n "$*" | pbcopy && echo "✅ Copied to clipboard"
   else
-    pbcopy
+    pbcopy && echo "✅ Copied to clipboard"
   fi
-  echo "✅ Copied to clipboard"
 }
 
 # Paste

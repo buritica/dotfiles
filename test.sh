@@ -307,8 +307,8 @@ run_test "Check new productivity functions" '
     fi
 
     # Clipboard helpers
-    if ! grep -q "^copy()" dot_my/dot_functions; then
-        echo "Missing copy() function"
+    if ! grep -q "^clip()" dot_my/dot_functions; then
+        echo "Missing clip() function"
         return 1
     fi
     if ! grep -q "^copyfile()" dot_my/dot_functions; then
@@ -552,7 +552,7 @@ if [ "$IS_CI" = "false" ]; then
             source dot_my/dot_functions >/dev/null 2>&1
 
             # Verify critical functions are defined
-            for func in port killport envswitch copy copyfile copypath gwt fstash git-cleanup gcommit zi bench tre; do
+            for func in port killport envswitch clip copyfile copypath gwt fstash git-cleanup gcommit zi bench tre; do
                 type "$func" >/dev/null 2>&1 || {
                     echo "Function $func not found after sourcing"
                     exit 1

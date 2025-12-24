@@ -482,7 +482,7 @@ envs
 ```bash
 copypath              # Copy current directory path
 copyfile config.json  # Copy file contents to clipboard
-copy "some text"      # Copy text to clipboard
+clip "some text"      # Copy text to clipboard
 ```
 
 **Learn this pattern**:
@@ -494,10 +494,10 @@ copypath              # pwd | pbcopy with confirmation
 copyfile package.json # cat file | pbcopy with confirmation
 
 # Copy command output
-ls | copy             # Pipe anything to clipboard
+ls | clip             # Pipe anything to clipboard
 
 # Copy text directly
-copy "API_KEY=secret" # Quick text to clipboard
+clip "API_KEY=secret" # Quick text to clipboard
 ```
 
 **Real examples**:
@@ -507,16 +507,16 @@ copypath
 # ✅ Copied: /Users/you/projects/my-app
 
 # Copy API response for debugging
-curl api.example.com | copy
+curl api.example.com | clip
 
 # Copy config for documentation
 copyfile .prettierrc
 
 # Copy error message
-rg "Error:" logs/ | copy
+rg "Error:" logs/ | clip
 
 # Multiple ways to copy
-cat README.md | copy      # Pipe style
+cat README.md | clip      # Pipe style
 copyfile README.md        # Function style
 ```
 
