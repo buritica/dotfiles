@@ -622,8 +622,7 @@ gwta() {
     return 1
   fi
 
-  git worktree add -b "$branch" "$path"
-  cd "$path"
+  git worktree add -b "$branch" "$path" && cd "$path"
 }
 
 # Remove worktree interactively
@@ -685,7 +684,7 @@ fstash-show() {
 # Delete merged branches (interactive)
 git-cleanup() {
   local branches
-  branches=$(git branch --merged | grep -v '\\*\\|master\\|main\\|develop')
+  branches=$(git branch --merged | grep -v '\*\|master\|main\|develop')
 
   if [[ -z "$branches" ]]; then
     echo "✨ No merged branches to clean up"
@@ -819,6 +818,12 @@ envswitch() {
     echo "❌ $env_file not found"
     envs
     return 1
+  fi
+
+  # Backup existing .env if it exists
+  if [[ -f .env ]]; then
+    cp .env .env.backup
+    echo "💾 Backed up current .env to .env.backup"
   fi
 
   cp "$env_file" .env
