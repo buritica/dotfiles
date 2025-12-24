@@ -34,6 +34,9 @@ else
     echo "Warning: Oh My Zsh not found at $ZSH/oh-my-zsh.sh"
 fi
 
+# Remove git=hub alias (deprecated, conflicts with git commands in functions)
+unalias git 2>/dev/null || true
+
 # Optimize zsh completion (only regenerate once per day for performance)
 autoload -Uz compinit
 if [[ -n ${ZDOTDIR:-~}/.zcompdump(#qN.mh+24) ]]; then
