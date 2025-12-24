@@ -5,12 +5,6 @@
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
-# Install Oh My Zsh if it's not already installed
-if [ ! -d "$ZSH" ]; then
-    echo "Installing Oh My Zsh..."
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-fi
-
 # Set name of the theme to load.
 ZSH_THEME="geoffgarside"
 
@@ -38,6 +32,14 @@ if [ -f "$ZSH/oh-my-zsh.sh" ]; then
     source "$ZSH/oh-my-zsh.sh"
 else
     echo "Warning: Oh My Zsh not found at $ZSH/oh-my-zsh.sh"
+fi
+
+# Optimize zsh completion (only regenerate once per day for performance)
+autoload -Uz compinit
+if [[ -n ${ZDOTDIR:-~}/.zcompdump(#qN.mh+24) ]]; then
+  compinit
+else
+  compinit -C
 fi
 
 # =============================================================================
@@ -175,13 +177,6 @@ export PS1="🔬  💀 $PS1"
 # Alias python to python3 if it exists
 if command -v python3 >/dev/null 2>&1; then
     alias python=python3
-fi
-
-# Add tab completion for many Bash commands
-if command -v brew >/dev/null 2>&1 && [ -f "$(brew --prefix)/etc/bash_completion" ]; then
-    source "$(brew --prefix)/etc/bash_completion"
-elif [ -f /etc/bash_completion ]; then
-    source /etc/bash_completion
 fi
 
 # =============================================================================

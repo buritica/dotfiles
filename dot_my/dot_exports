@@ -13,11 +13,9 @@ export HISTIGNORE="ls:cd:cd -:pwd:exit:date:* --help";
 export LANG="en_US.UTF-8";
 export LC_ALL="en_US.UTF-8";
 
-# Highlight section titles in manual pages
-export LESS_TERMCAP_md="${yellow}";
-
-# Don't clear the screen after quitting a manual page
-export MANPAGER="less -X";
+# Highlight section titles in manual pages with bat
+export MANPAGER='sh -c "col -bx | bat -l man -p"'
+export MANROFFOPT='-c'  # Fix formatting issues
 
 # Colors for ghi and others
 export TERM="xterm-256color"
@@ -29,4 +27,6 @@ export GOPATH="$HOME/go"
 export HOMEBREW_BUNDLE_FILE="$HOME/.my/.Brewfile"
 
 # 1Password ssh agent
-export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
+if [[ -S "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock" ]]; then
+  export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+fi

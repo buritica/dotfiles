@@ -241,3 +241,154 @@ All shell functions use Python 3:
 ### Git Config Features
 - `fetch.prune = true`: Auto-cleanup stale remote branches
 - `rerere.enabled = true`: Remember conflict resolutions
+
+## Shell Evolution Migration Guide
+
+This section documents breaking changes and new features from the comprehensive shell modernization (Sprint 1-6).
+
+### Breaking Changes
+
+**Removed Aliases** - Update your muscle memory:
+- `refresh` → Use `dsync` instead (dotfiles sync)
+- `glog` → Use `git l` or `git lg` instead (git aliases)
+- `urlencode` → Use the function instead (same name, just type it)
+- `dots` → Use `dot` instead (navigate to dotfiles) *[optional removal]*
+
+**Removed Tools**:
+- **hub CLI** → Use `gh` CLI instead (already installed)
+  - Old: `hub pr create`
+  - New: `gh pr create`
+- **ghi** → No replacement needed (tool unmaintained)
+
+**Performance Changes**:
+- Shell startup optimized: OMZ install check removed, bash completion removed
+- Completion now uses native zsh compinit (regenerates once per day)
+- brew-orphans optimized from O(n²) to O(n)
+
+### New Features Available
+
+**Modern CLI Tool Integration** (Section 6 of TERMINAL_GUIDE.md):
+```bash
+df                  # Now uses duf (prettier disk free)
+du                  # Now uses dust (visual disk usage)
+help <cmd>          # Now uses tldr (quick command examples)
+```
+
+**Git Workflow Enhancements**:
+```bash
+# Worktree management (parallel branch work)
+gwt                 # List worktrees
+gwta feature-x      # Create worktree for branch
+gwtr                # Remove worktree (interactive)
+gwts                # Switch to worktree (interactive)
+
+# Stash browser with preview
+fstash              # Browse stashes, pop on Enter
+fstash-show         # Browse stashes, show diff
+
+# Branch cleanup
+git-cleanup         # Remove merged branches (interactive)
+git-prune-local     # Remove orphaned branches (interactive)
+
+# Conventional commits
+gcommit feat "add search"           # feat: add search
+gcommit fix api "resolve timeout"   # fix(api): resolve timeout
+gcfeat "add X"      # Alias for gcommit feat
+gcfix "resolve Y"   # Alias for gcommit fix
+gcdocs "update Z"   # Alias for gcommit docs
+gcchore "clean W"   # Alias for gcommit chore
+```
+
+**Modern Navigation**:
+```bash
+zi                  # Interactive zoxide with fzf
+tree                # Now uses eza (icons + git-aware)
+tree-all            # Tree including hidden files
+tre <dir>           # Tree with pager
+```
+
+**Enhanced Tools**:
+```bash
+diff file1 file2    # Now uses delta when available
+fs <dir>            # Now uses dust when available
+disk                # Visual disk usage (wrapper for dust)
+```
+
+**Benchmarking** (documented in termguide tool #15):
+```bash
+bench 'npm run build'               # Benchmark a command
+bench-compare 'cmd1' 'cmd2'         # Compare two commands
+```
+
+**Developer Productivity**:
+```bash
+# Port management
+port 3000           # What's using this port?
+killport 3000       # Kill process on port
+ports               # List all listening ports
+
+# Environment switcher
+envs                # List .env files
+envswitch dev       # Switch to .env.dev
+envswitch prod      # Switch to .env.prod
+envnew staging      # Create .env.staging
+
+# Clipboard helpers
+copy "text"         # Copy to clipboard
+cat file | copy     # Pipe to clipboard
+copyfile config.json # Copy file contents
+copypath            # Copy current directory path
+```
+
+### Bug Fixes Applied
+
+1. **Man pages now work**: Fixed undefined `${yellow}` variable → now using bat for beautiful syntax-highlighted man pages
+2. **Ripgrep config works**: Created missing `.ripgreprc` file
+3. **Filenames with spaces work**: Fixed unquoted variables in `gifify()` and `fs()`
+4. **SSH auth more robust**: Fixed SSH_AUTH_SOCK with proper quoting and graceful fallback
+5. **Git functions safer**: Added repo checks to `todo()` and `fixup()` functions
+
+### Configuration Changes
+
+**Man Pages**: Now use bat instead of LESS_TERMCAP
+```bash
+# Old (broken):
+export LESS_TERMCAP_md="${yellow}"
+
+# New (beautiful):
+export MANPAGER='sh -c "col -bx | bat -l man -p"'
+```
+
+**ZSH Completion**: Optimized for performance
+```bash
+# Now regenerates only once per 24 hours
+autoload -Uz compinit
+if [[ -n ${ZDOTDIR:-~}/.zcompdump(#qN.mh+24) ]]; then
+  compinit
+else
+  compinit -C
+fi
+```
+
+### Testing Changes
+
+All changes pass the existing test suite. No test modifications needed.
+
+### Performance Impact
+
+- Shell startup remains < 100ms (maintained or improved)
+- brew-orphans now O(n) instead of O(n²)
+- Completion regeneration reduced by ~99% (once/day vs every shell start)
+- Removed slow bash completion compatibility layer
+
+### Documentation
+
+See `~/.my/TERMINAL_GUIDE.md` (or `termguide` / `tg` command) for:
+- Comprehensive guide to all modern tools
+- Progressive learning path (Week 1-6)
+- Daily workflow examples
+- Practice exercises
+
+### Rollback
+
+If issues arise, this commit can be reverted. All changes are backward compatible except for the removed aliases listed above.

@@ -392,6 +392,138 @@ hyperfine 'rg pattern' 'grep pattern'  # Compare tool speeds
 
 ---
 
+## Stage 7: Developer Productivity Tools (Week 7+)
+Utilities that solve common development frustrations:
+
+### 16. **Port management** - Debug server conflicts
+**What it does**: Find and kill processes using specific ports
+
+**Start here**:
+```bash
+port 3000             # What's using port 3000?
+killport 3000         # Kill process on port 3000
+ports                 # List all listening ports
+```
+
+**Real examples**:
+```bash
+# Server won't start: "Address already in use"
+port 3000
+# Output: node    12345 user   TCP *:3000 (LISTEN)
+
+killport 3000
+# Output: 🔫 Killing process 12345 on port 3000
+#         ✅ Process killed
+
+# See all your running servers
+ports
+# Shows all processes listening on TCP ports
+```
+
+**Daily practice**: When you get port conflicts, use `killport` instead of hunting for PIDs
+
+---
+
+### 17. **Environment switcher** - Manage .env files
+**What it does**: Switch between different environment configurations (.env.dev, .env.prod, etc.)
+
+**Start here**:
+```bash
+envs                  # List available .env files
+envswitch dev         # Switch to .env.dev
+envswitch prod        # Switch to .env.prod
+```
+
+**Learn this pattern**:
+```bash
+# Create new environment file from template
+envnew staging        # Creates .env.staging from .env.template
+
+# Switch between environments
+envswitch dev         # Copy .env.dev → .env
+envswitch prod        # Copy .env.prod → .env
+
+# List all available environments
+envs                  # Shows all .env.* files
+```
+
+**Real examples**:
+```bash
+# Setting up a new project
+cp .env .env.template          # Create template
+envnew dev                     # Creates .env.dev (opens in editor)
+envnew prod                    # Creates .env.prod
+
+# During development
+envswitch dev                  # Use development database
+npm start
+
+# Before deploying
+envswitch prod                 # Use production credentials
+npm run build
+
+# Check which environments you have
+envs
+# Output:
+# Available environment files:
+#      1  .env.dev
+#      2  .env.prod
+#      3  .env.staging
+```
+
+**Daily practice**: Keep separate .env files for each environment instead of manually editing
+
+---
+
+### 18. **Clipboard helpers** - Terminal to clipboard
+**What it does**: Copy paths, file contents, and text to clipboard from terminal
+
+**Start here**:
+```bash
+copypath              # Copy current directory path
+copyfile config.json  # Copy file contents to clipboard
+copy "some text"      # Copy text to clipboard
+```
+
+**Learn this pattern**:
+```bash
+# Copy current location
+copypath              # pwd | pbcopy with confirmation
+
+# Copy file contents
+copyfile package.json # cat file | pbcopy with confirmation
+
+# Copy command output
+ls | copy             # Pipe anything to clipboard
+
+# Copy text directly
+copy "API_KEY=secret" # Quick text to clipboard
+```
+
+**Real examples**:
+```bash
+# Share current directory in Slack
+copypath
+# ✅ Copied: /Users/you/projects/my-app
+
+# Copy API response for debugging
+curl api.example.com | copy
+
+# Copy config for documentation
+copyfile .prettierrc
+
+# Copy error message
+rg "Error:" logs/ | copy
+
+# Multiple ways to copy
+cat README.md | copy      # Pipe style
+copyfile README.md        # Function style
+```
+
+**Daily practice**: Stop manually selecting and copying terminal output
+
+---
+
 ## Daily Workflow Examples
 
 ### Morning: Start working on feature
@@ -518,6 +650,14 @@ fshow         # Interactive commit browser
 # GitHub
 ghpr          # Browse PRs interactively
 ghissue       # Browse issues interactively
+
+# Productivity
+port 3000     # What's using this port?
+killport 3000 # Kill process on port
+ports         # List all listening ports
+envswitch dev # Switch .env file
+copypath      # Copy current directory path
+copyfile file # Copy file contents to clipboard
 ```
 
 ### Tool Discovery

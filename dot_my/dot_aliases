@@ -5,9 +5,6 @@ alias la="eza --long --all --header --git --icons"
 alias lt="eza --tree --level=2 --icons"
 alias lta="eza --tree --level=2 --all --icons"
 
-# pretty one line git log
-alias glog="git log --pretty=oneline"
-
 # DANGEROUS: Use fixup instead - safer alternative that doesn't force push
 # Kept for backwards compatibility but use 'fixup' for new workflows
 alias fixit="echo 'WARNING: fixit uses force push. Use fixup instead for safer workflow.' && sleep 2 && git add . && git commit --amend --no-edit && git push -f"
@@ -19,7 +16,6 @@ alias reload="source ~/.zshrc"
 
 # rsync dotfiles
 alias chez="chezmoi"
-alias refresh="chez update"
 
 # create blank space in dock
 alias blank="defaults write com.apple.dock persistent-apps -array-add '{\"tile-type\"=\"spacer-tile\";'} && killall Dock"
@@ -36,6 +32,11 @@ alias fd="fd --hidden --follow"
 alias cat="bat --paging=never"
 alias catp="bat"
 alias bathelp="bat --plain --language=help"
+
+# Modern system utilities (documented in termguide Section 6)
+alias df="duf"          # Better df (tool #13)
+alias du="dust"         # Better du (tool #12)
+alias help="tldr"       # Quick command help (tool #14)
 
 # Terminal guide
 alias termguide="bat ~/.my/TERMINAL_GUIDE.md"
@@ -106,9 +107,6 @@ alias c="tr -d '\n' | pbcopy"
 alias hidedesktop="defaults write com.apple.finder CreateDesktop -bool false && killall Finder"
 alias showdesktop="defaults write com.apple.finder CreateDesktop -bool true && killall Finder"
 
-# URL-encode strings
-alias urlencode='python3 -c "import sys, urllib.parse as ul; print(ul.quote_plus(sys.argv[1]))"'
-
 # Merge PDF files
 # Usage: `mergepdf -o output.pdf input{1,2,3}.pdf`
 alias mergepdf='/System/Library/Automator/Combine\ PDF\ Pages.action/Contents/Resources/join.py'
@@ -137,3 +135,9 @@ alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v exten
 
 # Lock the screen (when going AFK)
 alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
+
+# Conventional commit shortcuts
+alias gcfeat="gcommit feat"
+alias gcfix="gcommit fix"
+alias gcdocs="gcommit docs"
+alias gcchore="gcommit chore"
