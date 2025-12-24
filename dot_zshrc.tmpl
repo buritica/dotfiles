@@ -34,8 +34,11 @@ else
     echo "Warning: Oh My Zsh not found at $ZSH/oh-my-zsh.sh"
 fi
 
-# Remove git=hub alias (deprecated, conflicts with git commands in functions)
-unalias git 2>/dev/null || true
+# Unalias Oh My Zsh git plugin aliases that conflict with our enhanced functions
+# We keep the plugin (197 useful aliases like ga, gco, gst) but override these specific ones
+unalias gwt 2>/dev/null || true      # We have gwt() with git repo validation
+unalias gwta 2>/dev/null || true     # We have gwta() with auto-cd
+unalias gcommit 2>/dev/null || true  # We have gcommit() for conventional commits
 
 # Optimize zsh completion (only regenerate once per day for performance)
 autoload -Uz compinit
