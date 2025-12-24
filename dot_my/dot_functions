@@ -1,3 +1,74 @@
+# Show all new shell functions with brief descriptions
+shellhelp() {
+  cat << 'HELP'
+# New Shell Functions Quick Reference
+
+## Port Management (Stage 7)
+port 3000           # What's using this port?
+killport 3000       # Stop process on port (graceful SIGTERM → SIGKILL)
+ports               # List all listening ports
+
+## Environment Switcher (Stage 7)
+envs                # List available .env files
+envswitch dev       # Switch to .env.dev (auto-backup, keeps last 3)
+envnew staging      # Create new .env.staging from template
+
+## Clipboard Helpers (Stage 7)
+clip "text"         # Copy text to clipboard
+copypath            # Copy current directory path
+copyfile config.yml # Copy file contents to clipboard
+cat file | clip     # Pipe anything to clipboard
+
+## Git Workflows (Stage 4.5)
+gwt                 # List git worktrees
+gwta feature-x      # Create worktree for feature-x
+gwtr                # Remove worktree (interactive with fzf)
+gwts                # Switch to worktree (interactive)
+
+fstash              # Browse stashes with preview, pop on Enter
+fstash-show         # Browse stashes, show diff
+
+git-cleanup         # Delete merged branches (interactive)
+git-prune-local     # Delete branches removed from remote (safe -d first)
+
+gcommit feat "msg"  # Conventional commit helper
+gcfeat "msg"        # Shortcut for feat commits
+gcfix "msg"         # Shortcut for fix commits
+gcdocs "msg"        # Shortcut for docs commits
+gcchore "msg"       # Shortcut for chore commits
+
+## Modern Tool Integration (Stage 3)
+zi                  # Interactive zoxide with fzf picker
+bench "npm build"   # Benchmark command with hyperfine
+bench-compare "cmd1" "cmd2"  # Compare two commands
+tre                 # Tree view with eza (depth 3)
+tree-all            # Tree with hidden files (depth 2)
+
+## Enhanced Functions
+diff file1 file2    # Now uses delta for side-by-side diffs
+fs                  # File size - now uses dust if available
+
+## Brew Management
+brew-diff           # Show diff between Brewfile and installed
+brew-sync           # Interactive Brewfile sync
+brew-orphans        # Find orphaned packages (optimized O(n))
+
+## Quick Access
+termguide           # View full terminal guide
+tg                  # Short alias for termguide
+
+## Learn More
+- Run any command without args to see usage
+- Check TERMINAL_GUIDE.md for detailed examples
+- See CLAUDE.md for migration guide
+
+HELP
+}
+
+# Aliases for discovery
+alias new='shellhelp'
+alias whatsnew='shellhelp'
+
 # `e` with no arguments opens the current directory in VSCode, otherwise
 # opens the given location
 function e() {
