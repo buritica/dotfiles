@@ -1,5 +1,6 @@
-# Start timing shell initialization
-_zsh_start_time=$(($(date +%s%N)/1000000))
+# Start timing shell initialization (using zsh's EPOCHREALTIME for fractional seconds)
+typeset -F SECONDS
+_zsh_start_time=$SECONDS
 
 # =============================================================================
 # Oh My Zsh Configuration
@@ -193,7 +194,6 @@ fi
 # =============================================================================
 
 # Calculate and display shell initialization time
-_zsh_end_time=$(($(date +%s%N)/1000000))
-_zsh_elapsed=$((_zsh_end_time - _zsh_start_time))
-echo "dotfiles sourced (${_zsh_elapsed}ms)"
-unset _zsh_start_time _zsh_end_time _zsh_elapsed
+_zsh_elapsed=$((($SECONDS - $_zsh_start_time) * 1000))
+printf "dotfiles sourced (%dms)\n" $_zsh_elapsed
+unset _zsh_start_time _zsh_elapsed
