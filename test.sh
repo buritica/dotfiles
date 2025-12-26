@@ -530,21 +530,18 @@ run_test "Check deprecated tools removed" '
         return 1
     fi
 
-    # Compinit smart caching optimization
-    if ! grep -q "skip_global_compinit=1" dot_zshrc.tmpl; then
-        echo "Missing skip_global_compinit to prevent Oh My Zsh duplicate"
-        return 1
-    fi
+    # Compinit configuration - let Oh My Zsh handle it
     if ! grep -q "ZSH_COMPDUMP" dot_zshrc.tmpl; then
         echo "Missing ZSH_COMPDUMP configuration"
         return 1
     fi
-    if ! grep -q "compinit -C" dot_zshrc.tmpl; then
-        echo "Missing fast compinit -C for cached mode"
+    if ! grep -q "ZSH_DISABLE_COMPFIX" dot_zshrc.tmpl; then
+        echo "Missing ZSH_DISABLE_COMPFIX optimization"
         return 1
     fi
-    if ! grep -q "mh+24" dot_zshrc.tmpl; then
-        echo "Missing 24-hour cache check"
+    # Verify we do not call compinit ourselves (Oh My Zsh handles it)
+    if grep -E "^[[:space:]]*compinit" dot_zshrc.tmpl | grep -v "^#" | grep -q "compinit"; then
+        echo "Found manual compinit call - should let Oh My Zsh handle it"
         return 1
     fi
 

@@ -18,9 +18,9 @@ export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="geoffgarside"
 
 # Completion cache settings (improves startup time)
-# Tell Oh My Zsh to skip compinit - we'll handle it ourselves with smart caching
-skip_global_compinit=1
-export ZSH_COMPDUMP="${ZDOTDIR:-$HOME}/.zcompdump-${ZSH_VERSION}"
+# Oh My Zsh handles compinit - we just configure it for optimal caching
+export ZSH_COMPDUMP="${ZDOTDIR:-$HOME}/.zcompdump"
+export ZSH_DISABLE_COMPFIX=true  # Skip insecure directory checks (faster)
 
 # oh-my-zsh plugins
 plugins=(
@@ -54,16 +54,8 @@ unalias gwt 2>/dev/null || true      # We have gwt() with git repo validation
 unalias gwta 2>/dev/null || true     # We have gwta() with auto-cd
 unalias gcommit 2>/dev/null || true  # We have gcommit() for conventional commits
 
-# Smart completion initialization (massive performance improvement)
-# Only do full compinit scan once per day, use fast cached mode otherwise
-autoload -Uz compinit
-if [[ -n ${ZSH_COMPDUMP}(#qN.mh+24) ]]; then
-  # Cache is >24 hours old or doesn't exist - do full scan
-  compinit
-else
-  # Cache is fresh (<24 hours) - use it without security checks (fast!)
-  compinit -C
-fi
+# Note: Oh My Zsh handles compinit automatically
+# We just configure it via ZSH_COMPDUMP and ZSH_DISABLE_COMPFIX above
 
 # =============================================================================
 # Path Configuration
