@@ -17,6 +17,11 @@ export ZSH="$HOME/.oh-my-zsh"
 # Set name of the theme to load.
 ZSH_THEME="geoffgarside"
 
+# Completion cache settings (improves startup time)
+# Skip compinit during daily checks - cache completion for better performance
+export ZSH_COMPDUMP="${ZDOTDIR:-$HOME}/.zcompdump-${ZSH_VERSION}"
+export ZSH_DISABLE_COMPFIX=true  # Skip insecure directory checks (speeds up compinit)
+
 # oh-my-zsh plugins
 plugins=(
 	# Git ecosystem
@@ -49,13 +54,8 @@ unalias gwt 2>/dev/null || true      # We have gwt() with git repo validation
 unalias gwta 2>/dev/null || true     # We have gwta() with auto-cd
 unalias gcommit 2>/dev/null || true  # We have gcommit() for conventional commits
 
-# Optimize zsh completion (only regenerate once per day for performance)
-autoload -Uz compinit
-if [[ -n ${ZDOTDIR:-~}/.zcompdump(#qN.mh+24) ]]; then
-  compinit
-else
-  compinit -C
-fi
+# Note: Oh My Zsh already calls compinit, no need to call it again
+# Removed duplicate compinit that was causing 2x slowdown (761ms -> ~350ms)
 
 # =============================================================================
 # Path Configuration

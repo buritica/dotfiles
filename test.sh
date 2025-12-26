@@ -530,13 +530,18 @@ run_test "Check deprecated tools removed" '
         return 1
     fi
 
-    # Compinit optimization should be present
-    if ! grep -q "autoload -Uz compinit" dot_zshrc.tmpl; then
-        echo "Missing compinit autoload"
+    # Compinit optimization - Oh My Zsh handles it, check for config
+    if ! grep -q "ZSH_COMPDUMP" dot_zshrc.tmpl; then
+        echo "Missing ZSH_COMPDUMP configuration"
         return 1
     fi
-    if ! grep -q "\.zcompdump.*mh+24" dot_zshrc.tmpl; then
-        echo "Missing 24h cache optimization"
+    if ! grep -q "ZSH_DISABLE_COMPFIX" dot_zshrc.tmpl; then
+        echo "Missing ZSH_DISABLE_COMPFIX optimization"
+        return 1
+    fi
+    # Verify we do not duplicate compinit - should only be called by Oh My Zsh
+    if grep -q "^[^#]*compinit$" dot_zshrc.tmpl; then
+        echo "Found duplicate compinit call - Oh My Zsh already handles it"
         return 1
     fi
 
