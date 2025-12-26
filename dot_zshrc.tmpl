@@ -2,6 +2,11 @@
 typeset -F SECONDS
 _zsh_start_time=$SECONDS
 
+# Enable profiling to find bottlenecks (set ZSH_PROFILE=1 to enable)
+if [[ -n "$ZSH_PROFILE" ]]; then
+  zmodload zsh/zprof
+fi
+
 # =============================================================================
 # Oh My Zsh Configuration
 # =============================================================================
@@ -196,4 +201,10 @@ fi
 # Calculate and display shell initialization time
 _zsh_elapsed=$((($SECONDS - $_zsh_start_time) * 1000))
 printf "dotfiles sourced (%dms)\n" $_zsh_elapsed
+
+# Show profiling output if enabled
+if [[ -n "$ZSH_PROFILE" ]]; then
+  zprof
+fi
+
 unset _zsh_start_time _zsh_elapsed
