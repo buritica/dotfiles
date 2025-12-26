@@ -1,3 +1,6 @@
+# Start timing shell initialization
+_zsh_start_time=$(($(date +%s%N)/1000000))
+
 # =============================================================================
 # Oh My Zsh Configuration
 # =============================================================================
@@ -189,5 +192,8 @@ fi
 # Finalization
 # =============================================================================
 
-# Notify that dotfiles are sourced
-echo "dotfiles sourced"
+# Calculate and display shell initialization time
+_zsh_end_time=$(($(date +%s%N)/1000000))
+_zsh_elapsed=$((_zsh_end_time - _zsh_start_time))
+echo "dotfiles sourced (${_zsh_elapsed}ms)"
+unset _zsh_start_time _zsh_end_time _zsh_elapsed
