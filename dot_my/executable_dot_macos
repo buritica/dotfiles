@@ -168,6 +168,19 @@ sudo rm -f /private/var/vm/sleepimage 2>/dev/null || true
 sudo touch /private/var/vm/sleepimage 2>/dev/null || true
 sudo chflags uchg /private/var/vm/sleepimage 2>/dev/null || true
 
+######################## Media Server Settings (halfmoon) ####################
+
+if [ "$(hostname -s)" = "halfmoon" ]; then
+  # Never sleep — media server must stay awake even without Plex running
+  sudo pmset -a sleep 0
+
+  # Never spin down disks — prevents NFS mount drops
+  sudo pmset -a disksleep 0
+
+  # Download updates but don't auto-install — prevents surprise reboots
+  sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticallyInstallMacOSUpdates -bool false
+fi
+
 ########################### Screen Settings #################################
 
 # Require password immediately after sleep or screen saver begins
