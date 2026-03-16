@@ -5,6 +5,7 @@ brew "chezmoi"
 brew "colima"
 brew "coreutils"
 brew "direnv"
+brew "docker"
 brew "docker-compose"
 brew "findutils"
 brew "gh"
@@ -48,48 +49,51 @@ brew "hyperfine"     # Benchmarking tool
 # Core applications (all machines)
 cask "1password"
 cask "1password-cli"
-cask "alfred"
-cask "figma"
 cask "font-inconsolata"
 cask "font-montserrat"
 cask "font-open-sans"
 cask "font-sanchez"
 cask "font-source-code-pro"
 cask "ghostty"
-cask "github"
-cask "gmvault"
 cask "google-chrome"
 cask "google-drive"
-cask "grammarly-desktop"
 cask "iterm2"
+cask "obsidian"
+cask "signal"
+cask "stats"
+cask "visual-studio-code"
+cask "vlc"
+
+{{- if ne .machine.profile "media" }}
+# Desktop apps (not needed on headless server)
+cask "alfred"
+cask "figma"
+cask "github"
+cask "gmvault"
+cask "grammarly-desktop"
 cask "ledger-live"
 cask "loom"
 cask "microsoft-auto-update"
 cask "microsoft-office"
 cask "notion"
-cask "obsidian"
-cask "qfinder-pro"
-cask "raycast"
 cask "rectangle"
-cask "signal"
-cask "stats"
-cask "visual-studio-code"
-cask "vlc"
 cask "whatsapp"
 cask "zoom"
+{{- end }}
 
 {{- if eq .machine.profile "media" }}
-# Video editing and streaming (halfmoon only)
-cask "adobe-creative-cloud"
-cask "audio-hijack"
-cask "loopback"
-cask "obs"
-cask "soundsource"
-cask "streamlabs"
+# Server apps (halfmoon only)
+cask "plex-media-server"
+cask "qfinder-pro"
+cask "raycast"
+cask "sabnzbd"
+cask "transmit"
 {{- end }}
 
 {{- if eq .machine.profile "work" }}
 # Work tools (deltatail only)
+cask "microsoft-auto-update"
+cask "microsoft-office"
 cask "microsoft-teams"
 cask "slack"
 {{- end }}
@@ -102,12 +106,16 @@ cask "spotify"
 {{- end }}
 
 mas "1Password for Safari", id: 1569813296
-mas "Bear", id: 1091189122
 mas "DaisyDisk", id: 411643860
 mas "Fantastical", id: 975937182
+# mas "Tailscale", id: 1475387142  # Disabled: install manually after setup to avoid password prompts
+
+{{- if ne .machine.profile "media" }}
+# Desktop Mac App Store apps (not needed on server)
+mas "Bear", id: 1091189122
 mas "GoLinks", id: 1478821913
 mas "Keynote", id: 361285480
 mas "Numbers", id: 361304891
 mas "Pages", id: 361309726
-# mas "Tailscale", id: 1475387142  # Disabled: install manually after setup to avoid password prompts
 mas "Whisper", id: 1668083311
+{{- end }}
