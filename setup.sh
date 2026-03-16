@@ -165,5 +165,21 @@ else
     print_warning "macOS settings script not found. Make sure dotfiles are properly installed."
 fi
 
+# Set up 1Password service account token (for halfmoon server)
+if [[ "$(hostname -s)" == "halfmoon" ]]; then
+    print_status "Halfmoon server detected — checking 1Password service account..."
+    OP_TOKEN_FILE="${HOME}/.config/op/service-account-token"
+    if [ ! -f "$OP_TOKEN_FILE" ]; then
+        print_warning "Missing 1Password service account token at $OP_TOKEN_FILE"
+        print_status "To set up:"
+        print_status "  1. Create a service account at my.1password.com → Developer → Service Accounts"
+        print_status "  2. Grant read access to the 'halfmoon' vault"
+        print_status "  3. Run: mkdir -p ~/.config/op && echo '<token>' > $OP_TOKEN_FILE && chmod 600 $OP_TOKEN_FILE"
+        print_status "  4. For botsito (multi-vault): echo '<token>' > ~/.config/op/botsito-service-account-token && chmod 600 ~/.config/op/botsito-service-account-token"
+    else
+        print_status "1Password service account token found"
+    fi
+fi
+
 print_status "Setup complete! Please restart your terminal to ensure all changes take effect."
-print_status "You may need to manually configure some applications and services." 
+print_status "You may need to manually configure some applications and services."
