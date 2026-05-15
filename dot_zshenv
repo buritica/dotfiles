@@ -1,0 +1,21 @@
+# Environment for all shell types (interactive, non-interactive, login, launchd).
+# Sourced before .zshrc, so keep this minimal and fast.
+
+# mise shims first — takes priority for runtime versions (node, python, etc.)
+export PATH="$HOME/.local/share/mise/shims:$PATH"
+
+# asdf shims for tools not yet migrated to mise
+export PATH="$HOME/.asdf/shims:$PATH"
+
+# Homebrew (needed so shims can call underlying tools)
+if [[ $(uname -m) == 'arm64' ]]; then
+    export PATH="/opt/homebrew/bin:$PATH"
+else
+    export PATH="/usr/local/bin:$PATH"
+fi
+
+# bun
+export PATH="$HOME/.bun/bin:$PATH"
+
+# user-local binaries
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
