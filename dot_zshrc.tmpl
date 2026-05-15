@@ -98,16 +98,8 @@ if command -v direnv >/dev/null 2>&1; then
     eval "$(direnv hook zsh)"
 fi
 
-# asdf initialization (defer - only needed when using version-managed tools)
-_asdf_path="${HOMEBREW_PREFIX}/opt/asdf/libexec/asdf.sh"
-if [ -f "$_asdf_path" ]; then
-    if command -v zsh-defer >/dev/null 2>&1; then
-        zsh-defer . "$_asdf_path"
-    else
-        . "$_asdf_path"
-    fi
-fi
-unset _asdf_path
+# mise is activated system-wide via /etc/zshrc (managed by ansible).
+# No per-user activation needed here.
 
 # =============================================================================
 # Modern Tool Initialization

@@ -29,3 +29,7 @@ Thumbs.db
 
 # State files (should persist outside chezmoi)
 .my/.macos_configured
+
+# Managed by ansible (machines repo) — not dotfiles.
+# ansible writes ~/.tool-versions and runs mise install.
+.tool-versions
