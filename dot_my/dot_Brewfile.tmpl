@@ -1,53 +1,72 @@
-# Core development tools (all machines)
-# Note: mise (runtime manager) and chezmoi are installed by ansible bootstrap,
-# not here — they must exist before this Brewfile runs.
-brew "awscli"
-brew "chezmoi"
-brew "colima"
-brew "coreutils"
-brew "direnv"
-brew "docker"
-brew "docker-compose"
-brew "findutils"
-brew "gh"
-brew "gist"
-brew "git-extras"
-brew "gnu-tar"
-brew "gnupg"
-brew "go"
-brew "httpie"
-brew "jq"
-brew "mas"
-brew "moreutils"
-brew "pipx"
-brew "qemu"
-brew "shellcheck"
-brew "subversion"
-# brew "tailscale"  # Disabled: requires sudo, breaks remote setup. Use Mac App Store version instead.
-brew "tree"
-brew "wget"
+# =============================================================================
+# Brewfile — managed by chezmoi, executed by ansible after dotfiles are applied.
+# mise and chezmoi are installed by ansible bootstrap before this runs.
+# =============================================================================
 
-{{- if eq .machine.profile "media" }}
-# Video/audio processing (halfmoon only)
-brew "ffmpeg"
-brew "gifsicle"
-{{- end }}
-
-# Modern CLI tools
+# -----------------------------------------------------------------------------
+# CLI essentials — every machine
+# -----------------------------------------------------------------------------
 brew "bat"           # Syntax-highlighted cat
-brew "eza"           # Modern ls with git integration
-brew "fd"            # Fast find replacement
-brew "fzf"           # Fuzzy finder
-brew "git-delta"     # Better git diffs
-brew "ripgrep"       # Fast grep replacement
-brew "zoxide"        # Smarter cd
+brew "coreutils"     # GNU core utils
+brew "direnv"        # Per-directory env vars
 brew "dust"          # Intuitive du
 brew "duf"           # Modern df
-brew "procs"         # Modern ps
+brew "eza"           # Modern ls
+brew "fd"            # Fast find
+brew "findutils"     # GNU find/xargs
+brew "fzf"           # Fuzzy finder
+brew "gh"            # GitHub CLI
+brew "git-delta"     # Better git diffs
+brew "git-extras"    # Extra git commands
+brew "gnu-tar"       # GNU tar
+brew "gnupg"         # GPG
+brew "httpie"        # HTTP client
+brew "jq"            # JSON processor
+brew "moreutils"     # sponge, ts, etc.
+brew "ripgrep"       # Fast grep
+brew "shellcheck"    # Shell script linter
 brew "tldr"          # Simplified man pages
-brew "hyperfine"     # Benchmarking tool
+brew "tree"          # Directory tree
+brew "wget"          # HTTP downloader
+brew "zoxide"        # Smarter cd
 
-# Core applications (all machines)
+# -----------------------------------------------------------------------------
+# Media tools — halfmoon only
+# -----------------------------------------------------------------------------
+{{- if eq .machine.profile "media" }}
+brew "ffmpeg"
+brew "gifsicle"
+
+# Container runtime for halfmoon services (docker-managed, not colima)
+brew "docker"
+brew "docker-compose"
+
+# Server casks
+cask "plex-media-server"
+cask "qfinder-pro"
+cask "raycast"
+cask "sabnzbd"
+cask "transmit"
+{{- end }}
+
+# -----------------------------------------------------------------------------
+# Development workstation tools — non-server machines
+# -----------------------------------------------------------------------------
+{{- if ne .machine.profile "media" }}
+brew "awscli"
+brew "colima"
+brew "docker"
+brew "docker-compose"
+brew "gist"
+brew "go"
+brew "hyperfine"     # Benchmarking
+brew "mas"           # Mac App Store CLI
+brew "pipx"          # Python app installer
+brew "procs"         # Modern ps
+brew "qemu"
+brew "subversion"
+
+# Desktop apps — all workstations
 cask "1password"
 cask "1password-cli"
 cask "font-inconsolata"
@@ -65,58 +84,30 @@ cask "stats"
 cask "visual-studio-code"
 cask "vlc"
 
-{{- if ne .machine.profile "media" }}
-# Desktop apps (not needed on headless server)
-cask "alfred"
-cask "figma"
-cask "github"
-cask "gmvault"
-cask "grammarly-desktop"
-cask "ledger-live"
-cask "loom"
-cask "microsoft-auto-update"
-cask "microsoft-office"
-cask "notion"
-cask "rectangle"
-cask "whatsapp"
-cask "zoom"
-{{- end }}
-
-{{- if eq .machine.profile "media" }}
-# Server apps (halfmoon only)
-cask "plex-media-server"
-cask "qfinder-pro"
-cask "raycast"
-cask "sabnzbd"
-cask "transmit"
-{{- end }}
-
-{{- if eq .machine.profile "work" }}
-# Work tools (deltatail only)
-cask "microsoft-auto-update"
-cask "microsoft-office"
-cask "microsoft-teams"
-cask "slack"
-{{- end }}
-
-{{- if eq .machine.profile "home" }}
-# Home entertainment (crowntail only)
-cask "discord"
-cask "minecraft"
-cask "spotify"
-{{- end }}
-
+# Mac App Store — all workstations
 mas "1Password for Safari", id: 1569813296
 mas "DaisyDisk", id: 411643860
 mas "Fantastical", id: 975937182
-# mas "Tailscale", id: 1475387142  # Disabled: install manually after setup to avoid password prompts
-
-{{- if ne .machine.profile "media" }}
-# Desktop Mac App Store apps (not needed on server)
 mas "Bear", id: 1091189122
 mas "GoLinks", id: 1478821913
 mas "Keynote", id: 361285480
 mas "Numbers", id: 361304891
 mas "Pages", id: 361309726
 mas "Whisper", id: 1668083311
+{{- end }}
+
+# -----------------------------------------------------------------------------
+# Profile-specific extras
+# -----------------------------------------------------------------------------
+{{- if eq .machine.profile "home" }}
+cask "discord"
+cask "minecraft"
+cask "spotify"
+{{- end }}
+
+{{- if eq .machine.profile "work" }}
+cask "microsoft-auto-update"
+cask "microsoft-office"
+cask "microsoft-teams"
+cask "slack"
 {{- end }}
