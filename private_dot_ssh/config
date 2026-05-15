@@ -1,0 +1,17 @@
+Include /Users/buritica/.colima/ssh_config
+
+Host github.com
+  IdentityFile ~/.ssh/id_halfmoon
+
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519
+
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_rb
+
+Host *
+  IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
