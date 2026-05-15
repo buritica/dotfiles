@@ -14,11 +14,8 @@ fi
 # user-local binaries
 export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
-# asdf shims (lower priority — only for tools not managed by mise)
-export PATH="$HOME/.asdf/shims:$PATH"
-
-# mise shims — takes precedence over asdf for managed runtimes
+# mise shims — runtime version manager (node, python, rust, etc.)
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 
-# bun tools last = highest priority (bun-installed CLIs win over npm globals)
+# bun tools last = highest priority (bun-installed CLIs win over mise shims)
 export PATH="$HOME/.bun/bin:$PATH"
