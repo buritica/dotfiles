@@ -169,25 +169,20 @@
   # Automatically correct and execute mistyped commands
   autocorrect = 1
 
-# URL shorthands
-[url "git@github.com:"]
-  insteadOf = https://github.com/
-
-[url "git@gitlab.com:"]
-  insteadOf = https://gitlab.com/
-
-[url "git@bitbucket.org:"]
-  insteadOf = https://bitbucket.org/
-
 [filter "lfs"]
   clean = git-lfs clean -- %f
   smudge = git-lfs smudge -- %f
   process = git-lfs filter-process
   required = true
 
-{{ if eq .chezmoi.arch "arm64" }}
 [credential "https://github.com"]
   helper =
-  helper = !/opt/homebrew/bin/gh auth git-credential
-{{ else }}
-{{ end }}
+  helper = !gh auth git-credential
+
+[credential "https://gitlab.com"]
+  helper =
+  helper = !gh auth git-credential
+
+[credential "https://bitbucket.org"]
+  helper =
+  helper = !gh auth git-credential
