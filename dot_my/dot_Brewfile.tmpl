@@ -3,6 +3,7 @@
 # not here — they must exist before this Brewfile runs.
 brew "awscli"
 brew "chezmoi"
+brew "cloudflared"
 brew "colima"
 brew "coreutils"
 brew "direnv"
@@ -12,9 +13,11 @@ brew "findutils"
 brew "gh"
 brew "gist"
 brew "git-extras"
+brew "git-lfs"
 brew "gnu-tar"
 brew "gnupg"
 brew "go"
+brew "htop"
 brew "httpie"
 brew "jq"
 brew "mas"
@@ -23,13 +26,18 @@ brew "qemu"
 brew "shellcheck"
 brew "subversion"
 # brew "tailscale"  # Disabled: requires sudo, breaks remote setup. Use Mac App Store version instead.
+brew "tmux"
 brew "tree"
+brew "watch"
 brew "wget"
 
 {{- if eq .machine.profile "media" }}
-# Video/audio processing (halfmoon only)
+# Video/audio processing + server tools (halfmoon only)
+brew "bats-core"
 brew "ffmpeg"
 brew "gifsicle"
+brew "nmap"
+brew "signal-cli"
 {{- end }}
 
 # Modern CLI tools
@@ -49,6 +57,7 @@ brew "hyperfine"     # Benchmarking tool
 # Core applications (all machines)
 cask "1password"
 cask "1password-cli"
+cask "claude"
 cask "font-inconsolata"
 cask "font-montserrat"
 cask "font-open-sans"
@@ -57,6 +66,7 @@ cask "font-source-code-pro"
 cask "ghostty"
 cask "google-chrome"
 cask "google-drive"
+cask "istat-menus"
 cask "obsidian"
 cask "signal"
 cask "stats"
@@ -64,16 +74,23 @@ cask "visual-studio-code"
 cask "vlc"
 
 {{- if ne .machine.profile "media" }}
+# Desktop brews (not on halfmoon)
+brew "act"
+brew "pandoc"
+
 # Desktop apps (not on halfmoon)
 cask "alfred"
+cask "bruno"
+cask "cursor"
 cask "figma"
 cask "github"
 cask "gmvault"
 cask "grammarly-desktop"
-cask "ledger-live"
+cask "ledger-wallet"
 cask "microsoft-auto-update"
 cask "microsoft-office"
 cask "notion"
+cask "raycast"
 cask "rectangle"
 cask "whatsapp"
 cask "zoom"
@@ -97,23 +114,29 @@ cask "slack"
 {{- end }}
 
 {{- if eq .machine.profile "home" }}
-# Home entertainment (crowntail only)
+# Home apps (crowntail only)
 cask "discord"
 cask "minecraft"
 cask "spotify"
+cask "tailscale-app"
 {{- end }}
 
 mas "1Password for Safari", id: 1569813296
 mas "DaisyDisk", id: 411643860
 mas "Fantastical", id: 975937182
-# mas "Tailscale", id: 1475387142  # Disabled: install manually after setup to avoid password prompts
+mas "The Unarchiver", id: 425424353
+
+{{- if eq .machine.profile "media" }}
+mas "Tailscale", id: 1475387142
+{{- end }}
 
 {{- if ne .machine.profile "media" }}
 # Desktop Mac App Store apps (not needed on server)
 mas "Bear", id: 1091189122
 mas "GoLinks", id: 1478821913
+mas "iMovie", id: 408981434
 mas "Keynote", id: 361285480
 mas "Numbers", id: 361304891
 mas "Pages", id: 361309726
-mas "Whisper", id: 1668083311
+mas "Whisper Transcription", id: 1668083311
 {{- end }}
