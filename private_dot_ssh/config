@@ -1,5 +1,3 @@
-Include /Users/buritica/.colima/ssh_config
-
 Host github.com
   IdentityFile ~/.ssh/id_halfmoon
 
