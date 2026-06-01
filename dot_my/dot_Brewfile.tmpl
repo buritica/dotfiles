@@ -72,9 +72,49 @@ mas "Fantastical", id: 975937182
 mas "The Unarchiver", id: 425424353
 
 # ============================================================
-# CAPABILITIES — added in a later round (reference, not active yet):
-#   work:         slack, zoom, microsoft-teams, microsoft-office, awscli, grammarly, golinks
-#   play_games:   discord, minecraft, spotify, steam
-#   make_music:   audio-hijack, loopback, soundsource, obs
-#   media_server: plex-media-server, sabnzbd, ffmpeg, gifsicle, nmap, signal-cli (halfmoon)
+# CAPABILITIES — opt-in per machine via .chezmoi.toml.tmpl ([data.capabilities]).
+# Package lists are a first pass (best judgment from the old profile Brewfile +
+# RFC tables). REVIEW each — flagged items are uncertain.
+# crowntail currently resolves to: work=true, play_games=true.
 # ============================================================
+
+{{- if .capabilities.work }}
+# --- work: corporate comms + cloud CLIs ---
+cask "slack"
+cask "zoom"
+cask "microsoft-teams"
+cask "microsoft-office"          # REVIEW: heavy; keep or install ad hoc?
+cask "microsoft-auto-update"     # required if microsoft-office present
+brew "awscli"
+cask "grammarly-desktop"         # REVIEW: still used?
+mas "GoLinks", id: 1478821913
+{{- end }}
+
+{{- if .capabilities.play_games }}
+# --- play_games: entertainment + personal ---
+cask "discord"
+cask "minecraft"
+cask "spotify"
+cask "steam"                     # REVIEW: crowntail only previously
+{{- end }}
+
+{{- if .capabilities.make_music }}
+# --- make_music: audio production (studio gear) ---
+cask "audio-hijack"
+cask "loopback"
+cask "soundsource"
+cask "obs"                       # REVIEW: streaming vs pure audio — keep?
+{{- end }}
+
+{{- if .capabilities.media_server }}
+# --- media_server: halfmoon's always-on media role ---
+cask "plex-media-server"
+cask "sabnzbd"
+cask "qfinder-pro"
+cask "transmit"                  # REVIEW: file transfer — confirm
+brew "ffmpeg"
+brew "gifsicle"
+brew "nmap"
+brew "signal-cli"
+brew "bats-core"
+{{- end }}
