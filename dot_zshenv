@@ -1,21 +1,21 @@
 # Environment for all shell types (interactive, non-interactive, login, launchd).
 # Sourced before .zshrc, so keep this minimal and fast.
 #
-# PATH is built bottom-up: each export prepends, so the LAST export wins.
-# Order below = lowest priority first, highest priority last.
-
-# Homebrew (needed so shims can call underlying tools)
-if [[ $(uname -m) == 'arm64' ]]; then
-    export PATH="/opt/homebrew/bin:$PATH"
+# PATH single source of truth: ansible base role generates ~/.config/shell/path.zsh
+# from group_vars/all.yml (base_path_dirs) and renders the SAME value into launchd.
+# We source that here so the shell and GUI/agent PATH cannot drift.
+if [[ -r "$HOME/.config/shell/path.zsh" ]]; then
+    source "$HOME/.config/shell/path.zsh"
 else
-    export PATH="/usr/local/bin:$PATH"
+    # Fallback for machines not managed by this ansible repo (e.g. stanley) or
+    # pre-provision state. Keep in sync with all.yml:base_path_dirs.
+    # Built bottom-up: each prepend wins, so the LAST export is highest priority.
+    if [[ $(uname -m) == 'arm64' ]]; then
+        export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+    else
+        export PATH="/usr/local/bin:$PATH"
+    fi
+    export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+    export PATH="$HOME/.local/share/mise/shims:$PATH"
+    export PATH="$HOME/.bun/bin:$PATH"
 fi
-
-# user-local binaries
-export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
-
-# mise shims — runtime version manager (node, python, rust, etc.)
-export PATH="$HOME/.local/share/mise/shims:$PATH"
-
-# bun tools last = highest priority (bun-installed CLIs win over mise shims)
-export PATH="$HOME/.bun/bin:$PATH"
