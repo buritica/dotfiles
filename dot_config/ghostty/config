@@ -1,0 +1,3 @@
+# Ghostty — managed by chezmoi
+theme = Black Metal (Bathory)
+keybind = shift+enter=text:\x1b\r
