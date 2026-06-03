@@ -12,13 +12,10 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
   hostname = "{{ .chezmoi.hostname }}"
 
 # Capabilities — opt-in specialized workloads. Core is unconditional.
-# Keep in sync with ansible group_vars. Consumed by the Brewfile in a later round.
+# ALL MACHINES CORE-ONLY for now. Capabilities are scaffolded in the Brewfile but
+# not yet reviewed/tested — we enable them iteratively, per machine, after testing.
+# To enable, add a hostname branch below (e.g. crowntail -> work=true).
 {{- $caps := dict "work" false "make_music" false "play_games" false "media_server" false }}
-{{- if eq .chezmoi.hostname "crowntail" }}
-{{- $caps = dict "work" true "make_music" false "play_games" true "media_server" false }}
-{{- else if eq .chezmoi.hostname "halfmoon" }}
-{{- $caps = dict "work" false "make_music" false "play_games" false "media_server" true }}
-{{- end }}
 
 [data.capabilities]
   work         = {{ $caps.work }}
