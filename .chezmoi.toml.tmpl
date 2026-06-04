@@ -1,11 +1,6 @@
 {{- $codespaces := env "CODESPACES" | not | not -}}
 {{- $ci := env "CI" | not | not -}}
 
-encryption = "age"
-[age]
-  identity = "~/.chez.txt"
-  recipient = "age1n4nhw67j8ds89gavcf7s8d9ty2ceu7z8g93d3f3r3rg57er9lqfq8cttyp"
-
 sourceDir = "{{ .chezmoi.sourceDir }}"
 
 [data]
@@ -15,20 +10,15 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
 
 [data.machine]
   hostname = "{{ .chezmoi.hostname }}"
-  {{- if eq .chezmoi.hostname "crowntail" }}
-  profile = "home"
-  emoji = "🏡"
-  description = "Personal home workstation"
-  {{- else if eq .chezmoi.hostname "deltatail" }}
-  profile = "work"
-  emoji = "💼"
-  description = "Work laptop"
-  {{- else if eq .chezmoi.hostname "halfmoon" }}
-  profile = "media"
-  emoji = "🖥️"
-  description = "Home server — media, bots, monitoring, CI"
-  {{- else }}
-  profile = "default"
-  emoji = "🔬"
-  description = "Test machine"
-  {{- end }}
+
+# Capabilities — opt-in specialized workloads. Core is unconditional.
+# ALL MACHINES CORE-ONLY for now. Capabilities are scaffolded in the Brewfile but
+# not yet reviewed/tested — we enable them iteratively, per machine, after testing.
+# To enable, add a hostname branch below (e.g. crowntail -> work=true).
+{{- $caps := dict "work" false "make_music" false "play_games" false "media_server" false }}
+
+[data.capabilities]
+  work         = {{ $caps.work }}
+  make_music   = {{ $caps.make_music }}
+  play_games   = {{ $caps.play_games }}
+  media_server = {{ $caps.media_server }}

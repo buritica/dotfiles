@@ -11,11 +11,26 @@ fi
 # Close System Settings to prevent conflicts (renamed in macOS Ventura)
 osascript -e 'tell application "System Settings" to quit' 2>/dev/null || osascript -e 'tell application "System Preferences" to quit' 2>/dev/null
 
-# Request administrator privileges
-sudo -v
+# Acquire admin privileges without blocking in non-interactive contexts.
+#   - ansible --ask-become-pass / cached creds  -> sudo -n succeeds, run everything
+#   - interactive run with a tty                -> prompt once
+#   - non-interactive without creds (chezmoi)   -> skip privileged settings, don't hang
+if sudo -n true 2>/dev/null; then
+  _HAVE_SUDO=1
+elif [ -t 0 ]; then
+  if sudo -v; then _HAVE_SUDO=1; else _HAVE_SUDO=0; fi
+else
+  _HAVE_SUDO=0
+  echo "WARN: no cached sudo credentials and no terminal — skipping privileged settings."
+fi
 
-# Keep-alive for `sudo` until the script finishes
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+if [ "${_HAVE_SUDO}" = "1" ]; then
+  # Keep sudo alive until this script finishes.
+  while true; do sudo -n true; sleep 60; kill -0 "$$" 2>/dev/null || exit; done 2>/dev/null &
+else
+  # No privileges: turn every `sudo …` line into a logged no-op instead of an error.
+  sudo() { echo "skip (no sudo): sudo $*" >&2; }
+fi
 
 ####################### General UI/UX Settings ##############################
 

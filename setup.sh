@@ -147,23 +147,9 @@ if command -v fzf &>/dev/null; then
     fi
 fi
 
-# Run macOS settings script
-print_status "Applying macOS settings..."
-if [ -f "${HOME}/.my/.macos" ]; then
-    # Check if macOS settings have already been run
-    if [ ! -f "${HOME}/.my/.macos_configured" ]; then
-        print_status "Running macOS settings for the first time..."
-        chmod +x "${HOME}/.my/.macos"
-        "${HOME}/.my/.macos"
-        # Create flag file to indicate settings have been run
-        touch "${HOME}/.my/.macos_configured"
-    else
-        print_status "macOS settings have already been configured. Skipping..."
-        print_status "To run settings again, remove ${HOME}/.my/.macos_configured"
-    fi
-else
-    print_warning "macOS settings script not found. Make sure dotfiles are properly installed."
-fi
+# macOS settings are applied by chezmoi via run_onchange_apply-macos-defaults.sh
+# (re-runs on every `chezmoi apply` only when ~/.my/.macos changes). No longer
+# invoked from setup.sh — one owner.
 
 # Set up 1Password service account token (for halfmoon server)
 if [[ "$(hostname -s)" == "halfmoon" ]]; then

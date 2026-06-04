@@ -1,142 +1,120 @@
-# Core development tools (all machines)
-# Note: mise (runtime manager) and chezmoi are installed by ansible bootstrap,
-# not here — they must exist before this Brewfile runs.
-brew "awscli"
+# ~/.my/.Brewfile — rendered by chezmoi.
+# CORE ONLY. Capabilities (work, make_music, play_games) and halfmoon's
+# media_server packages are added in a later round — see implementation-plan.
+#
+# mise + chezmoi are installed by ansible before this runs.
+
+# --- Dev + CLI ---
 brew "chezmoi"
 brew "cloudflared"
-brew "colima"
 brew "coreutils"
 brew "direnv"
-brew "docker"
-brew "docker-compose"
 brew "findutils"
 brew "gh"
 brew "gist"
+brew "git-delta"
 brew "git-extras"
 brew "git-lfs"
 brew "gnu-tar"
 brew "gnupg"
-brew "go"
 brew "htop"
 brew "httpie"
 brew "jq"
 brew "mas"
 brew "moreutils"
-brew "qemu"
-brew "shellcheck"
-brew "subversion"
-# brew "tailscale"  # Disabled: requires sudo, breaks remote setup. Use Mac App Store version instead.
+brew "qemu"          # review: likely a colima dependency — candidate to drop
 brew "tmux"
 brew "tree"
 brew "watch"
 brew "wget"
 
-{{- if eq .machine.profile "media" }}
-# Video/audio processing + server tools (halfmoon only)
-brew "bats-core"
-brew "ffmpeg"
-brew "gifsicle"
-brew "nmap"
-brew "signal-cli"
-{{- end }}
+# --- Modern CLI ---
+brew "bat"
+brew "dust"
+brew "duf"
+brew "eza"
+brew "fd"
+brew "fzf"
+brew "hyperfine"
+brew "procs"
+brew "ripgrep"
+brew "tldr"
+brew "zoxide"
 
-# Modern CLI tools
-brew "bat"           # Syntax-highlighted cat
-brew "eza"           # Modern ls with git integration
-brew "fd"            # Fast find replacement
-brew "fzf"           # Fuzzy finder
-brew "git-delta"     # Better git diffs
-brew "ripgrep"       # Fast grep replacement
-brew "zoxide"        # Smarter cd
-brew "dust"          # Intuitive du
-brew "duf"           # Modern df
-brew "procs"         # Modern ps
-brew "tldr"          # Simplified man pages
-brew "hyperfine"     # Benchmarking tool
-
-# Core applications (all machines)
+# --- Core apps ---
 cask "1password"
 cask "1password-cli"
+cask "bruno"
 cask "claude"
-cask "font-inconsolata"
-cask "font-montserrat"
-cask "font-open-sans"
-cask "font-sanchez"
-cask "font-source-code-pro"
 cask "ghostty"
 cask "google-chrome"
 cask "google-drive"
 cask "istat-menus"
 cask "obsidian"
-cask "signal"
-cask "stats"
-cask "visual-studio-code"
-cask "vlc"
-
-{{- if ne .machine.profile "media" }}
-# Desktop brews (not on halfmoon)
-brew "act"
-brew "pandoc"
-
-# Desktop apps (not on halfmoon)
-cask "alfred"
-cask "bruno"
-cask "cursor"
-cask "figma"
-cask "github"
-cask "gmvault"
-cask "grammarly-desktop"
-cask "ledger-wallet"
-cask "microsoft-auto-update"
-cask "microsoft-office"
-cask "notion"
+cask "orbstack"
 cask "raycast"
 cask "rectangle"
-cask "whatsapp"
-cask "zoom"
-{{- end }}
-
-{{- if eq .machine.profile "media" }}
-# Server apps (halfmoon only)
-cask "plex-media-server"
-cask "qfinder-pro"
-cask "raycast"
-cask "sabnzbd"
-cask "transmit"
-{{- end }}
-
-{{- if eq .machine.profile "work" }}
-# Work tools (deltatail only)
-cask "microsoft-auto-update"
-cask "microsoft-office"
-cask "microsoft-teams"
-cask "slack"
-{{- end }}
-
-{{- if eq .machine.profile "home" }}
-# Home apps (crowntail only)
-cask "discord"
-cask "minecraft"
-cask "spotify"
+cask "signal"
 cask "tailscale-app"
-{{- end }}
+cask "visual-studio-code"
 
+# --- Fonts ---
+cask "font-inconsolata"
+cask "font-montserrat"
+cask "font-open-sans"
+cask "font-sanchez"
+cask "font-source-code-pro"
+
+# --- Mac App Store (real hardware only — not installable in a VM) ---
 mas "1Password for Safari", id: 1569813296
 mas "DaisyDisk", id: 411643860
 mas "Fantastical", id: 975937182
 mas "The Unarchiver", id: 425424353
 
-{{- if eq .machine.profile "media" }}
-mas "Tailscale", id: 1475387142
+# ============================================================
+# CAPABILITIES — opt-in per machine via .chezmoi.toml.tmpl ([data.capabilities]).
+# Package lists are a first pass (best judgment from the old profile Brewfile +
+# RFC tables). REVIEW each — flagged items are uncertain.
+# crowntail currently resolves to: work=true, play_games=true.
+# ============================================================
+
+{{- if .capabilities.work }}
+# --- work: corporate comms + cloud CLIs ---
+cask "slack"
+cask "zoom"
+cask "microsoft-teams"
+cask "microsoft-office"          # REVIEW: heavy; keep or install ad hoc?
+cask "microsoft-auto-update"     # required if microsoft-office present
+brew "awscli"
+cask "grammarly-desktop"         # REVIEW: still used?
+mas "GoLinks", id: 1478821913
 {{- end }}
 
-{{- if ne .machine.profile "media" }}
-# Desktop Mac App Store apps (not needed on server)
-mas "Bear", id: 1091189122
-mas "GoLinks", id: 1478821913
-mas "iMovie", id: 408981434
-mas "Keynote", id: 361285480
-mas "Numbers", id: 361304891
-mas "Pages", id: 361309726
-mas "Whisper Transcription", id: 1668083311
+{{- if .capabilities.play_games }}
+# --- play_games: entertainment + personal ---
+cask "discord"
+cask "minecraft"
+cask "spotify"
+cask "steam"                     # REVIEW: crowntail only previously
+{{- end }}
+
+{{- if .capabilities.make_music }}
+# --- make_music: audio production (studio gear) ---
+cask "audio-hijack"
+cask "loopback"
+cask "soundsource"
+cask "obs"                       # REVIEW: streaming vs pure audio — keep?
+{{- end }}
+
+{{- if .capabilities.media_server }}
+# --- media_server: halfmoon's always-on media role ---
+cask "plex-media-server"
+cask "sabnzbd"
+cask "qfinder-pro"
+cask "transmit"                  # REVIEW: file transfer — confirm
+brew "ffmpeg"
+brew "gifsicle"
+brew "nmap"
+brew "signal-cli"
+brew "bats-core"
 {{- end }}

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Managed by chezmoi. Runs the macOS defaults script on first apply and again
+# only when ~/.my/.macos changes. The hash below forces a re-run on change:
+#   macos hash: {{ include "dot_my/executable_dot_macos" | sha256sum }}
+set -euo pipefail
+
+MACOS="${HOME}/.my/.macos"
+if [ ! -x "${MACOS}" ]; then
+  echo "macOS defaults script not found at ${MACOS} (skipping)"
+  exit 0
+fi
+
+echo "Applying macOS defaults from ${MACOS}..."
+"${MACOS}"

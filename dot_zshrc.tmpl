@@ -1,202 +1,51 @@
-# Start timing shell initialization (using zsh's EPOCHREALTIME for fractional seconds)
-typeset -F SECONDS
-_zsh_start_time=$SECONDS
+# ~/.zshrc — interactive shell configuration. Managed by chezmoi.
 
-# Enable profiling to find bottlenecks (set ZSH_PROFILE=1 to enable)
-if [[ -n "$ZSH_PROFILE" ]]; then
-  zmodload zsh/zprof
-fi
-
-# =============================================================================
-# Oh My Zsh Configuration
-# =============================================================================
-
-# Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
-# Set name of the theme to load.
+# Theme
 ZSH_THEME="geoffgarside"
 
-# Completion cache settings (improves startup time)
-# Oh My Zsh handles compinit - we just configure it for optimal caching
-export ZSH_COMPDUMP="${ZDOTDIR:-$HOME}/.zcompdump"
-export ZSH_DISABLE_COMPFIX=true  # Skip insecure directory checks (faster)
-
-# oh-my-zsh plugins
+# Plugins
 plugins=(
-	# Git ecosystem
-	git git-extras github
-
-	# File operations
-	cp copypath copyfile extract
-
-	# Development tools
-	npm docker docker-compose
-
-	# Shell enhancements
-	colored-man-pages
+  git
+  git-extras
+  github
+  cp
+  copypath
+  copyfile
+  extract
+  npm
+  docker
+  docker-compose
+  colored-man-pages
 )
 
-# Add optional plugins if they exist
-[[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]] && plugins+=(zsh-syntax-highlighting)
-[[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]] && plugins+=(zsh-autosuggestions)
+source "$ZSH/oh-my-zsh.sh"
 
-# source other profile files
-if [ -f "$ZSH/oh-my-zsh.sh" ]; then
-    source "$ZSH/oh-my-zsh.sh"
-else
-    echo "Warning: Oh My Zsh not found at $ZSH/oh-my-zsh.sh"
-fi
+# ----- User configuration -----
 
-# Unalias Oh My Zsh git plugin aliases that conflict with our enhanced functions
-# We keep the plugin (197 useful aliases like ga, gco, gst) but override these specific ones
-unalias gwt 2>/dev/null || true      # We have gwt() with git repo validation
-unalias gwta 2>/dev/null || true     # We have gwta() with auto-cd
-unalias gcommit 2>/dev/null || true  # We have gcommit() for conventional commits
+# Editor
+export EDITOR="ve"
 
-# Note: Oh My Zsh handles compinit automatically
-# We just configure it via ZSH_COMPDUMP and ZSH_DISABLE_COMPFIX above
+# fzf
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# =============================================================================
-# Path Configuration
-# =============================================================================
+# zoxide
+command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
 
-# Define path components
-typeset -U path
-path=(
-    "$HOME/bin"
-    "$HOME/.local/bin"
-    "/usr/local/sbin"
-    "/usr/local/bin"
-    "/usr/sbin"
-    "/usr/bin"
-    "/sbin"
-    "/bin"
-    $path
-)
+# zsh-defer (loaded via .chezmoiexternal.toml)
+[ -f ~/.zsh-defer/zsh-defer.plugin.zsh ] && source ~/.zsh-defer/zsh-defer.plugin.zsh
 
-# Add Homebrew paths based on architecture
-if [[ $(uname -m) == 'arm64' ]]; then
-    eval $(/opt/homebrew/bin/brew shellenv)
-else
-    eval $(/usr/local/bin/brew shellenv 2>/dev/null || true)
-fi
+# zsh-autosuggestions
+[ -f ~/.zsh-autosuggestions/zsh-autosuggestions.zsh ] && source ~/.zsh-autosuggestions/zsh-autosuggestions.zsh
 
-# =============================================================================
-# Tool Initialization with Lazy Loading
-# =============================================================================
-# Using zsh-defer for lazy loading to improve shell startup time
-# Target: < 100ms startup (2-3x improvement from ~150-300ms)
+# zsh-syntax-highlighting (must load last)
+[ -f ~/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && source ~/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-# Load zsh-defer first (managed by chezmoi via .chezmoiexternal.toml)
-if [ -f "${HOME}/.oh-my-zsh/custom/plugins/zsh-defer/zsh-defer.plugin.zsh" ]; then
-    source "${HOME}/.oh-my-zsh/custom/plugins/zsh-defer/zsh-defer.plugin.zsh"
-fi
+# Prompt
+PROMPT='%{$fg[cyan]%}%n@%m%{$reset_color%} %{$fg[yellow]%}%~%{$reset_color%}$(git_prompt_info) '
 
-# direnv initialization (keep eager - needed for project contexts)
-if command -v direnv >/dev/null 2>&1; then
-    eval "$(direnv hook zsh)"
-fi
-
-# mise is activated system-wide via /etc/zshrc (managed by ansible).
-# No per-user activation needed here.
-
-# =============================================================================
-# Modern Tool Initialization
-# =============================================================================
-
-# fzf configuration (defer - only needed when fuzzy finding)
-if command -v fzf >/dev/null 2>&1; then
-    # Export environment variables immediately (needed for command availability)
-    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
-    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-    export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
-    export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
-    export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --icons {}'"
-    export FZF_DEFAULT_OPTS='--color=bg+:#3e3d32,bg:#272822,spinner:#e6db74,hl:#a6e22e --color=fg:#f8f8f2,header:#a6e22e,info:#e6db74,pointer:#e6db74 --color=marker:#e6db74,fg+:#f8f8f2,prompt:#e6db74,hl+:#a6e22e'
-
-    # Defer loading key bindings (Ctrl+R, Ctrl+T, Alt+C)
-    if command -v zsh-defer >/dev/null 2>&1; then
-        zsh-defer -c '[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh'
-    else
-        [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-    fi
-fi
-
-# zoxide initialization (defer - only needed when using z command)
-if command -v zoxide >/dev/null 2>&1; then
-    if command -v zsh-defer >/dev/null 2>&1; then
-        zsh-defer -c 'eval "$(zoxide init zsh)"'
-    else
-        eval "$(zoxide init zsh)"
-    fi
-fi
-
-# bat configuration
-if command -v bat >/dev/null 2>&1; then
-    export BAT_THEME="Monokai Extended"
-    export BAT_PAGER="less -FR"
-    alias -g -- --help='--help 2>&1 | bat --plain --language=help'
-fi
-
-# eza configuration
-if command -v eza >/dev/null 2>&1; then
-    export EZA_COLORS="da=37:di=34:ln=36:ex=32"
-fi
-
-# ripgrep configuration
-if command -v rg >/dev/null 2>&1; then
-    export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
-fi
-
-# =============================================================================
-# Shell Configuration
-# =============================================================================
-
-# Load the shell dotfiles
-for file in ~/.my/.{exports,aliases,functions}; do
-    [ -r "$file" ] && [ -f "$file" ] && source "$file"
+# Source modular config
+for f in ~/.my/.exports ~/.my/.aliases ~/.my/.functions; do
+  [ -f "$f" ] && source "$f"
 done
-unset file
-
-# Set file size limit
-ulimit -n 10000
-
-# =============================================================================
-# Prompt Configuration
-# =============================================================================
-
-# Machine profile-based prompt (skull always included)
-{{- if eq .machine.profile "home" }}
-export PS1="🏡  💀 $PS1"
-{{- else if eq .machine.profile "work" }}
-export PS1="💼  💀 $PS1"
-{{- else if eq .machine.profile "media" }}
-export PS1="🎥  💀 $PS1"
-{{- else }}
-export PS1="🔬  💀 $PS1"
-{{- end }}
-
-# =============================================================================
-# Aliases and Completions
-# =============================================================================
-
-# Alias python to python3 if it exists
-if command -v python3 >/dev/null 2>&1; then
-    alias python=python3
-fi
-
-# =============================================================================
-# Finalization
-# =============================================================================
-
-# Calculate and display shell initialization time
-_zsh_elapsed=$((($SECONDS - $_zsh_start_time) * 1000))
-printf "dotfiles sourced (%dms)\n" $_zsh_elapsed
-
-# Show profiling output if enabled
-if [[ -n "$ZSH_PROFILE" ]]; then
-  zprof
-fi
-
-unset _zsh_start_time _zsh_elapsed
