@@ -33,3 +33,4 @@ Thumbs.db
 # Managed by ansible (machines repo) — not dotfiles.
 # ansible writes ~/.tool-versions and runs mise install.
 .tool-versions
+.claude/settings.json

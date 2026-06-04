@@ -15,6 +15,29 @@
     "plugin-dev@claude-code-plugins": true,
     "dev-browser@dev-browser-marketplace": true,
     "browser-automation@browser-tools": true,
-    "superpowers@superpowers-marketplace": true
-  }
+    "superpowers@superpowers-marketplace": true,
+    "frontend-design@claude-plugins-official": true,
+    "qmd@qmd": true,
+    "claude-md-management@claude-plugins-official": true,
+    "agent-sdk-dev@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "artifacts@buritica-ai": true,
+    "brian@buritica-ai": true,
+    "buritica@buritica-ai": true,
+    "grumpy@buritica-ai": true,
+    "sdlc-guardrails@buritica-ai": false,
+    "sdlc@buritica-ai": true
+  },
+  "extraKnownMarketplaces": {
+    "buritica-ai": {
+      "source": {
+        "source": "github",
+        "repo": "buritica/ai"
+      }
+    }
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "agentPushNotifEnabled": false
 }
