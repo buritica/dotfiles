@@ -24,11 +24,8 @@ print_warning() {
     echo -e "${YELLOW}Warning:${NC} ${1}"
 }
 
-# Check for Age private key
-if [ ! -f "${HOME}/.chez.txt" ]; then
-  print_error "Missing Age private key (~/.chez.txt). Cannot proceed."
-  exit 1
-fi
+# (Age encryption was removed — SSH keys live in the 1Password agent and
+# known_hosts self-populates. No ~/.chez.txt required.)
 
 # Check if running on macOS or in CI environment
 if [[ "${OSTYPE}" != "darwin"* ]] && [[ -z "${CI}" ]]; then

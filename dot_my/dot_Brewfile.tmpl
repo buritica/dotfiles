@@ -22,7 +22,6 @@ brew "httpie"
 brew "jq"
 brew "mas"
 brew "moreutils"
-brew "qemu"          # review: likely a colima dependency — candidate to drop
 brew "tmux"
 brew "tree"
 brew "watch"
@@ -75,7 +74,8 @@ mas "The Unarchiver", id: 425424353
 # CAPABILITIES — opt-in per machine via .chezmoi.toml.tmpl ([data.capabilities]).
 # Package lists are a first pass (best judgment from the old profile Brewfile +
 # RFC tables). REVIEW each — flagged items are uncertain.
-# crowntail currently resolves to: work=true, play_games=true.
+# All machines currently resolve to core-only (every capability false in
+# .chezmoi.toml.tmpl). Capabilities are scaffolded below but not yet enabled.
 # ============================================================
 
 {{- if .capabilities.work }}

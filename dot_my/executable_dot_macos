@@ -18,7 +18,12 @@ osascript -e 'tell application "System Settings" to quit' 2>/dev/null || osascri
 if sudo -n true 2>/dev/null; then
   _HAVE_SUDO=1
 elif [ -t 0 ]; then
-  if sudo -v; then _HAVE_SUDO=1; else _HAVE_SUDO=0; fi
+  if sudo -v; then
+    _HAVE_SUDO=1
+  else
+    _HAVE_SUDO=0
+    echo "WARN: sudo authentication failed — skipping privileged settings (power/nvram/etc)."
+  fi
 else
   _HAVE_SUDO=0
   echo "WARN: no cached sudo credentials and no terminal — skipping privileged settings."

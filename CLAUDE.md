@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a personal dotfiles repository managed with [chezmoi](https://chezmoi.io/), designed to bootstrap and maintain a consistent macOS development environment. The repository uses Age encryption for sensitive files and Homebrew for package management.
+This is a personal dotfiles repository managed with [chezmoi](https://chezmoi.io/), designed to bootstrap and maintain a consistent macOS development environment. Secrets use the 1Password SSH agent (no Age encryption); packages are managed with Homebrew.
 
 ## Key Commands
 
@@ -15,7 +15,7 @@ This is a personal dotfiles repository managed with [chezmoi](https://chezmoi.io
 
 ### Setup and Deployment
 ```bash
-./setup.sh                   # Full setup (macOS only, requires ~/.chez.txt Age key)
+./setup.sh                   # Full setup (macOS only)
 chezmoi apply                # Apply dotfile changes
 chezmoi update              # Pull and apply latest changes
 ```
@@ -66,12 +66,12 @@ brew-cleanup                # Clean up Homebrew cache and autoremove
 
 **Philosophy:**
 - Core packages shared across all machines (1password, chrome, vscode, etc.)
-- Machine-specific packages for home/work/media (see Machine Profiles below)
+- Capability-based packages (work / make_music / play_games / media_server); core is unconditional
 - Test new tools before adding to Brewfile
 - Dependencies are auto-installed, don't track them
 - Use `brew-diff` to periodically audit installed vs tracked packages
 
-### Machine Profiles
+### Capabilities (per-host)
 
 **Available Profiles:**
 ```bash
@@ -100,17 +100,16 @@ The machine profile is automatically detected from hostname and configures:
 - **Template files** (`.tmpl` extension): Processed by chezmoi's Go templates
   - `dot_gitconfig.tmpl`: Git configuration with user data from `.chezmoi.toml.tmpl`
   - `dot_my/dot_Brewfile.tmpl`: Homebrew package list
-  - `.chezmoi.toml.tmpl`: Chezmoi config with Age encryption settings
+  - `.chezmoi.toml.tmpl`: Chezmoi config with per-host capabilities
 - **Executable files** (`executable_` prefix): Made executable when applied
   - `dot_my/executable_dot_macos`: macOS system settings script
 - **Dotfiles** (`dot_` prefix): Mapped to hidden files in home directory
-  - `dot_zshrc.tmpl` → `~/.zshrc` (uses machine profile for PS1)
+  - `dot_zshrc.tmpl` → `~/.zshrc`
   - `dot_my/` → `~/.my/` (custom shell scripts and configs)
 
-### Encryption
-- Uses Age encryption with identity at `~/.chez.txt`
-- Recipient key: `age1n4nhw67j8ds89gavcf7s8d9ty2ceu7z8g93d3f3r3rg57er9lqfq8cttyp`
-- Private SSH keys and sensitive configs stored encrypted
+### Secrets
+- SSH keys are served by the 1Password agent; `known_hosts` self-populates
+- No Age encryption; no key files in the repo
 
 ### Shell Configuration
 - **Primary shell**: Zsh with Oh My Zsh
@@ -127,8 +126,7 @@ The machine profile is automatically detected from hostname and configures:
 - **Performance**: Lazy loading achieves < 100ms startup time (2-3x improvement)
 
 ### Setup Script Flow
-1. Checks for required Age key (`~/.chez.txt`)
-2. Validates macOS or CI environment
+1. Validates macOS or CI environment
 3. Installs Xcode Command Line Tools (if needed)
 4. Installs Homebrew and Rosetta 2 (Apple Silicon)
 5. **Installs chezmoi first** (needed to bootstrap dotfiles)
@@ -221,7 +219,6 @@ The `test.sh` script validates:
 - `~/.my/.Brewfile`: Homebrew package manifest (after setup)
 - `~/.my/.macos`: macOS system preferences script
 - `~/.my/.{exports,aliases,functions}`: Custom shell configuration
-- `~/.chez.txt`: Age encryption private key (REQUIRED, not in repo)
 - `.chezmoiignore`: Files excluded from home directory deployment
 - `.gitattributes`: Line ending normalization and binary file handling
 - `.editorconfig`: Consistent editor settings across team

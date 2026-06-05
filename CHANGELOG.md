@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+### Changed
+- Migrated container runtime from Colima to OrbStack (removed `dot_colima/`, qemu)
+- Replaced Age encryption with the 1Password SSH agent; `known_hosts` self-populates (removed `~/.chez.txt` requirement and the encrypted known_hosts)
+- Replaced hostname `profile` (home/work/media) with `capabilities` (work / make_music / play_games / media_server); all hosts core-only for now
+- `~/.tool-versions` now owned by ansible (mise role), not chezmoi
+- macOS defaults applied via `run_onchange_apply-macos-defaults.sh` (sudo-resilient) instead of `setup.sh`
+- Added Ghostty config to chezmoi; stopped hard-managing `~/.claude/settings.json` (drifts per-machine)
+
 ## 0.2.0
 
 ### Added
