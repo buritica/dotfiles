@@ -34,3 +34,6 @@ Thumbs.db
 # ansible writes ~/.tool-versions and runs mise install.
 .tool-versions
 .claude/settings.json
+
+# id_halfmoon is halfmoon's local GitHub deploy key — only deploy its pubkey there.
+{{ if ne .chezmoi.hostname "halfmoon" }}.ssh/id_halfmoon.pub{{ end }}
