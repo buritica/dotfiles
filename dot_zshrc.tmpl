@@ -166,9 +166,12 @@ ulimit -n 10000
 # Prompt Configuration
 # =============================================================================
 
-# Prompt prefix (skull). Profiles were replaced by capabilities, which don't map
-# to a single prompt glyph — keep one consistent prefix across machines.
+# Prompt prefix — host-specific emoji so it's obvious which machine you're on.
+{{- if eq .chezmoi.hostname "severo" }}
+export PS1="🦾 $PS1"
+{{- else }}
 export PS1="💀 $PS1"
+{{- end }}
 
 # =============================================================================
 # Aliases and Completions
