@@ -167,7 +167,9 @@ ulimit -n 10000
 # =============================================================================
 
 # Prompt prefix — host-specific emoji so it's obvious which machine you're on.
-{{- if eq .chezmoi.hostname "severo" }}
+{{- if eq .chezmoi.hostname "crowntail" }}
+export PS1="🦇 $PS1"
+{{- else if eq .chezmoi.hostname "severo" }}
 export PS1="🦾 $PS1"
 {{- else }}
 export PS1="💀 $PS1"
