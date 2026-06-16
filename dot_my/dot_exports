@@ -23,8 +23,11 @@ export TERM="xterm-256color"
 # Gopath
 export GOPATH="$HOME/go"
 
-# Brewfile
-export HOMEBREW_BUNDLE_FILE="$HOME/.my/.Brewfile"
+# Brewfile — owned by the machines ansible repo (roles/packages), deployed to
+# ~/.config/homebrew/Brewfile. Deliberately NOT exported: a shell-wide
+# HOMEBREW_BUNDLE_FILE turns a bare `brew bundle`/`brew bundle cleanup` into a
+# state-changing command in every directory. The read-only brew-* helpers fall
+# back to that path via _get_brewfile_path's default, which is all they need.
 
 # 1Password ssh agent
 if [[ -S "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock" ]]; then

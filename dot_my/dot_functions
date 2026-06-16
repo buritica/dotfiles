@@ -57,9 +57,9 @@ tree-all            # Tree with hidden files (depth 2)
 diff file1 file2    # Now uses delta for side-by-side diffs
 fs                  # File size - now uses dust if available
 
-## Brew Management
-brew-diff           # Show diff between Brewfile and installed
-brew-sync           # Interactive Brewfile sync
+## Brew Management (Brewfile is owned by the machines ansible repo)
+brew-diff           # Audit installed vs the deployed Brewfile
+brew-edit           # Edit the source Brewfile in the machines repo
 brew-orphans        # Find orphaned packages (optimized O(n))
 
 ## Quick Access
@@ -270,18 +270,38 @@ machine-list() {
     machine-info
 }
 
-# Helper: Get the Brewfile path (always uses deployed version)
+# Helper: Get the deployed Brewfile path. The Brewfile is OWNED by the machines
+# ansible repo and deployed to ~/.config/homebrew/Brewfile by the packages role;
+# the read-only audit helpers below check installed packages against it.
 _get_brewfile_path() {
-    echo "${HOMEBREW_BUNDLE_FILE:-$HOME/.my/.Brewfile}"
+    echo "${HOMEBREW_BUNDLE_FILE:-$HOME/.config/homebrew/Brewfile}"
 }
 
-# Edit Brewfile in chezmoi (opens the source template for editing)
+# Guard: the read-only audit helpers need the deployed Brewfile to exist. On a
+# machine that hasn't run the packages role yet it won't — bail with a clear
+# message instead of letting grep spew errors and lie about "(none) missing".
+_require_brewfile() {
+    local f; f=$(_get_brewfile_path)
+    [[ -f "$f" ]] && return 0
+    echo "No Brewfile at $f — run the machines packages role first (ansible-playbook ... --tags packages)." >&2
+    return 1
+}
+
+# Edit the Brewfile — now owned by the machines ansible repo, not dotfiles.
 brew-edit() {
-    chezmoi edit ~/.my/.Brewfile
+    local src="$HOME/src/machines/ansible/roles/packages/files/Brewfile"
+    if [[ -f "$src" ]]; then
+        ${=EDITOR:-vi} "$src"   # ${=...} word-splits so EDITOR="code -w" works
+    else
+        echo "The Brewfile lives in the machines ansible repo:"
+        echo "  ansible/roles/packages/files/Brewfile"
+        echo "Edit it there, then run: ansible-playbook ansible/playbooks/provision.yml --tags packages"
+    fi
 }
 
 # Show what's installed but not in Brewfile
 brew-installed-only() {
+    _require_brewfile || return 1
     local brewfile
     brewfile=$(_get_brewfile_path)
 
@@ -300,6 +320,7 @@ brew-installed-only() {
 
 # Show what's in Brewfile but not installed
 brew-missing() {
+    _require_brewfile || return 1
     local brewfile
     brewfile=$(_get_brewfile_path)
 
@@ -317,6 +338,7 @@ brew-missing() {
 
 # Show diff between Brewfile and installed packages
 brew-diff() {
+    _require_brewfile || return 1   # bail once, before the sub-helpers double-print it
     echo "=== Brewfile vs Installed Packages ==="
     echo ""
     brew-installed-only
@@ -324,111 +346,14 @@ brew-diff() {
     brew-missing
 }
 
-# Interactively sync Brewfile with installed packages
+# brew-sync is retired: the Brewfile is owned by the machines ansible repo, so
+# syncing installed packages back into a dotfiles-managed Brewfile no longer
+# applies (it would edit the deployed copy, which the next provision overwrites).
 brew-sync() {
-    local brewfile
-    local temp_brewfile="/tmp/Brewfile.new"
-    brewfile=$(_get_brewfile_path)
-
-    if [[ ! -f "$brewfile" ]]; then
-        echo "❌ Brewfile not found at $brewfile"
-        return 1
-    fi
-
-    echo "🔍 Analyzing installed packages..."
-    echo ""
-
-    # Generate current Brewfile
-    brew bundle dump --file="$temp_brewfile" --force
-
-    # Get lists of differences
-    local new_formulas=($(comm -13 \
-        <(grep '^brew "' "$brewfile" | sed 's/brew "\([^"]*\)".*/\1/' | sort) \
-        <(grep '^brew "' "$temp_brewfile" | sed 's/brew "\([^"]*\)".*/\1/' | sort)))
-
-    local new_casks=($(comm -13 \
-        <(grep '^cask "' "$brewfile" | sed 's/cask "\([^"]*\)".*/\1/' | sort) \
-        <(grep '^cask "' "$temp_brewfile" | sed 's/cask "\([^"]*\)".*/\1/' | sort)))
-
-    local removed_formulas=($(comm -23 \
-        <(grep '^brew "' "$brewfile" | sed 's/brew "\([^"]*\)".*/\1/' | sort) \
-        <(brew list --formula | sort)))
-
-    local removed_casks=($(comm -23 \
-        <(grep '^cask "' "$brewfile" | sed 's/cask "\([^"]*\)".*/\1/' | sort) \
-        <(brew list --cask | sort)))
-
-    local changes_made=false
-
-    # Show new formulas
-    if [[ ${#new_formulas[@]} -gt 0 ]]; then
-        echo "➕ New formulas installed (not in Brewfile):"
-        for formula in "${new_formulas[@]}"; do
-            echo "   - $formula"
-        done
-        echo ""
-        read -p "Add all new formulas to Brewfile? [y/N] " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            changes_made=true
-        else
-            echo "ℹ️  Skipping formulas. Run 'brew-sync' again to reconsider."
-        fi
-    fi
-
-    # Show new casks
-    if [[ ${#new_casks[@]} -gt 0 ]]; then
-        echo "➕ New casks installed (not in Brewfile):"
-        for cask in "${new_casks[@]}"; do
-            echo "   - $cask"
-        done
-        echo ""
-        read -p "Add all new casks to Brewfile? [y/N] " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            changes_made=true
-        fi
-    fi
-
-    # Show removed items
-    if [[ ${#removed_formulas[@]} -gt 0 ]] || [[ ${#removed_casks[@]} -gt 0 ]]; then
-        if [[ ${#removed_formulas[@]} -gt 0 ]]; then
-            echo "➖ Formulas in Brewfile but not installed:"
-            for formula in "${removed_formulas[@]}"; do
-                echo "   - $formula"
-            done
-        fi
-        if [[ ${#removed_casks[@]} -gt 0 ]]; then
-            echo "➖ Casks in Brewfile but not installed:"
-            for cask in "${removed_casks[@]}"; do
-                echo "   - $cask"
-            done
-        fi
-        echo ""
-        read -p "Remove uninstalled items from Brewfile? [y/N] " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            changes_made=true
-        fi
-    fi
-
-    if [[ "$changes_made" == true ]]; then
-        echo ""
-        echo "📝 Updating Brewfile..."
-        cp "$temp_brewfile" "$brewfile"
-
-        if command -v chezmoi &>/dev/null; then
-            echo "🔄 Syncing with chezmoi..."
-            chezmoi add "$brewfile"
-            echo "✅ Brewfile updated and added to chezmoi!"
-        else
-            echo "✅ Brewfile updated!"
-        fi
-    else
-        echo "✅ No changes made to Brewfile"
-    fi
-
-    rm -f "$temp_brewfile"
+    echo "ℹ️  brew-sync is retired — packages are owned by the machines ansible repo."
+    echo "   Audit installed vs Brewfile:  brew-diff"
+    echo "   Edit the source Brewfile:     brew-edit"
+    echo "   Apply:  ansible-playbook ansible/playbooks/provision.yml --limit <hostname> --tags packages"
 }
 
 # Safe process grep with modern tool
@@ -532,23 +457,24 @@ ghissue() {
     fi
 }
 
-# Export Brewfile from current installation
+# Export current installation to a Brewfile snapshot (read-only, for reference).
+# Writes to /tmp — it does NOT touch the machines-owned Brewfile. Use the output
+# to update ansible/roles/packages/files/Brewfile in the machines repo by hand.
 brew-export() {
-    local brewfile
-    brewfile=$(_get_brewfile_path)
-
-    echo "📝 Generating Brewfile from current installation..."
-    if ! brew bundle dump --file="$brewfile" --force; then
-        echo "❌ Failed to generate Brewfile"
+    local out="${1:-/tmp/Brewfile.snapshot}"
+    # Never dump over the machines-owned Brewfile — that's the footgun this
+    # whole split exists to prevent (the next provision would overwrite it anyway).
+    if [[ "$out" == *"/packages/files/Brewfile" || "$out" == "$(_get_brewfile_path)" ]]; then
+        echo "❌ Refusing to write to the machines-owned Brewfile ($out). Pick a scratch path." >&2
         return 1
     fi
-
-    if command -v chezmoi &>/dev/null; then
-        echo "🔄 Syncing with chezmoi..."
-        chezmoi add "$brewfile"
+    echo "📝 Dumping current installation to $out ..."
+    if ! brew bundle dump --file="$out" --force; then
+        echo "❌ Failed to generate Brewfile snapshot"
+        return 1
     fi
-
-    echo "✅ Brewfile exported to $brewfile"
+    echo "✅ Snapshot written to $out"
+    echo "   The authoritative Brewfile lives in the machines repo: ansible/roles/packages/files/Brewfile"
 }
 
 # Detect orphaned packages (optimized with zsh arrays)

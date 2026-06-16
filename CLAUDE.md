@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a personal dotfiles repository managed with [chezmoi](https://chezmoi.io/), designed to bootstrap and maintain a consistent macOS development environment. Secrets use the 1Password SSH agent (no Age encryption); packages are managed with Homebrew.
+This is a personal dotfiles repository managed with [chezmoi](https://chezmoi.io/), designed to bootstrap and maintain a consistent macOS development environment. Secrets use the 1Password SSH agent (no Age encryption).
+
+> **Package ownership boundary**: this repo is PREFERENCES AND CONFIG ONLY. Homebrew packages (core + capabilities) are defined and installed by the machines ansible repo (`ansible/roles/packages/files/Brewfile`). There is no Brewfile in this repo. Do not add one.
 
 ## Key Commands
 
@@ -45,62 +47,24 @@ chezmoi edit ~/.myfile      # Edit tracked file in source
 gh pr create --title "type: description" --body-file pr_body.md    # Create PR with body file
 ```
 
-### Brewfile Management
-```bash
-brew-diff                   # Show diff between Brewfile and installed packages
-brew-installed-only         # List packages installed but not in Brewfile
-brew-missing                # List packages in Brewfile but not installed
-brew-sync                   # Interactively sync Brewfile with installed packages
-brew-edit                   # Edit Brewfile source template via chezmoi
-brew-export                 # Export current installation to Brewfile
-brew-orphans                # Detect orphaned packages (not dependencies)
-brew-cleanup                # Clean up Homebrew cache and autoremove
-```
+### Package Management
 
-**Workflow:**
-1. Install new package: `brew install packagename`
-2. Check what's different: `brew-diff`
-3. Decide if you want to track it in Brewfile
-4. If yes: `brew-sync` to add it (or manually edit Brewfile)
-5. Commit Brewfile changes
+Packages are owned by the **machines ansible repo** (`ansible/roles/packages/files/Brewfile`), not this dotfiles repo. To add or change a package, edit that file and run the provision playbook.
 
-**Philosophy:**
-- Core packages shared across all machines (1password, chrome, vscode, etc.)
-- Capability-based packages (work / make_music / play_games / media_server); core is unconditional
-- Test new tools before adding to Brewfile
-- Dependencies are auto-installed, don't track them
-- Use `brew-diff` to periodically audit installed vs tracked packages
+The brew helpers reflect the new ownership: read-only audits (`brew-diff`, `brew-installed-only`, `brew-missing`, `brew-orphans`) check installed packages against the deployed Brewfile (`~/.config/homebrew/Brewfile`); `brew-edit` opens the source in the machines repo; `brew-export` writes a `/tmp` snapshot for reference. `brew-sync` is retired (it would edit a file the next provision overwrites).
 
 ### Capabilities (per-host)
 
-**Available Profiles:**
-```bash
-machine-list                # List all configured machine profiles
-machine-info                # Show current machine profile information
-```
+Capability package selection has moved to the machines ansible repo (`host_vars/<hostname>.yml` + `ansible/roles/packages/`). This repo no longer controls which packages are installed per machine.
 
-**Configured Machines:**
-- **crowntail (home 🏡)**: Personal home workstation
-  - Home apps: discord, minecraft, spotify
-- **deltatail (work 💼)**: Work laptop
-  - Work tools: microsoft-teams, slack
-- **halfmoon (media 🎥)**: Video editing station
-  - Media apps: obs, streamlabs, adobe-creative-cloud, audio-hijack, loopback, soundsource
-  - Media tools: ffmpeg, gifsicle
-- **default (🔬)**: Test/unknown machines
-
-The machine profile is automatically detected from hostname and configures:
-- Shell prompt emoji (PS1)
-- Machine-specific Brewfile packages
-- Profile metadata in chezmoi templates
+The `machine-list` and `machine-info` shell helpers still work for informational display.
 
 ## Architecture
 
 ### Chezmoi File Structure
 - **Template files** (`.tmpl` extension): Processed by chezmoi's Go templates
   - `dot_gitconfig.tmpl`: Git configuration with user data from `.chezmoi.toml.tmpl`
-  - `dot_my/dot_Brewfile.tmpl`: Homebrew package list
-  - `.chezmoi.toml.tmpl`: Chezmoi config with per-host capabilities
+  - `.chezmoi.toml.tmpl`: Chezmoi config (machine identity; no longer manages capabilities or Brewfile)
 - **Executable files** (`executable_` prefix): Made executable when applied
   - `dot_my/executable_dot_macos`: macOS system settings script
 - **Dotfiles** (`dot_` prefix): Mapped to hidden files in home directory
@@ -130,12 +94,12 @@ The machine profile is automatically detected from hostname and configures:
 3. Installs Xcode Command Line Tools (if needed)
 4. Installs Homebrew and Rosetta 2 (Apple Silicon)
 5. **Installs chezmoi first** (needed to bootstrap dotfiles)
-6. **Initializes and applies dotfiles** (creates Brewfile and other configs)
+6. **Initializes and applies dotfiles** (shell config, git config, macos defaults)
 7. Installs 1Password CLI
-8. Runs Brewfile bundle install from `~/.my/.Brewfile`
+8. ~~Brewfile bundle install~~ — now handled by `ansible/roles/packages` in the machines repo
 9. ZSH plugins managed by chezmoi (via `.chezmoiexternal.toml`)
 10. Installs fzf keybindings
-11. Runs macOS settings (once, tracked by `~/.my/.macos_configured` flag)
+11. Runs macOS settings (once, via `run_onchange_apply-macos-defaults.sh`)
 
 ## Branch and PR Conventions
 
@@ -216,7 +180,7 @@ The `test.sh` script validates:
 
 ## Important Files
 
-- `~/.my/.Brewfile`: Homebrew package manifest (after setup)
+- `~/.my/.Brewfile`: **removed** — package manifest is now `ansible/roles/packages/files/Brewfile` in the machines repo
 - `~/.my/.macos`: macOS system preferences script
 - `~/.my/.{exports,aliases,functions}`: Custom shell configuration
 - `.chezmoiignore`: Files excluded from home directory deployment
