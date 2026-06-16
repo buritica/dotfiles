@@ -120,15 +120,10 @@ else
     print_status "1Password CLI already installed"
 fi
 
-# Install Homebrew packages from Brewfile (now that chezmoi created it)
-print_status "Installing packages from Brewfile..."
-if [ -f "${HOME}/.my/.Brewfile" ]; then
-    brew bundle install --file="${HOME}/.my/.Brewfile"
-else
-    print_error "Brewfile not found at ${HOME}/.my/.Brewfile"
-    print_error "This should have been created by chezmoi init. Something went wrong."
-    exit 1
-fi
+# Packages are installed by the machines ansible repo (roles/packages),
+# not by setup.sh. Run the machines playbook after this script.
+print_status "Package installation is handled by the machines ansible playbook (roles/packages)."
+print_status "Run: ansible-playbook ansible/playbooks/provision.yml --limit <hostname>"
 
 # Zsh plugins are now managed by chezmoi via .chezmoiexternal.toml
 # They will be automatically installed/updated when chezmoi apply runs

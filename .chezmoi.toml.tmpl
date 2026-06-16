@@ -11,14 +11,6 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
 [data.machine]
   hostname = "{{ .chezmoi.hostname }}"
 
-# Capabilities — opt-in specialized workloads. Core is unconditional.
-# ALL MACHINES CORE-ONLY for now. Capabilities are scaffolded in the Brewfile but
-# not yet reviewed/tested — we enable them iteratively, per machine, after testing.
-# To enable, add a hostname branch below (e.g. crowntail -> work=true).
-{{- $caps := dict "work" false "make_music" false "play_games" false "media_server" false }}
-
-[data.capabilities]
-  work         = {{ $caps.work }}
-  make_music   = {{ $caps.make_music }}
-  play_games   = {{ $caps.play_games }}
-  media_server = {{ $caps.media_server }}
+# Capabilities are now declared in host_vars/<hostname>.yml in the machines
+# ansible repo and gated by the packages role. dotfiles no longer manages
+# package installation or capability selection.
