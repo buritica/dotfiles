@@ -97,7 +97,7 @@ else
     print_status "chezmoi already installed"
 fi
 
-# Initialize and apply dotfiles (this creates the Brewfile and other configs)
+# Initialize and apply dotfiles (shell, git, macOS config — no packages)
 print_status "Setting up dotfiles..."
 if [ ! -d "${HOME}/.local/share/chezmoi" ]; then
     # Check if we're running from a local repository
@@ -112,7 +112,7 @@ else
     print_warning "Dotfiles already initialized. Run chezmoi update to update them."
 fi
 
-# Install 1Password CLI (after chezmoi so Brewfile exists)
+# Install 1Password CLI
 print_status "Installing 1Password CLI..."
 if ! command -v op &>/dev/null; then
     brew install --cask 1password-cli
