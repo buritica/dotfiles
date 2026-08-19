@@ -184,6 +184,17 @@ if command -v python3 >/dev/null 2>&1; then
     alias python=python3
 fi
 
+{{- if eq .chezmoi.hostname "severo" }}
+# Tailscale SSH doesn't create a normal PAM/loginwindow security session, so
+# `security` over an SSH (Tailscale) connection can't see the real login
+# keychain ("user name or passphrase is not correct" even with the right
+# password) — while the same command run from a GUI session (e.g. Ghostty)
+# works fine. Named separately rather than shadowing `security` itself, since
+# routing every call through sudo+asuser would add friction where it's not
+# needed. Use only when a plain `security` call fails over SSH.
+security-gui() { sudo launchctl asuser "$(id -u buritica)" /usr/bin/security "$@"; }
+{{- end }}
+
 # =============================================================================
 # Finalization
 # =============================================================================
