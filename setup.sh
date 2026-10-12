@@ -50,51 +50,13 @@ if [[ -n "${CI}" ]]; then
     exit 0
 fi
 
-# Install Xcode Command Line Tools
-print_status "Installing Xcode Command Line Tools..."
-if ! xcode-select -p &>/dev/null; then
-    print_status "This will open a dialog to install Xcode Command Line Tools."
-    print_status "Please complete the installation in the dialog that appears."
-    print_status "After installation is complete, run this script again."
-    xcode-select --install
-    exit 0
-else
-    print_status "Xcode Command Line Tools already installed"
-fi
-
-# Install Homebrew
-print_status "Installing Homebrew..."
-if ! command -v brew &>/dev/null; then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    # Add Homebrew to PATH
-    if [[ "$(uname -m)" == "arm64" ]]; then
-        echo "eval \"$(/opt/homebrew/bin/brew shellenv)\"" >> "${HOME}/.zprofile"
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    else
-        echo "eval \"$(/usr/local/bin/brew shellenv)\"" >> "${HOME}/.zprofile"
-        eval "$(/usr/local/bin/brew shellenv)"
-    fi
-else
-    print_status "Homebrew already installed"
-fi
-
-# Install Rosetta 2 on Apple Silicon if needed
-if [[ "$(uname -m)" == "arm64" ]]; then
-    print_status "Checking for Rosetta 2..."
-    if ! /usr/bin/pgrep -q oahd; then
-        print_status "Installing Rosetta 2..."
-        sudo softwareupdate --install-rosetta --agree-to-license
-    else
-        print_status "Rosetta 2 already installed"
-    fi
-fi
-
-# Install chezmoi (needed to bootstrap dotfiles)
-print_status "Installing chezmoi..."
+# Managed Macs don't need this script: github.com/buritica/machines installs
+# Homebrew, Rosetta and the 1Password CLI (bootstrap.sh), then chezmoi, packages
+# and these dotfiles (provision.yml). This only applies dotfiles on a Mac that
+# already has chezmoi, e.g. one machines doesn't manage.
 if ! command -v chezmoi &>/dev/null; then
-    brew install chezmoi
-else
-    print_status "chezmoi already installed"
+    print_error "chezmoi not found. Provision with github.com/buritica/machines, or 'brew install chezmoi' first."
+    exit 1
 fi
 
 # Initialize and apply dotfiles (shell, git, macOS config — no packages)
@@ -110,53 +72,6 @@ if [ ! -d "${HOME}/.local/share/chezmoi" ]; then
     fi
 else
     print_warning "Dotfiles already initialized. Run chezmoi update to update them."
-fi
-
-# Install 1Password CLI
-print_status "Installing 1Password CLI..."
-if ! command -v op &>/dev/null; then
-    brew install --cask 1password-cli
-else
-    print_status "1Password CLI already installed"
-fi
-
-# Packages are installed by the machines ansible repo (roles/packages),
-# not by setup.sh. Run the machines playbook after this script.
-print_status "Package installation is handled by the machines ansible playbook (roles/packages)."
-print_status "Run: ansible-playbook ansible/playbooks/provision.yml --limit <hostname>"
-
-# Zsh plugins are now managed by chezmoi via .chezmoiexternal.toml
-# They will be automatically installed/updated when chezmoi apply runs
-print_status "Zsh plugins will be installed by chezmoi on next apply"
-
-# Install fzf keybindings
-if command -v fzf &>/dev/null; then
-    if [ ! -f "$HOME/.fzf.zsh" ]; then
-        print_status "Installing fzf keybindings..."
-        "$(brew --prefix)/opt/fzf/install" --key-bindings --completion --no-update-rc
-    else
-        print_status "fzf keybindings already installed"
-    fi
-fi
-
-# macOS settings are applied by chezmoi via run_onchange_apply-macos-defaults.sh
-# (re-runs on every `chezmoi apply` only when ~/.my/.macos changes). No longer
-# invoked from setup.sh — one owner.
-
-# Set up 1Password service account token (for halfmoon server)
-if [[ "$(hostname -s)" == "halfmoon" ]]; then
-    print_status "Halfmoon server detected — checking 1Password service account..."
-    OP_TOKEN_FILE="${HOME}/.config/op/service-account-token"
-    if [ ! -f "$OP_TOKEN_FILE" ]; then
-        print_warning "Missing 1Password service account token at $OP_TOKEN_FILE"
-        print_status "To set up:"
-        print_status "  1. Create a service account at my.1password.com → Developer → Service Accounts"
-        print_status "  2. Grant read access to the 'halfmoon' vault"
-        print_status "  3. Run: mkdir -p ~/.config/op && echo '<token>' > $OP_TOKEN_FILE && chmod 600 $OP_TOKEN_FILE"
-        print_status "  4. For botsito (multi-vault): echo '<token>' > ~/.config/op/botsito-service-account-token && chmod 600 ~/.config/op/botsito-service-account-token"
-    else
-        print_status "1Password service account token found"
-    fi
 fi
 
 print_status "Setup complete! Please restart your terminal to ensure all changes take effect."

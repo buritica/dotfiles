@@ -17,7 +17,7 @@ This is a personal dotfiles repository managed with [chezmoi](https://chezmoi.io
 
 ### Setup and Deployment
 ```bash
-./setup.sh                   # Full setup (macOS only)
+./setup.sh                   # Apply dotfiles on a Mac machines doesn't manage (needs chezmoi)
 chezmoi apply                # Apply dotfile changes
 chezmoi update              # Pull and apply latest changes
 ```
@@ -84,22 +84,16 @@ The `machine-list` and `machine-info` shell helpers still work for informational
   - zsh-defer (for lazy loading)
 - **Plugin loading order**:
   1. Oh My Zsh plugins (git, git-extras, github, npm, etc.)
-  2. Tool initialization with lazy loading (direnv eager, asdf/fzf/zoxide deferred)
+  2. Tool initialization with lazy loading (direnv eager, mise/fzf/zoxide deferred)
   3. Custom dotfiles from `~/.my/` (.exports, .aliases, .functions)
 - **Architecture-aware Homebrew paths**: Auto-detects ARM64 vs Intel
 - **Performance**: Lazy loading achieves < 100ms startup time (2-3x improvement)
 
 ### Setup Script Flow
+On managed Macs the machines repo does all of this (`bootstrap.sh`: Homebrew, Rosetta, 1Password CLI; `provision.yml`: chezmoi, packages, and `chezmoi init --apply`), so `setup.sh` is only for a Mac it doesn't manage. It:
 1. Validates macOS or CI environment
-3. Installs Xcode Command Line Tools (if needed)
-4. Installs Homebrew and Rosetta 2 (Apple Silicon)
-5. **Installs chezmoi first** (needed to bootstrap dotfiles)
-6. **Initializes and applies dotfiles** (shell config, git config, macos defaults)
-7. Installs 1Password CLI
-8. ~~Brewfile bundle install~~ — now handled by `ansible/roles/packages` in the machines repo
-9. ZSH plugins managed by chezmoi (via `.chezmoiexternal.toml`)
-10. Installs fzf keybindings
-11. Runs macOS settings (once, via `run_onchange_apply-macos-defaults.sh`)
+2. Checks chezmoi is installed (exits with a hint if not)
+3. **Initializes and applies dotfiles** (shell config, git config, macOS defaults via `run_onchange_apply-macos-defaults.sh`, zsh plugins via `.chezmoiexternal.toml`)
 
 ## Branch and PR Conventions
 
@@ -176,7 +170,7 @@ The `test.sh` script validates:
 9. Modern git configuration (no deprecated options)
 10. No deprecated hub CLI usage
 11. Essential config files exist (.gitattributes, .editorconfig)
-12. Brew management functions exist (brew-diff, brew-sync, etc.)
+12. Brew management functions exist (brew-diff, brew-missing, etc.)
 
 ## Important Files
 
