@@ -141,3 +141,7 @@ alias gcfeat="gcommit feat"
 alias gcfix="gcommit fix"
 alias gcdocs="gcommit docs"
 alias gcchore="gcommit chore"
+
+# gws (Google Workspace CLI, installed by the machines repo): plain `gws` is
+# personal (~/.config/gws); this one is the sendas account.
+alias gws-sendas='GOOGLE_WORKSPACE_CLI_CONFIG_DIR=$HOME/.config/gws-sendas gws'
