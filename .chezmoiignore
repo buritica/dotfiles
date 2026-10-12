@@ -33,6 +33,9 @@ Thumbs.db
 # Managed by ansible (machines repo) — not dotfiles.
 # ansible writes ~/.tool-versions and runs mise install.
 .tool-versions
+
+# Per-machine (plugins, permissions, work-org auto-mode context); nobody
+# manages it, so never let chezmoi touch it.
 .claude/settings.json
 
 # id_halfmoon is halfmoon's local GitHub deploy key — only deploy its pubkey there.

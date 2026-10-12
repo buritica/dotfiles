@@ -122,12 +122,6 @@
   # GitHub specific
   pr = "!f() { git fetch origin pull/$1/head:pr-$1 && git checkout pr-$1; }; f"
 
-  # Git flow shortcuts
-  feature = "!git flow feature"
-  hotfix = "!git flow hotfix"
-  release = "!git flow release"
-  support = "!git flow support"
-
   # Debug
   debug = "!git rev-parse --show-toplevel && git rev-parse --git-dir && git rev-parse --show-cdup"
 
