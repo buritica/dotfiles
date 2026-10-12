@@ -115,11 +115,12 @@ if command -v fzf >/dev/null 2>&1; then
     export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --icons {}'"
     export FZF_DEFAULT_OPTS='--color=bg+:#3e3d32,bg:#272822,spinner:#e6db74,hl:#a6e22e --color=fg:#f8f8f2,header:#a6e22e,info:#e6db74,pointer:#e6db74 --color=marker:#e6db74,fg+:#f8f8f2,prompt:#e6db74,hl+:#a6e22e'
 
-    # Defer loading key bindings (Ctrl+R, Ctrl+T, Alt+C)
+    # Key bindings + completion (Ctrl+R, Ctrl+T, Alt+C) straight from fzf
+    # (>= 0.48), not ~/.fzf.zsh, which only fzf's own install script writes.
     if command -v zsh-defer >/dev/null 2>&1; then
-        zsh-defer -c '[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh'
+        zsh-defer -c 'source <(fzf --zsh)'
     else
-        [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+        source <(fzf --zsh)
     fi
 fi
 

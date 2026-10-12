@@ -3,7 +3,7 @@
 # `alias gwt='git worktree'` turns `gwt() {` into `git worktree () {` -> parse error.
 # .functions is sourced after the OMZ plugins, so unalias here before (re)defining.
 for _fn_alias in gwt gwta gwtr gwts; do
-  unalias "$_fn_alias" 2>/dev/null
+  unalias "$_fn_alias" 2>/dev/null || true
 done
 unset _fn_alias
 
