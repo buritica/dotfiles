@@ -78,7 +78,7 @@ The `machine-list` and `machine-info` shell helpers still work for informational
 ### Shell Configuration
 - **Primary shell**: Zsh with Oh My Zsh
 - **Theme**: `geoffgarside`
-- **Plugin management**: Via `.chezmoiexternal.toml` (auto-updates weekly)
+- **Plugin management**: Via `.chezmoiexternal.toml` (pinned to tags/commits; bump by editing the URL)
   - zsh-syntax-highlighting
   - zsh-autosuggestions
   - zsh-defer (for lazy loading)

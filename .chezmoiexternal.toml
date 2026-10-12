@@ -1,23 +1,23 @@
-# External resources managed by chezmoi
-# These files are automatically downloaded and kept up to date
+# External resources managed by chezmoi.
+# Pinned (not a branch) so a shell can't silently change on the next apply. The
+# two zsh-users plugins match team-perrito/estanli's dotfiles role
+# (dotfiles_omz_plugins); zsh-defer cuts no tags, so it's pinned to a commit.
+# Bump by editing the URL.
 
 [".oh-my-zsh/custom/plugins/zsh-syntax-highlighting"]
     type = "archive"
-    url = "https://github.com/zsh-users/zsh-syntax-highlighting/archive/master.tar.gz"
+    url = "https://github.com/zsh-users/zsh-syntax-highlighting/archive/refs/tags/0.8.0.tar.gz"
     exact = true
     stripComponents = 1
-    refreshPeriod = "168h"  # Refresh weekly
 
 [".oh-my-zsh/custom/plugins/zsh-autosuggestions"]
     type = "archive"
-    url = "https://github.com/zsh-users/zsh-autosuggestions/archive/master.tar.gz"
+    url = "https://github.com/zsh-users/zsh-autosuggestions/archive/refs/tags/v0.7.1.tar.gz"
     exact = true
     stripComponents = 1
-    refreshPeriod = "168h"  # Refresh weekly
 
 [".oh-my-zsh/custom/plugins/zsh-defer"]
     type = "archive"
-    url = "https://github.com/romkatv/zsh-defer/archive/master.tar.gz"
+    url = "https://github.com/romkatv/zsh-defer/archive/53a26e287fbbe2dcebb3aa1801546c6de32416fa.tar.gz"
     exact = true
     stripComponents = 1
-    refreshPeriod = "168h"  # Refresh weekly
