@@ -10,7 +10,7 @@ ZSH_THEME="geoffgarside"
 export ZSH_DISABLE_COMPFIX=true  # skip insecure directory checks (faster)
 
 plugins=(
-  git git-extras github
+  git git-extras
   cp copypath copyfile extract
   npm docker docker-compose
   colored-man-pages

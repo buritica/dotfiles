@@ -83,7 +83,7 @@ The `machine-list` and `machine-info` shell helpers still work for informational
   - zsh-autosuggestions
   - zsh-defer (for lazy loading)
 - **Plugin loading order**:
-  1. Oh My Zsh plugins (git, git-extras, github, npm, etc.)
+  1. Oh My Zsh plugins (git, git-extras, npm, etc.)
   2. Tool initialization with lazy loading (direnv eager, mise/fzf/zoxide deferred)
   3. Custom dotfiles from `~/.my/` (.exports, .aliases, .functions)
 - **Architecture-aware Homebrew paths**: Auto-detects ARM64 vs Intel
