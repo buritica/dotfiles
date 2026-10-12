@@ -11,51 +11,11 @@ fi
 # Oh My Zsh Configuration
 # =============================================================================
 
-# Path to your oh-my-zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
-
-# Set name of the theme to load.
-ZSH_THEME="geoffgarside"
-
-# Completion cache settings (improves startup time)
-# Oh My Zsh handles compinit - we just configure it for optimal caching
+# Theme + plugin set is the shared zsh base (dot_config/zsh-base), the same
+# one the estanli account on severo loads.
+# Completion cache settings (improves startup time); Oh My Zsh runs compinit.
 export ZSH_COMPDUMP="${ZDOTDIR:-$HOME}/.zcompdump"
-export ZSH_DISABLE_COMPFIX=true  # Skip insecure directory checks (faster)
-
-# oh-my-zsh plugins
-plugins=(
-	# Git ecosystem
-	git git-extras github
-
-	# File operations
-	cp copypath copyfile extract
-
-	# Development tools
-	npm docker docker-compose
-
-	# Shell enhancements
-	colored-man-pages
-)
-
-# Add optional plugins if they exist
-[[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]] && plugins+=(zsh-syntax-highlighting)
-[[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]] && plugins+=(zsh-autosuggestions)
-
-# source other profile files
-if [ -f "$ZSH/oh-my-zsh.sh" ]; then
-    source "$ZSH/oh-my-zsh.sh"
-else
-    echo "Warning: Oh My Zsh not found at $ZSH/oh-my-zsh.sh"
-fi
-
-# Unalias Oh My Zsh git plugin aliases that conflict with our enhanced functions
-# We keep the plugin (197 useful aliases like ga, gco, gst) but override these specific ones
-unalias gwt 2>/dev/null || true      # We have gwt() with git repo validation
-unalias gwta 2>/dev/null || true     # We have gwta() with auto-cd
-unalias gcommit 2>/dev/null || true  # We have gcommit() for conventional commits
-
-# Note: Oh My Zsh handles compinit automatically
-# We just configure it via ZSH_COMPDUMP and ZSH_DISABLE_COMPFIX above
+[ -r "$HOME/.config/zsh-base/omz.zsh" ] && source "$HOME/.config/zsh-base/omz.zsh"
 
 # =============================================================================
 # Path Configuration
@@ -134,12 +94,16 @@ if command -v rg >/dev/null 2>&1; then
     export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
 fi
 
+# bun completions (bun writes ~/.bun/_bun itself on install/upgrade)
+[[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
+
 # =============================================================================
 # Shell Configuration
 # =============================================================================
 
-# Load the shell dotfiles
-for file in ~/.my/.{exports,aliases,functions}; do
+# Load the shell dotfiles; the shared base functions (dot_config/zsh-base) load
+# after the aliases, same order as before they moved there
+for file in ~/.my/.{exports,aliases} ~/.config/zsh-base/functions.zsh ~/.my/.functions; do
     [ -r "$file" ] && [ -f "$file" ] && source "$file"
 done
 unset file
