@@ -94,6 +94,9 @@ if command -v rg >/dev/null 2>&1; then
     export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
 fi
 
+# bun completions (bun writes ~/.bun/_bun itself on install/upgrade)
+[[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
+
 # =============================================================================
 # Shell Configuration
 # =============================================================================
