@@ -61,26 +61,10 @@ unalias gcommit 2>/dev/null || true  # We have gcommit() for conventional commit
 # Path Configuration
 # =============================================================================
 
-# Define path components
-typeset -U path
-path=(
-    "$HOME/bin"
-    "$HOME/.local/bin"
-    "/usr/local/sbin"
-    "/usr/local/bin"
-    "/usr/sbin"
-    "/usr/bin"
-    "/sbin"
-    "/bin"
-    $path
-)
-
-# Add Homebrew paths based on architecture
-if [[ $(uname -m) == 'arm64' ]]; then
-    eval $(/opt/homebrew/bin/brew shellenv)
-else
-    eval $(/usr/local/bin/brew shellenv 2>/dev/null || true)
-fi
+# .zshenv set the canonical PATH, but in login shells macOS /etc/zprofile runs
+# path_helper afterwards and moves the system dirs to the front. Re-apply it.
+# Hosts without path.zsh keep .zshenv's fallback, as path_helper left it.
+[[ -r "$HOME/.config/shell/path.zsh" ]] && source "$HOME/.config/shell/path.zsh"
 
 # =============================================================================
 # Tool Initialization with Lazy Loading
