@@ -146,7 +146,7 @@ git-cleanup() {
   echo "🗑️  Merged branches:"
   echo "$branches"
   echo ""
-  read -p "Delete these branches? [y/N] " -n 1 -r
+  read -q "REPLY?Delete these branches? [y/N] "
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "$branches" | xargs git branch -d
@@ -171,7 +171,7 @@ git-prune-local() {
   echo "🗑️  Branches not on remote:"
   echo "$branches"
   echo ""
-  read -p "Delete these branches? [y/N] " -n 1 -r
+  read -q "REPLY?Delete these branches? [y/N] "
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]; then
     local -a failed_branches
@@ -186,7 +186,7 @@ git-prune-local() {
       echo "⚠️  The following branches have unmerged changes:"
       printf '  %s\n' "${failed_branches[@]}"
       echo ""
-      read -p "Force delete these unmerged branches? [y/N] " -n 1 -r
+      read -q "REPLY?Force delete these unmerged branches? [y/N] "
       echo
       if [[ $REPLY =~ ^[Yy]$ ]]; then
         git branch -D "${failed_branches[@]}"
@@ -240,7 +240,8 @@ fe() {
     return 1
   fi
   local files
-  files=$(fzf --multi --preview 'bat --color=always --style=numbers --line-range=:500 {}') && code "$files"
+  # shellcheck disable=SC2034,SC2296  # zsh (f) flag: one arg per selected file
+  files=$(fzf --multi --preview 'bat --color=always --style=numbers --line-range=:500 {}') && code "${(f)files[@]}"
 }
 
 fbr() {
@@ -324,31 +325,34 @@ killport() {
     echo "Usage: killport <port-number>"
     return 1
   fi
-  local pid
-  pid=$(lsof -ti ":$port")
-  if [[ -z "$pid" ]]; then
+  local pids pid
+  pids=$(lsof -ti ":$port")
+  if [[ -z "$pids" ]]; then
     echo "❌ No process found on port $port"
     return 1
   fi
-  if ! kill -0 "$pid" 2>/dev/null; then
-    echo "⚠️  Process $pid exited before kill (race condition avoided)"
-    return 0
-  fi
-  echo "🛑 Stopping process $pid on port $port (SIGTERM)..."
-  if ! kill -15 "$pid" 2>/dev/null; then
-    echo "⚠️  Process already exited"
-    return 0
-  fi
-  local count=0
-  while kill -0 "$pid" 2>/dev/null && [[ $count -lt 6 ]]; do
-    sleep 0.5
-    count=$((count + 1))
+  # shellcheck disable=SC2296  # zsh (f) flag: lsof prints one PID per line
+  for pid in "${(f)pids[@]}"; do
+    if ! kill -0 "$pid" 2>/dev/null; then
+      echo "⚠️  Process $pid exited before kill (race condition avoided)"
+      continue
+    fi
+    echo "🛑 Stopping process $pid on port $port (SIGTERM)..."
+    if ! kill -15 "$pid" 2>/dev/null; then
+      echo "⚠️  Process $pid already exited"
+      continue
+    fi
+    local count=0
+    while kill -0 "$pid" 2>/dev/null && [[ $count -lt 6 ]]; do
+      sleep 0.5
+      count=$((count + 1))
+    done
+    if kill -0 "$pid" 2>/dev/null; then
+      echo "⚠️  Process $pid didn't stop gracefully, force killing (SIGKILL)..."
+      kill -9 "$pid" 2>/dev/null
+    fi
+    echo "✅ Process $pid stopped"
   done
-  if kill -0 "$pid" 2>/dev/null; then
-    echo "⚠️  Process didn't stop gracefully, force killing (SIGKILL)..."
-    kill -9 "$pid" 2>/dev/null
-  fi
-  echo "✅ Process stopped"
 }
 
 ports() {

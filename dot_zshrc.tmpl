@@ -15,7 +15,7 @@ fi
 # one the estanli account on severo loads.
 # Completion cache settings (improves startup time); Oh My Zsh runs compinit.
 export ZSH_COMPDUMP="${ZDOTDIR:-$HOME}/.zcompdump"
-source "$HOME/.config/zsh-base/omz.zsh"
+[ -r "$HOME/.config/zsh-base/omz.zsh" ] && source "$HOME/.config/zsh-base/omz.zsh"
 
 # =============================================================================
 # Path Configuration

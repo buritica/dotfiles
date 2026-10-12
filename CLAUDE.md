@@ -90,7 +90,7 @@ The `machine-list` and `machine-info` shell helpers still work for informational
 - **Performance**: Lazy loading achieves < 100ms startup time (2-3x improvement)
 
 ### Shared zsh base (`dot_config/zsh-base/`)
-Plain zsh (no templating, no `~/.my` or other buritica-only paths, tools `command -v`-guarded) shared with the `estanli` account on severo:
+Plain zsh (no templating, no `~/.my` or other buritica-only paths; optional tools like fzf/bat/gh are `command -v`-guarded, macOS basics like `open`/`lsof` are assumed) shared with the `estanli` account on severo:
 - `omz.zsh`: Oh My Zsh theme + plugin set; `functions.zsh`: git worktree/stash, fzf pickers, port/env helpers
 - Here, chezmoi deploys it to `~/.config/zsh-base/` and `dot_zshrc.tmpl` sources it. On severo, team-perrito/estanli's `dotfiles` role clones this public repo and links `~/.config/zsh-base` to it; team-perrito/estanli-dotfiles keeps only that account's overrides.
 - Anything that only makes sense for buritica stays in `dot_my/` (loads after the base). Changes here reach estanli on its next dotfiles deploy, so keep it portable.

@@ -207,19 +207,19 @@ run_test "Check for essential config files" '
 
 # Test 12: Check brew management functions exist
 run_test "Check brew management functions" '
-    if ! grep -q "brew-diff()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "brew-diff()" dot_my/dot_functions; then
         echo "Missing brew-diff function"
         return 1
     fi
-    if ! grep -q "brew-sync()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "brew-sync()" dot_my/dot_functions; then
         echo "Missing brew-sync function"
         return 1
     fi
-    if ! grep -q "brew-installed-only()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "brew-installed-only()" dot_my/dot_functions; then
         echo "Missing brew-installed-only function"
         return 1
     fi
-    if ! grep -q "brew-missing()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "brew-missing()" dot_my/dot_functions; then
         echo "Missing brew-missing function"
         return 1
     fi
@@ -279,43 +279,43 @@ run_test "Check modern tool aliases" '
 # Test 16: Check new productivity functions exist
 run_test "Check new productivity functions" '
     # Port management
-    if ! grep -q "^port()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^port()" dot_config/zsh-base/functions.zsh; then
         echo "Missing port() function"
         return 1
     fi
-    if ! grep -q "^killport()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^killport()" dot_config/zsh-base/functions.zsh; then
         echo "Missing killport() function"
         return 1
     fi
-    if ! grep -q "^ports()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^ports()" dot_config/zsh-base/functions.zsh; then
         echo "Missing ports() function"
         return 1
     fi
 
     # Environment switcher
-    if ! grep -q "^envs()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^envs()" dot_config/zsh-base/functions.zsh; then
         echo "Missing envs() function"
         return 1
     fi
-    if ! grep -q "^envswitch()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^envswitch()" dot_config/zsh-base/functions.zsh; then
         echo "Missing envswitch() function"
         return 1
     fi
-    if ! grep -q "^envnew()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^envnew()" dot_config/zsh-base/functions.zsh; then
         echo "Missing envnew() function"
         return 1
     fi
 
     # Clipboard helpers
-    if ! grep -q "^clip()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^clip()" dot_my/dot_functions; then
         echo "Missing clip() function"
         return 1
     fi
-    if ! grep -q "^copyfile()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^copyfile()" dot_my/dot_functions; then
         echo "Missing copyfile() function"
         return 1
     fi
-    if ! grep -q "^copypath()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^copypath()" dot_my/dot_functions; then
         echo "Missing copypath() function"
         return 1
     fi
@@ -326,45 +326,45 @@ run_test "Check new productivity functions" '
 # Test 17: Check new git workflow functions exist
 run_test "Check new git workflow functions" '
     # Worktree helpers
-    if ! grep -q "^gwt()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^gwt()" dot_config/zsh-base/functions.zsh; then
         echo "Missing gwt() function"
         return 1
     fi
-    if ! grep -q "^gwta()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^gwta()" dot_config/zsh-base/functions.zsh; then
         echo "Missing gwta() function"
         return 1
     fi
-    if ! grep -q "^gwtr()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^gwtr()" dot_config/zsh-base/functions.zsh; then
         echo "Missing gwtr() function"
         return 1
     fi
-    if ! grep -q "^gwts()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^gwts()" dot_config/zsh-base/functions.zsh; then
         echo "Missing gwts() function"
         return 1
     fi
 
     # Stash browser
-    if ! grep -q "^fstash()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^fstash()" dot_config/zsh-base/functions.zsh; then
         echo "Missing fstash() function"
         return 1
     fi
-    if ! grep -q "^fstash-show()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^fstash-show()" dot_config/zsh-base/functions.zsh; then
         echo "Missing fstash-show() function"
         return 1
     fi
 
     # Branch cleanup
-    if ! grep -q "^git-cleanup()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^git-cleanup()" dot_config/zsh-base/functions.zsh; then
         echo "Missing git-cleanup() function"
         return 1
     fi
-    if ! grep -q "^git-prune-local()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^git-prune-local()" dot_config/zsh-base/functions.zsh; then
         echo "Missing git-prune-local() function"
         return 1
     fi
 
     # Conventional commits
-    if ! grep -q "^gcommit()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^gcommit()" dot_config/zsh-base/functions.zsh; then
         echo "Missing gcommit() function"
         return 1
     fi
@@ -375,33 +375,33 @@ run_test "Check new git workflow functions" '
 # Test 18: Check error handling in new functions
 run_test "Check error handling in new functions" '
     # Port functions should check for arguments
-    if ! grep -q "Usage: port" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "Usage: port" dot_config/zsh-base/functions.zsh; then
         echo "port() missing usage message"
         return 1
     fi
-    if ! grep -q "Usage: killport" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "Usage: killport" dot_config/zsh-base/functions.zsh; then
         echo "killport() missing usage message"
         return 1
     fi
 
     # Environment switcher should check for arguments
-    if ! grep -q "Usage: envswitch" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "Usage: envswitch" dot_config/zsh-base/functions.zsh; then
         echo "envswitch() missing usage message"
         return 1
     fi
-    if ! grep -q "Usage: envnew" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "Usage: envnew" dot_config/zsh-base/functions.zsh; then
         echo "envnew() missing usage message"
         return 1
     fi
 
     # Clipboard helpers should check for arguments
-    if ! grep -q "Usage: copyfile" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "Usage: copyfile" dot_my/dot_functions; then
         echo "copyfile() missing usage message"
         return 1
     fi
 
     # Git functions should check for repo
-    if ! grep -q "git rev-parse --git-dir" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "git rev-parse --git-dir" dot_config/zsh-base/functions.zsh; then
         echo "Git functions missing repo validation"
         return 1
     fi
@@ -412,27 +412,27 @@ run_test "Check error handling in new functions" '
 # Test 19: Check modern tool integration
 run_test "Check modern tool integration" '
     # Zoxide integration
-    if ! grep -q "^zi()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^zi()" dot_config/zsh-base/functions.zsh; then
         echo "Missing zi() zoxide integration"
         return 1
     fi
 
     # Hyperfine benchmarking
-    if ! grep -q "^bench()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^bench()" dot_config/zsh-base/functions.zsh; then
         echo "Missing bench() function"
         return 1
     fi
-    if ! grep -q "^bench-compare()" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "^bench-compare()" dot_config/zsh-base/functions.zsh; then
         echo "Missing bench-compare() function"
         return 1
     fi
 
     # Modern tre with eza
-    if ! grep -q "function tre()" dot_my/dot_functions dot_config/zsh-base/functions.zsh && ! grep -q "^tre()" dot_my/dot_functions; then
+    if ! grep -q "function tre()" dot_my/dot_functions && ! grep -q "^tre()" dot_my/dot_functions; then
         echo "Missing tre() function"
         return 1
     fi
-    if ! grep -q "eza --tree" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "eza --tree" dot_my/dot_functions; then
         echo "tre() not using eza"
         return 1
     fi
@@ -473,26 +473,26 @@ run_test "Check critical bug fixes" '
     fi
 
     # Git functions should check for repo
-    if ! grep -q "git rev-parse --git-dir" dot_my/dot_functions dot_config/zsh-base/functions.zsh || \
-       ! grep -q "&>/dev/null" dot_my/dot_functions dot_config/zsh-base/functions.zsh; then
+    if ! grep -q "git rev-parse --git-dir" dot_config/zsh-base/functions.zsh || \
+       ! grep -q "&>/dev/null" dot_config/zsh-base/functions.zsh; then
         echo "Git functions missing proper repo checks"
         return 1
     fi
 
     # gifify() should quote variables
-    if ! grep -A 10 "gifify()" dot_my/dot_functions dot_config/zsh-base/functions.zsh | grep -q "ffmpeg -i \"\$1\""; then
+    if ! grep -A 10 "gifify()" dot_my/dot_functions | grep -q "ffmpeg -i \"\$1\""; then
         echo "gifify() missing quoted \$1"
         return 1
     fi
 
     # fs() should use dust with quoted variables
-    if ! grep -A 5 "function fs()" dot_my/dot_functions dot_config/zsh-base/functions.zsh | grep -q "dust.*\"\$@\""; then
+    if ! grep -A 5 "function fs()" dot_my/dot_functions | grep -q "dust.*\"\$@\""; then
         echo "fs() missing dust or quoted variables"
         return 1
     fi
 
     # diff() should use delta when available
-    if ! grep -A 5 "function diff()" dot_my/dot_functions dot_config/zsh-base/functions.zsh | grep -q "delta"; then
+    if ! grep -A 5 "function diff()" dot_my/dot_functions | grep -q "delta"; then
         echo "diff() missing delta integration"
         return 1
     fi
@@ -547,6 +547,11 @@ run_test "Check deprecated tools removed" '
 
     return 0
 '
+
+# Test 21b: zsh syntax of the shared base (estanli loads it too; bash -n can't parse zsh)
+if command -v zsh >/dev/null 2>&1; then
+    run_test "Check zsh-base syntax" 'zsh -n dot_config/zsh-base/*.zsh'
+fi
 
 # Test 22: Verify function syntax by sourcing
 if [ "$IS_CI" = "false" ]; then
