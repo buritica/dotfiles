@@ -2,21 +2,16 @@
 
 [![CI](https://github.com/buritica/dotfiles/actions/workflows/ci.yml/badge.svg)](https://github.com/buritica/dotfiles/actions/workflows/ci.yml)
 [![Security](https://github.com/buritica/dotfiles/actions/workflows/security.yml/badge.svg)](https://github.com/buritica/dotfiles/actions/workflows/security.yml)
-[![codecov](https://codecov.io/gh/buritica/dotfiles/branch/master/graph/badge.svg)](https://codecov.io/gh/buritica/dotfiles)
-[![unknown](https://img.shields.io/badge/status-unknown-lightgrey.svg)](https://github.com/buritica/dotfiles)
-[![docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://buritica.github.io/dotfiles/)
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-My personal dotfiles and system configuration, managed with [chezmoi](https://chezmoi.io/). This repository contains everything needed to bootstrap and maintain a consistent development environment across macOS machines.
+My personal dotfiles and system configuration, managed with [chezmoi](https://chezmoi.io/). Packages and machine setup live in [buritica/machines](https://github.com/buritica/machines); this repo is config only.
 
 ## Overview
 
 This setup provides:
-- A curated selection of development tools and productivity apps via Homebrew
-- Optimized macOS system settings for performance and privacy
 - Custom shell configuration with Zsh, including prompt and aliases
-- VS Code development environment setup
-- Automated installation and configuration of essential tools
+- Optimized macOS system settings for performance and privacy
+- git and Ghostty configuration
 
 ## Quick Start
 
