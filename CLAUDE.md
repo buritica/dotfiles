@@ -89,6 +89,12 @@ The `machine-list` and `machine-info` shell helpers still work for informational
 - **Architecture-aware Homebrew paths**: Auto-detects ARM64 vs Intel
 - **Performance**: Lazy loading achieves < 100ms startup time (2-3x improvement)
 
+### Shared zsh base (`dot_config/zsh-base/`)
+Plain zsh (no templating, no `~/.my` or other buritica-only paths, tools `command -v`-guarded) shared with the `estanli` account on severo:
+- `omz.zsh`: Oh My Zsh theme + plugin set; `functions.zsh`: git worktree/stash, fzf pickers, port/env helpers
+- Here, chezmoi deploys it to `~/.config/zsh-base/` and `dot_zshrc.tmpl` sources it. On severo, team-perrito/estanli's `dotfiles` role clones this public repo and links `~/.config/zsh-base` to it; team-perrito/estanli-dotfiles keeps only that account's overrides.
+- Anything that only makes sense for buritica stays in `dot_my/` (loads after the base). Changes here reach estanli on its next dotfiles deploy, so keep it portable.
+
 ### Setup Script Flow
 On managed Macs the machines repo does all of this (`bootstrap.sh`: Homebrew, Rosetta, 1Password CLI; `provision.yml`: chezmoi, packages, and `chezmoi init --apply`), so `setup.sh` is only for a Mac it doesn't manage. It:
 1. Validates macOS or CI environment
