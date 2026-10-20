@@ -109,3 +109,7 @@ alias gcchore="gcommit chore"
 # gws (Google Workspace CLI, installed by the machines repo): plain `gws` is
 # personal (~/.config/gws); this one is the sendas account.
 alias gws-sendas='GOOGLE_WORKSPACE_CLI_CONFIG_DIR=$HOME/.config/gws-sendas gws'
+
+# GAM (Google Workspace admin CLI, hand-installed to ~/bin/gam7 on halfmoon);
+# "gam" is taken by git am.
+[[ -x $HOME/bin/gam7/gam ]] && alias gadm="$HOME/bin/gam7/gam"
