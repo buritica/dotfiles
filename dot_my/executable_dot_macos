@@ -480,7 +480,7 @@ defaults write com.google.Chrome PMPrintingExpandedStateForPrint2 -bool true
 # Only when this user owns the GUI session: from an SSH session or a headless
 # provisioning run, killing Finder, Mail and friends would hit whoever is
 # logged in at the console (or nothing at all).
-if [ "$(stat -f %Su /dev/console 2>/dev/null)" = "$(id -un)" ]; then
+if [ "$(/usr/bin/stat -f %Su /dev/console 2>/dev/null)" = "$(id -un)" ]; then
   for app in "Activity Monitor" "Calendar" "Contacts" "Dock" "Finder" \
       "Google Chrome" "Mail" "Messages" "SystemUIServer" "Terminal"; do
       killall "${app}" &> /dev/null

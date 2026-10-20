@@ -1,7 +1,8 @@
 # Editor: VS Code locally and in a VS Code Remote-SSH terminal (which can wait
 # on the client), vim in a plain SSH session, where `code -w` would try to open
 # a window on the remote's GUI session and hang. git and gh fall through to it.
-if [[ -n "$SSH_CONNECTION" && -z "$VSCODE_IPC_HOOK_CLI" ]]; then
+# -S, not -n: a tmux session started from VS Code keeps a dead socket path.
+if [[ -n "$SSH_CONNECTION" && ! -S "$VSCODE_IPC_HOOK_CLI" ]]; then
   export EDITOR='vim'
 else
   export EDITOR='code -w'
