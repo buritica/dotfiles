@@ -41,6 +41,16 @@ jobs:
           fi
           brew install chezmoi bats-core shellcheck
 
+      - name: Make the runner's zsh fpath secure
+        # Ubuntu's /etc/zsh/zshrc runs a plain compinit, which refuses
+        # group-writable fpath dirs on the runner image ("compinit:
+        # initialization aborted"). Real hosts are macOS and don't have them.
+        if: runner.os == 'Linux'
+        run: |
+          insecure=$(zsh -fc 'autoload -U compaudit; compaudit' 2>/dev/null || true)
+          echo "insecure: ${insecure:-none}"
+          [ -z "$insecure" ] || echo "$insecure" | xargs sudo chmod g-w,o-w
+
       - name: Fetch Oh My Zsh
         run: |
           git init -q "$RUNNER_TEMP/ohmyzsh"
