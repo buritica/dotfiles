@@ -8,14 +8,6 @@ else
   export EDITOR='code -w'
 fi
 
-# Larger bash history (allow 32³ entries; default is 500)
-export HISTSIZE=32768;
-export HISTFILESIZE=$HISTSIZE;
-export HISTCONTROL=ignoredups;
-
-# Make some commands not show up in history
-export HISTIGNORE="ls:cd:cd -:pwd:exit:date:* --help";
-
 # Prefer US English and use UTF-8. LANG only: LC_ALL overrides every LC_*
 # category and ssh's SendEnv LC_* forwards it to every host we connect to.
 export LANG="en_US.UTF-8";
