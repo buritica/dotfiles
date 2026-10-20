@@ -91,3 +91,23 @@ setup() {
   [ -n "$pinned" ] || { echo "no 40-char SHA in the .oh-my-zsh external"; return 1; }
   [ "$pinned" = "$ci" ] || { echo "external $pinned != CI OMZ_SHA $ci"; return 1; }
 }
+
+@test "atuin's config parses and keeps history local" {
+  python3 -c 'import tomllib' 2>/dev/null || skip "python3 without tomllib"
+  run python3 -c 'import sys, tomllib; c = tomllib.load(open(sys.argv[1], "rb")); print(c["auto_sync"], c["update_check"])' \
+    "$TEST_HOME/.config/atuin/config.toml"
+  [ "$output" = "False False" ]
+}
+
+@test "the atuin history import renders only once atuin is installed" {
+  local bin="$BATS_TEST_TMPDIR/bin"
+  mkdir -p "$bin"
+  ln -s "$(command -v chezmoi)" "$bin/chezmoi"
+  PATH="$bin:/usr/bin:/bin" run cz execute-template < "$DOTFILES_SRC/run_once_after_atuin-import.sh.tmpl"
+  [ -z "$output" ] || { echo "rendered without atuin: $output"; return 1; }
+
+  printf '#!/bin/sh\n' > "$bin/atuin"; chmod +x "$bin/atuin"
+  PATH="$bin:/usr/bin:/bin" run cz execute-template < "$DOTFILES_SRC/run_once_after_atuin-import.sh.tmpl"
+  [[ "$output" == '#!/bin/bash'* ]]
+  [[ "$output" == *'atuin import zsh'* ]]
+}
