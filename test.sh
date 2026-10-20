@@ -547,10 +547,19 @@ if command -v zsh >/dev/null 2>&1; then
     run_test "Check zsh-base syntax" 'zsh -n dot_config/zsh-base/*.zsh'
 
     # The shared base owns history for both accounts; a later edit to omz.zsh
-    # or .exports must not silently lose it. Empty HOME takes the no-OMZ branch.
+    # or .exports must not silently lose it. Checked without OMZ (fallback
+    # branch) and with a stub OMZ that sets its own smaller defaults.
     run_test "Check shared zsh history settings" '
-        out=$(HOME=$(mktemp -d) zsh -fc "source dot_config/zsh-base/omz.zsh >/dev/null; source dot_my/dot_exports; print \$HISTSIZE \$SAVEHIST")
-        [ "$out" = "120000 100000" ] || { echo "got: $out"; return 1; }
+        home=$(mktemp -d)
+        for omz in absent stub; do
+            if [ "$omz" = stub ]; then
+                mkdir -p "$home/.oh-my-zsh"
+                echo "HISTSIZE=50000; SAVEHIST=10000" > "$home/.oh-my-zsh/oh-my-zsh.sh"
+            fi
+            out=$(HOME=$home zsh -fc "source dot_config/zsh-base/omz.zsh >/dev/null; source dot_my/dot_exports; print \$HISTSIZE \$SAVEHIST")
+            [ "$out" = "120000 100000" ] || { echo "OMZ $omz, got: $out"; rm -rf "$home"; return 1; }
+        done
+        rm -rf "$home"
     '
 fi
 
