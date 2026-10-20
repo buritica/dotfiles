@@ -13,6 +13,7 @@ plugins=(
   git git-extras
   cp copypath copyfile extract
   npm docker docker-compose
+  colored-man-pages  # estanli's man colours; buritica's MANPAGER=bat (.exports) bypasses it
 )
 [[ -d "${ZSH_CUSTOM:-$ZSH/custom}/plugins/zsh-syntax-highlighting" ]] && plugins+=(zsh-syntax-highlighting)
 [[ -d "${ZSH_CUSTOM:-$ZSH/custom}/plugins/zsh-autosuggestions" ]] && plugins+=(zsh-autosuggestions)
