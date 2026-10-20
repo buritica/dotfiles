@@ -3,10 +3,28 @@ Host github.com
   IdentityFile ~/.ssh/id_halfmoon
 
 {{ end -}}
-Host *
-  AddKeysToAgent yes
-  UseKeychain yes
-  IdentityFile ~/.ssh/id_ed25519
+# Fleet aliases on Tailscale MagicDNS names, so they resolve from any network
+# (bare .local names only work on the same LAN). Needs MagicDNS accepted at
+# the OS level: `scutil --dns | grep 100.100.100.100`.
+Host severo halfmoon crowntail deltatail
+  HostName %h.chestnut-shark.ts.net
+
+# The models account on severo (`ssh estanli`, `mosh estanli`).
+Host estanli
+  HostName severo.chestnut-shark.ts.net
+  User estanli
 
 Host *
+  IdentityFile ~/.ssh/id_ed25519
   IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+  # Trust a host's key on first connect, still refuse a changed one.
+  StrictHostKeyChecking accept-new
+  # Reuse one connection per host/user/port: later ssh, scp and git calls
+  # skip the handshake (and Tailscale SSH's check-mode re-auth). %C hashes
+  # the tuple so the socket path stays under macOS's 104-byte limit.
+  ControlMaster auto
+  ControlPath ~/.ssh/cm-%C
+  ControlPersist 10m
+  # Notice a dead link (sleep, network change) instead of hanging.
+  ServerAliveInterval 30
+  ServerAliveCountMax 4

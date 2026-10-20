@@ -446,3 +446,15 @@ copypath() {
   pwd | tr -d '\n' | pbcopy
   echo "✅ Copied: $(pwd)"
 }
+
+# sev: attach to (or start) the "main" tmux session on severo. Uses mosh when
+# it's installed, so the session survives sleep and network changes; ssh
+# otherwise. An argument picks another session name: `sev scratch`.
+sev() {
+  local session="${1:-main}"
+  if command -v mosh >/dev/null 2>&1; then
+    mosh severo -- tmux new-session -A -s "$session"
+  else
+    ssh -t severo tmux new-session -A -s "$session"
+  fi
+}
