@@ -83,7 +83,7 @@
   sl = stash list
   sa = stash apply
   sp = stash pop
-  ss = stash push
+  ss = "!f() { if [ $# -gt 0 ]; then git stash push -m \"$*\"; else git stash push; fi; }; f"
 
   # Submodule management
   p = !"git pull && git submodule update --init --recursive --remote"
