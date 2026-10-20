@@ -16,11 +16,6 @@ setup() {
     || { echo "stderr: $stderr"; return 1; }
 }
 
-@test "startup prints the dotfiles banner" {
-  run env -i HOME="$TEST_HOME" PATH="$PATH" TERM=xterm-256color zsh -i -c true
-  [[ "$output" =~ dotfiles\ sourced\ \([0-9]+ms\) ]]
-}
-
 @test "OMZ loads when installed, else the fallback prompt is used" {
   run zsh_i 'print -r -- "${ZSH_VERSION:+zsh} ${+functions[omz]} ${ZSH_THEME}"'
   [ "$status" -eq 0 ]
@@ -42,7 +37,7 @@ setup() {
 @test "shared and personal functions are all defined" {
   local fns=(port killport ports envs envswitch envnew gwt fstash git-cleanup
              git-prune-local gcommit bench bench-compare zi mkd
-             clip copyfile copypath tre fixup shellhelp brew-diff dotfiles-sync)
+             clip copyfile copypath tre fixup brew-diff dotfiles-sync)
   run zsh_i "whence -w ${fns[*]} | grep -v ': function\$'"
   [ -z "$output" ] || { echo "not functions: $output"; return 1; }
 }

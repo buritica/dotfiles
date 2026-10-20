@@ -22,7 +22,7 @@ render_as() {
 zsh_i() {
   env -i HOME="$TEST_HOME" PATH="$PATH" TERM=xterm-256color USER="${USER:-runner}" \
     GIT_CONFIG_NOSYSTEM=1 \
-    zsh -i -c "print -r -- '@@ready'; $1" 2>&1 | sed '1,/^@@ready$/d'
+    zsh -i -c "print -r -- '@@ready'; $1" 2>&1 | awk 'seen; /^@@ready$/ { seen = 1 }'
   return "${PIPESTATUS[0]}"
 }
 
