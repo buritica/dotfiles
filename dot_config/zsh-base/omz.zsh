@@ -41,9 +41,7 @@ fi
 export ZSH_DISABLE_COMPFIX=true  # skip insecure directory checks (faster)
 # The provisioners own the version; OMZ's own updater would git-pull it off the
 # pin (and prompts about it in every shell, SSH included, every 13 days).
-# DISABLE_AUTO_UPDATE is the older spelling, for a checkout that predates zstyle.
 zstyle ':omz:update' mode disabled
-DISABLE_AUTO_UPDATE=true
 
 plugins=(
   git git-extras

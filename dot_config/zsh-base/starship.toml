@@ -1,7 +1,8 @@
 # starship prompt for every account that loads the shared zsh base (omz.zsh
-# points STARSHIP_CONFIG here). Same shape as the geoffgarside theme it
-# replaced, [time] user:dir git:(branch) $, plus the host over SSH, git state,
-# slow-command duration and the exit status.
+# points STARSHIP_CONFIG here). Close to the geoffgarside theme it replaced,
+# [time] user:dir git:(branch) $, with up to three path segments instead of
+# one, plus the host over SSH, git state, slow-command duration and the exit
+# status.
 "$schema" = "https://starship.rs/config-schema.json"
 
 add_newline = false
