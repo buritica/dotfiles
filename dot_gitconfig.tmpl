@@ -2,14 +2,40 @@
   helper = osxkeychain
 
 [user]
-  name = Juan Pablo Buriticá
-  email = buritica@gmail.com
+  name = {{ .name }}
+  email = {{ .email }}
+{{- if index . "laptop" }}
+  # Commits are signed through the 1Password SSH agent, only on the laptops:
+  # op-ssh-sign needs the 1Password app's GUI, so signing would fail every
+  # commit on severo/halfmoon. On a laptop, each commit (rebases included)
+  # waits for 1Password approval, so commits from a locked Mac or an
+  # unattended script block. GitHub shows them Verified once this key is
+  # also added there as a *signing* key.
+  signingkey = key::{{ include "private_dot_ssh/id_ed25519.pub" | trim }}
+
+[gpg]
+  format = ssh
+
+[gpg "ssh"]
+  program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+
+[commit]
+  gpgsign = true
 
 [core]
-  editor = code --wait
+  # Laptops only: a long-lived fsmonitor daemon per repo is worth it for
+  # interactive work, not for throwaway clones and worktrees on the servers.
+  fsmonitor = true
+{{- end }}
+
+[commit]
+  verbose = true
+
+[core]
   pager = delta
   autocrlf = input
   excludesfile = ~/.gitignore
+  untrackedCache = true
 
 [interactive]
   diffFilter = delta --color-only
@@ -34,27 +60,34 @@
 
 [rebase]
   autoStash = true
+  autoSquash = true
+  updateRefs = true
 
 [merge]
   ff = only
-  commit = no
-  conflictstyle = diff3
+  conflictstyle = zdiff3
 
 [fetch]
   prune = true
 
 [rerere]
   enabled = true
+  autoUpdate = true
 
-[github]
-  user = buritica
+[branch]
+  sort = -committerdate
+
+[tag]
+  sort = version:refname
+
+[column]
+  ui = auto
 
 [alias]
   # Basic shortcuts
   s = status -s
   st = status
   co = checkout
-  br = branch
   ci = commit
   unstage = reset HEAD --
   last = log -1 HEAD
@@ -63,7 +96,6 @@
   lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
   l = log --pretty=oneline -n 20 --graph --abbrev-commit
   ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
-  lc = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
 
   # Diff
   d = !"git diff-index --quiet HEAD -- || clear; git --no-pager diff --patch-with-stat"
@@ -82,18 +114,17 @@
 
   # Remote management
   r = remote -v
-  ra = remote add
+  radd = remote add
   rr = remote remove
-  rv = remote -v
 
   # Stash management
   sl = stash list
   sa = stash apply
   sp = stash pop
-  ss = stash save
+  ss = "!f() { if [ $# -gt 0 ]; then git stash push -m \"$*\"; else git stash push; fi; }; f"
 
   # Submodule management
-  p = !"git pull; git submodule foreach git pull origin master"
+  p = !"git pull && git submodule update --init --recursive --remote"
   c = clone --recursive
   su = submodule update --init --recursive
 
@@ -105,14 +136,12 @@
   undo = reset --soft HEAD^
 
   # Tag management
-  tags = tag -l
   t = tag -l
   ta = tag -a
   td = tag -d
 
   # Cleanup
   cleanup = "!git branch --merged | grep -v '\\*\\|main\\|master' | xargs -n 1 git branch -d"
-  prune = remote prune origin
   prune-local = "!git branch -r | awk '{print $1}' | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk '{print $1}' | xargs git branch -d"
 
   # Work in progress
@@ -128,7 +157,6 @@
   # Modern git commands
   sw = switch
   swc = switch -c
-  restore = restore
 
   # Interactive rebase
   ri = rebase -i
@@ -149,19 +177,16 @@
   # Detect whitespace errors when applying a patch
   whitespace = fix
 
-[color]
-  # Use colors in Git commands that are capable of colored output when
-  # outputting to the terminal. (This is the default setting in Git ≥ 1.8.4.)
-  ui = true
-
 [diff]
   # Detect copies as well as renames
   renames = copies
   colorMoved = default
+  algorithm = histogram
+  mnemonicPrefix = true
 
 [help]
-  # Automatically correct and execute mistyped commands
-  autocorrect = 1
+  # Suggest a correction for mistyped commands and ask before running it
+  autocorrect = prompt
 
 [filter "lfs"]
   clean = git-lfs clean -- %f
@@ -170,13 +195,5 @@
   required = true
 
 [credential "https://github.com"]
-  helper =
-  helper = !gh auth git-credential
-
-[credential "https://gitlab.com"]
-  helper =
-  helper = !gh auth git-credential
-
-[credential "https://bitbucket.org"]
   helper =
   helper = !gh auth git-credential

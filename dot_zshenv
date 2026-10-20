@@ -7,7 +7,7 @@
 if [[ -r "$HOME/.config/shell/path.zsh" ]]; then
     source "$HOME/.config/shell/path.zsh"
 else
-    # Fallback for machines not managed by this ansible repo (e.g. stanley) or
+    # Fallback for machines not managed by the machines ansible repo, or
     # pre-provision state. Keep in sync with all.yml:base_path_dirs.
     # Built bottom-up: each prepend wins, so the LAST export is highest priority.
     if [[ $(uname -m) == 'arm64' ]]; then

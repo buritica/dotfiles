@@ -5,6 +5,22 @@
 # collection's dotfiles role for estanli); missing pieces degrade, never break.
 
 # shellcheck shell=bash disable=SC2034,SC2154  # zsh: OMZ reads these; vcs_info sets vcs_info_msg_0_
+# Terminal: keep the TERM the terminal set (Ghostty's xterm-ghostty) rather than
+# forcing xterm-256color. Ghostty.app bundles its terminfo, so point ncurses at
+# it on any host that has the app (the trailing ':' keeps the system default
+# dirs). Where TERM still has no terminfo entry (an SSH session from Ghostty to
+# a host without it, or tmux's tmux-256color on macOS), fall back to a generic
+# entry so less/vim/tmux keep working.
+_ghostty_terminfo=/Applications/Ghostty.app/Contents/Resources/terminfo
+if [[ -d "$_ghostty_terminfo" && ":${TERMINFO_DIRS}:" != *":${_ghostty_terminfo}:"* ]]; then
+  export TERMINFO_DIRS="${TERMINFO_DIRS:+${TERMINFO_DIRS}:}${_ghostty_terminfo}:"
+fi
+unset _ghostty_terminfo
+if [[ -n "$TERM" && "$TERM" != xterm-256color ]] && command -v infocmp >/dev/null 2>&1 \
+  && ! infocmp "$TERM" >/dev/null 2>&1; then
+  if [[ -n "$TMUX" ]]; then export TERM=screen-256color; else export TERM=xterm-256color; fi
+fi
+
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="geoffgarside"
 export ZSH_DISABLE_COMPFIX=true  # skip insecure directory checks (faster)
@@ -13,7 +29,7 @@ plugins=(
   git git-extras
   cp copypath copyfile extract
   npm docker docker-compose
-  colored-man-pages
+  colored-man-pages  # estanli's man colours; harmless under buritica's MANPAGER=bat
 )
 [[ -d "${ZSH_CUSTOM:-$ZSH/custom}/plugins/zsh-syntax-highlighting" ]] && plugins+=(zsh-syntax-highlighting)
 [[ -d "${ZSH_CUSTOM:-$ZSH/custom}/plugins/zsh-autosuggestions" ]] && plugins+=(zsh-autosuggestions)
@@ -28,3 +44,14 @@ else
   setopt PROMPT_SUBST
   PS1='%F{cyan}%m%f %F{blue}%1~%f${vcs_info_msg_0_} %# '
 fi
+
+# History, the same on every account. OMZ's lib/history.zsh sets most of these
+# options already; they're repeated so the fallback branch above matches, and
+# the sizes raise OMZ's 50000/10000 (HISTSIZE stays above SAVEHIST so
+# HIST_EXPIRE_DUPS_FIRST has room to drop duplicates before unique entries).
+HISTFILE="${HISTFILE:-$HOME/.zsh_history}"
+HISTSIZE=120000
+SAVEHIST=100000
+HISTORY_IGNORE='(ls|cd|cd -|pwd|exit|date|* --help)'
+setopt EXTENDED_HISTORY HIST_EXPIRE_DUPS_FIRST HIST_IGNORE_DUPS HIST_IGNORE_SPACE
+setopt HIST_REDUCE_BLANKS HIST_VERIFY SHARE_HISTORY

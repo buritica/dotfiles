@@ -418,7 +418,7 @@ envnew() {
     touch "$env_file"
     echo "✅ Created empty $env_file"
   fi
-  ${EDITOR:-code} "$env_file"
+  ${=EDITOR:-code} "$env_file"   # ${=...} word-splits so EDITOR="code -w" works
 }
 
 json() {
@@ -461,13 +461,4 @@ bench-compare() {
     return 1
   fi
   hyperfine --warmup 3 "$1" "$2"
-}
-
-zi() {
-  if ! command -v zoxide &>/dev/null || ! command -v fzf &>/dev/null; then
-    echo "❌ zi requires zoxide and fzf"
-    return 1
-  fi
-  local dir
-  dir=$(zoxide query -l | fzf --height 40% --reverse --query "$*") && cd "$dir" || return
 }

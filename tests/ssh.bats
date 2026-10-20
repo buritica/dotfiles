@@ -28,3 +28,15 @@ ssh_g() {
   run ssh_g "$TEST_HOME/.ssh/config" github.com
   [ "$(grep '^identityfile ' <<<"$output" | head -1)" = "identityfile ~/.ssh/id_ed25519" ]
 }
+
+@test "fleet aliases resolve to Tailscale names and reuse connections" {
+  run ssh_g "$TEST_HOME/.ssh/config" severo
+  [ "$status" -eq 0 ]
+  grep -qx 'hostname severo.chestnut-shark.ts.net' <<<"$output"
+  grep -qx 'controlmaster auto' <<<"$output"
+  grep -qx 'stricthostkeychecking accept-new' <<<"$output"
+
+  run ssh_g "$TEST_HOME/.ssh/config" estanli
+  grep -qx 'hostname severo.chestnut-shark.ts.net' <<<"$output"
+  grep -qx 'user estanli' <<<"$output"
+}

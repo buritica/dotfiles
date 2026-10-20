@@ -91,7 +91,7 @@ The `machine-list` and `machine-info` shell helpers still work for informational
 
 ### Shared zsh base (`dot_config/zsh-base/`)
 Plain zsh (no templating, no `~/.my` or other buritica-only paths; optional tools like fzf/bat/gh are `command -v`-guarded, macOS basics like `open`/`lsof` are assumed) shared with the `estanli` account on severo:
-- `omz.zsh`: Oh My Zsh theme + plugin set; `functions.zsh`: git worktree/stash, fzf pickers, port/env helpers
+- `omz.zsh`: Oh My Zsh theme + plugin set, and the zsh history settings (sizes, `HISTORY_IGNORE`, setopts) for both accounts; `functions.zsh`: git worktree/stash, fzf pickers, port/env helpers
 - Here, chezmoi deploys it to `~/.config/zsh-base/` and `dot_zshrc.tmpl` sources it. On severo, team-perrito/estanli's `dotfiles` role clones this public repo and links `~/.config/zsh-base` to it; team-perrito/estanli-dotfiles keeps only that account's overrides.
 - Anything that only makes sense for buritica stays in `dot_my/` (loads after the base). Changes here reach estanli on its next dotfiles deploy, so keep it portable.
 
@@ -167,16 +167,15 @@ Master branch requires:
 `test.sh` runs `bash -n` and `zsh -n` (including the rendered `.zshrc`), shellcheck when installed, then the bats suite in `tests/`. Needs `chezmoi`, `bats-core`, `zsh` and `git`.
 
 The suite applies the dotfiles once into a throwaway `$HOME` (`tests/setup_suite.bash`, scripts excluded so `~/.my/.macos` never runs) and tests the result rather than grepping the source:
-- `chezmoi.bats`: apply is clean and `chezmoi verify` passes, repo-only files stay out of `$HOME`, per-host files (`id_halfmoon.pub`), the macOS run script's re-run hash
-- `zsh.bats`: an interactive shell starts without stderr, functions survive OMZ's aliases, host prompt emoji, every host's `.zshrc` parses, `.zshenv` PATH with and without `path.zsh`
+- `chezmoi.bats`: apply is clean and `chezmoi verify` passes, repo-only files stay out of `$HOME`, per-host files (`id_halfmoon.pub`), the macOS run script's re-run hash and its laptop-only gate
+- `zsh.bats`: an interactive shell starts without stderr, the shared history settings win over OMZ's, functions survive OMZ's aliases, host prompt emoji, every host's `.zshrc` parses, `.zshenv` PATH with and without `path.zsh`
 - `functions.bats`: the shared helpers (`gcommit`, `gwta`, `envswitch`, `envnew`, …) run against real repos and files
-- `git.bats` / `ssh.bats`: the deployed gitconfig's aliases and merge policy on real repos; `ssh -G` resolution of `~/.ssh/config`, including halfmoon's
+- `git.bats` / `ssh.bats` / `tmux.bats`: the deployed gitconfig's aliases, merge policy and laptop-only signing; `ssh -G` resolution of `~/.ssh/config` (fleet aliases, connection reuse, halfmoon's key); `~/.tmux.conf` loads in a real tmux
 
-Host-specific templates are rendered with `chezmoi execute-template --override-data '{"chezmoi":{"hostname":"<host>"}}'`. Set `DOTFILES_TEST_OMZ=<checkout>` to test with Oh My Zsh (CI does), or `DOTFILES_TEST_NO_EXTERNALS=1` when GitHub archive downloads are blocked.
+Host-specific templates are rendered per hostname by `render_as` in `tests/test_helper.bash` (including the `laptop` data `.chezmoi.toml.tmpl` derives). Set `DOTFILES_TEST_OMZ=<checkout>` to test with Oh My Zsh (CI does), or `DOTFILES_TEST_NO_EXTERNALS=1` when GitHub archive downloads are blocked.
 
 ## Important Files
 
-- `~/.my/.Brewfile`: **removed** — package manifest is now `ansible/roles/packages/files/Brewfile` in the machines repo
 - `~/.my/.macos`: macOS system preferences script
 - `~/.my/.{exports,aliases,functions}`: Custom shell configuration
 - `.chezmoiignore`: Files excluded from home directory deployment
@@ -198,154 +197,3 @@ All shell functions use Python 3:
 ### Git Config Features
 - `fetch.prune = true`: Auto-cleanup stale remote branches
 - `rerere.enabled = true`: Remember conflict resolutions
-
-## Shell Evolution Migration Guide
-
-This section documents breaking changes and new features from the comprehensive shell modernization (Sprint 1-6).
-
-### Breaking Changes
-
-**Removed Aliases** - Update your muscle memory:
-- `refresh` → Use `dsync` instead (dotfiles sync)
-- `glog` → Use `git l` or `git lg` instead (git aliases)
-- `urlencode` → Use the function instead (same name, just type it)
-- `dots` → Use `dot` instead (navigate to dotfiles) *[optional removal]*
-
-**Removed Tools**:
-- **hub CLI** → Use `gh` CLI instead (already installed)
-  - Old: `hub pr create`
-  - New: `gh pr create`
-- **ghi** → No replacement needed (tool unmaintained)
-
-**Performance Changes**:
-- Shell startup optimized: OMZ install check removed, bash completion removed
-- Completion now uses native zsh compinit (regenerates once per day)
-- brew-orphans optimized from O(n²) to O(n)
-
-### New Features Available
-
-**Modern CLI Tool Integration** (Section 6 of TERMINAL_GUIDE.md):
-```bash
-df                  # Now uses duf (prettier disk free)
-du                  # Now uses dust (visual disk usage)
-help <cmd>          # Now uses tldr (quick command examples)
-```
-
-**Git Workflow Enhancements**:
-```bash
-# Worktree management (parallel branch work)
-gwt                 # List worktrees
-gwta feature-x      # Create worktree for branch
-gwtr                # Remove worktree (interactive)
-gwts                # Switch to worktree (interactive)
-
-# Stash browser with preview
-fstash              # Browse stashes, pop on Enter
-fstash-show         # Browse stashes, show diff
-
-# Branch cleanup
-git-cleanup         # Remove merged branches (interactive)
-git-prune-local     # Remove orphaned branches (interactive)
-
-# Conventional commits
-gcommit feat "add search"           # feat: add search
-gcommit fix api "resolve timeout"   # fix(api): resolve timeout
-gcfeat "add X"      # Alias for gcommit feat
-gcfix "resolve Y"   # Alias for gcommit fix
-gcdocs "update Z"   # Alias for gcommit docs
-gcchore "clean W"   # Alias for gcommit chore
-```
-
-**Modern Navigation**:
-```bash
-zi                  # Interactive zoxide with fzf
-tree                # Now uses eza (icons + git-aware)
-tree-all            # Tree including hidden files
-tre <dir>           # Tree with pager
-```
-
-**Enhanced Tools**:
-```bash
-diff file1 file2    # Now uses delta when available
-fs <dir>            # Now uses dust when available
-disk                # Visual disk usage (wrapper for dust)
-```
-
-**Benchmarking** (documented in termguide tool #15):
-```bash
-bench 'npm run build'               # Benchmark a command
-bench-compare 'cmd1' 'cmd2'         # Compare two commands
-```
-
-**Developer Productivity**:
-```bash
-# Port management
-port 3000           # What's using this port?
-killport 3000       # Kill process on port
-ports               # List all listening ports
-
-# Environment switcher
-envs                # List .env files
-envswitch dev       # Switch to .env.dev
-envswitch prod      # Switch to .env.prod
-envnew staging      # Create .env.staging
-
-# Clipboard helpers
-copy "text"         # Copy to clipboard
-cat file | copy     # Pipe to clipboard
-copyfile config.json # Copy file contents
-copypath            # Copy current directory path
-```
-
-### Bug Fixes Applied
-
-1. **Man pages now work**: Fixed undefined `${yellow}` variable → now using bat for beautiful syntax-highlighted man pages
-2. **Ripgrep config works**: Created missing `.ripgreprc` file
-3. **Filenames with spaces work**: Fixed unquoted variables in `gifify()` and `fs()`
-4. **SSH auth more robust**: Fixed SSH_AUTH_SOCK with proper quoting and graceful fallback
-5. **Git functions safer**: Added repo checks to `todo()` and `fixup()` functions
-
-### Configuration Changes
-
-**Man Pages**: Now use bat instead of LESS_TERMCAP
-```bash
-# Old (broken):
-export LESS_TERMCAP_md="${yellow}"
-
-# New (beautiful):
-export MANPAGER='sh -c "col -bx | bat -l man -p"'
-```
-
-**ZSH Completion**: Optimized for performance
-```bash
-# Now regenerates only once per 24 hours
-autoload -Uz compinit
-if [[ -n ${ZDOTDIR:-~}/.zcompdump(#qN.mh+24) ]]; then
-  compinit
-else
-  compinit -C
-fi
-```
-
-### Testing Changes
-
-All changes pass the existing test suite. No test modifications needed.
-
-### Performance Impact
-
-- Shell startup remains < 100ms (maintained or improved)
-- brew-orphans now O(n) instead of O(n²)
-- Completion regeneration reduced by ~99% (once/day vs every shell start)
-- Removed slow bash completion compatibility layer
-
-### Documentation
-
-See `~/.my/TERMINAL_GUIDE.md` (or `termguide` / `tg` command) for:
-- Comprehensive guide to all modern tools
-- Progressive learning path (Week 1-6)
-- Daily workflow examples
-- Practice exercises
-
-### Rollback
-
-If issues arise, this commit can be reverted. All changes are backward compatible except for the removed aliases listed above.

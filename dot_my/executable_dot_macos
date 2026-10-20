@@ -188,19 +188,6 @@ sudo rm -f /private/var/vm/sleepimage 2>/dev/null || true
 sudo touch /private/var/vm/sleepimage 2>/dev/null || true
 sudo chflags uchg /private/var/vm/sleepimage 2>/dev/null || true
 
-######################## Media Server Settings (halfmoon) ####################
-
-if [ "$(hostname -s)" = "halfmoon" ]; then
-  # Never sleep — media server must stay awake even without Plex running
-  sudo pmset -a sleep 0
-
-  # Never spin down disks — prevents NFS mount drops
-  sudo pmset -a disksleep 0
-
-  # Download updates but don't auto-install — prevents surprise reboots
-  sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticallyInstallMacOSUpdates -bool false
-fi
-
 ########################### Screen Settings #################################
 
 # Require password immediately after sleep or screen saver begins
@@ -306,7 +293,7 @@ defaults write com.apple.finder FXInfoPanesExpanded -dict \
     OpenWith -bool true \
     Privileges -bool true
 
-############################ Dock & Dashboard Settings ######################
+############################ Dock & Mission Control Settings ################
 
 # Enable highlight hover effect for the grid view of a stack (Dock)
 defaults write com.apple.dock mouse-over-hilite-stack -bool true
@@ -341,12 +328,6 @@ defaults write com.apple.dock expose-animation-duration -float 0.1
 # Don't group windows by application in Mission Control
 defaults write com.apple.dock expose-group-by-app -bool false
 
-# Disable Dashboard
-defaults write com.apple.dashboard mcx-disabled -bool true
-
-# Don't show Dashboard as a Space
-defaults write com.apple.dock dashboard-in-overlay -bool true
-
 # Don't automatically rearrange Spaces based on most recent use
 defaults write com.apple.dock mru-spaces -bool false
 
@@ -365,68 +346,12 @@ defaults write com.apple.dock showhidden -bool true
 # Don't show recent applications in Dock
 defaults write com.apple.dock show-recents -bool false
 
-############################ Safari & WebKit Settings #######################
+########################### WebKit Settings #################################
 
-# Don't send search queries to Apple
-defaults write com.apple.Safari UniversalSearchEnabled -bool false
-defaults write com.apple.Safari SuppressSearchSuggestions -bool true
-
-# Press Tab to highlight each item on a web page
-defaults write com.apple.Safari WebKitTabToLinksPreferenceKey -bool true
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2TabsToLinks -bool true
-
-# Show the full URL in the address bar
-defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true
-
-# Set Safari's home page to 'about:blank' for faster loading
-defaults write com.apple.Safari HomePage -string "about:blank"
-
-# Prevent Safari from opening 'safe' files automatically after downloading
-defaults write com.apple.Safari AutoOpenSafeDownloads -bool false
-
-# Enable Safari's debug menu
-defaults write com.apple.Safari IncludeInternalDebugMenu -bool true
-
-# Enable the Develop menu and the Web Inspector in Safari
-defaults write com.apple.Safari IncludeDevelopMenu -bool true
-defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
-
-# Add a context menu item for showing the Web Inspector in web views
+# Add a context menu item for showing the Web Inspector in web views.
+# (Safari's own prefs live in its sandbox container since macOS 10.14, so
+# `defaults write com.apple.Safari` from here no longer does anything.)
 defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
-
-# Enable continuous spellchecking
-defaults write com.apple.Safari WebContinuousSpellCheckingEnabled -bool true
-# Disable auto-correct
-defaults write com.apple.Safari WebAutomaticSpellingCorrectionEnabled -bool false
-
-# Disable AutoFill
-defaults write com.apple.Safari AutoFillFromAddressBook -bool false
-defaults write com.apple.Safari AutoFillPasswords -bool false
-defaults write com.apple.Safari AutoFillCreditCardData -bool false
-defaults write com.apple.Safari AutoFillMiscellaneousForms -bool false
-
-# Warn about fraudulent websites
-defaults write com.apple.Safari WarnAboutFraudulentWebsites -bool true
-
-# Disable plug-ins
-defaults write com.apple.Safari WebKitPluginsEnabled -bool false
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2PluginsEnabled -bool false
-
-# Disable Java
-defaults write com.apple.Safari WebKitJavaEnabled -bool false
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaEnabled -bool false
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaEnabledForLocalFiles -bool false
-
-# Block pop-up windows
-defaults write com.apple.Safari WebKitJavaScriptCanOpenWindowsAutomatically -bool false
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaScriptCanOpenWindowsAutomatically -bool false
-
-# Enable "Do Not Track"
-defaults write com.apple.Safari SendDoNotTrackHTTPHeader -bool true
-
-# Update extensions automatically
-defaults write com.apple.Safari InstallExtensionUpdatesAutomatically -bool true
 
 ############################### Mail Settings ################################
 
@@ -552,9 +477,15 @@ defaults write com.google.Chrome PMPrintingExpandedStateForPrint2 -bool true
 
 ############################# Kill affected applications #####################
 
-for app in "Activity Monitor" "Address Book" "Calendar" "Contacts" "Dock" \
-    "Finder" "Google Chrome" "Mail" "Messages" "Safari" "SystemUIServer" \
-    "Terminal" "iCal"; do
-    killall "${app}" &> /dev/null
-done
-echo "Done. Note that some of these changes require a logout/restart to take effect."
+# Only when this user owns the GUI session: from an SSH session or a headless
+# provisioning run, killing Finder, Mail and friends would hit whoever is
+# logged in at the console (or nothing at all).
+if [ "$(/usr/bin/stat -f %Su /dev/console 2>/dev/null)" = "$(id -un)" ]; then
+  for app in "Activity Monitor" "Calendar" "Contacts" "Dock" "Finder" \
+      "Google Chrome" "Mail" "Messages" "SystemUIServer" "Terminal"; do
+      killall "${app}" &> /dev/null
+  done
+  echo "Done. Note that some of these changes require a logout/restart to take effect."
+else
+  echo "Done. Not restarting apps (no console session for $(id -un)); log out and back in to apply everything."
+fi

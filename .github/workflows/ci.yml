@@ -39,7 +39,7 @@ jobs:
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
             dirname "$(command -v brew)" >> "$GITHUB_PATH"
           fi
-          brew install chezmoi bats-core shellcheck
+          brew install chezmoi bats-core shellcheck tmux
 
       - name: Make the runner's zsh fpath secure
         # Ubuntu's /etc/zsh/zshrc runs a plain compinit, which refuses

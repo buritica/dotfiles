@@ -57,10 +57,20 @@ setup() {
   want="$(sha256sum "$DOTFILES_SRC/dot_my/executable_dot_macos" 2>/dev/null \
     || shasum -a 256 "$DOTFILES_SRC/dot_my/executable_dot_macos")"
   want="${want%% *}"
-  # rendered as a laptop: the script may be host-gated to them
   run render_as crowntail run_onchange_apply-macos-defaults.sh.tmpl
   [ "$status" -eq 0 ]
   grep -q "macos hash: $want" <<<"$output"
+}
+
+@test "the macOS defaults (and their app restarts) run on the laptops only" {
+  for host in crowntail deltatail; do
+    run render_as "$host" run_onchange_apply-macos-defaults.sh.tmpl
+    [ -n "$output" ] || { echo "empty on $host"; return 1; }
+  done
+  for host in severo halfmoon; do
+    run render_as "$host" run_onchange_apply-macos-defaults.sh.tmpl
+    [ -z "$output" ] || { echo "renders on $host"; return 1; }
+  done
 }
 
 @test "pinned externals land where omz.zsh looks for them" {

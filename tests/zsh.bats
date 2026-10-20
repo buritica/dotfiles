@@ -36,10 +36,17 @@ setup() {
 
 @test "shared and personal functions are all defined" {
   local fns=(port killport ports envs envswitch envnew gwt fstash git-cleanup
-             git-prune-local gcommit bench bench-compare zi mkd
-             clip copyfile copypath tre fixup brew-diff dotfiles-sync)
+             git-prune-local gcommit bench bench-compare mkd
+             clip copyfile copypath tre fixup brew-diff dotfiles-sync sev)
   run zsh_i "whence -w ${fns[*]} | grep -v ': function\$'"
   [ -z "$output" ] || { echo "not functions: $output"; return 1; }
+}
+
+@test "the shared base's history settings survive OMZ and .exports" {
+  # omz.zsh owns history for both accounts (estanli too); CI runs this with
+  # and without OMZ, whose own smaller defaults must not win.
+  run zsh_i 'print -r -- $HISTSIZE $SAVEHIST'
+  [ "$output" = "120000 100000" ]
 }
 
 @test "the prompt carries the host emoji" {

@@ -148,9 +148,13 @@ security-gui() { sudo launchctl asuser "$(id -u buritica)" /usr/bin/security "$@
 # Finalization
 # =============================================================================
 
-# Calculate and display shell initialization time
+# Report shell initialization time only when it's slow (or when profiling).
+# It undercounts (no .zshenv, /etc/zshrc or deferred work); use
+# `hyperfine 'zsh -i -c exit'` for a real measurement.
 _zsh_elapsed=$((($SECONDS - $_zsh_start_time) * 1000))
-printf "dotfiles sourced (%dms)\n" $_zsh_elapsed
+if [[ -n "$ZSH_PROFILE" ]] || (( _zsh_elapsed > 150 )); then
+  printf "dotfiles sourced (%dms)\n" $_zsh_elapsed
+fi
 
 # Show profiling output if enabled
 if [[ -n "$ZSH_PROFILE" ]]; then

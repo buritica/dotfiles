@@ -9,10 +9,14 @@ cz() {
     chezmoi --source "$DOTFILES_SRC" "$@"
 }
 
-# Render a source template as if chezmoi ran on <hostname>.
+# Render a source template as if chezmoi ran on <hostname>, including the
+# per-host data .chezmoi.toml.tmpl would give it (e.g. laptop).
 render_as() {
-  local host="$1" template="$2"
-  cz execute-template --override-data "{\"chezmoi\":{\"hostname\":\"$host\"}}" \
+  local host="$1" template="$2" laptop
+  laptop=$(cz execute-template --init --override-data "{\"chezmoi\":{\"hostname\":\"$host\"}}" \
+    < "$DOTFILES_SRC/.chezmoi.toml.tmpl" | sed -n 's/^ *laptop = //p')
+  cz execute-template \
+    --override-data "{\"chezmoi\":{\"hostname\":\"$host\"},\"laptop\":${laptop:-false}}" \
     < "$DOTFILES_SRC/$template"
 }
 

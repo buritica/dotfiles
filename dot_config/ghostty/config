@@ -1,3 +1,7 @@
 # Ghostty — managed by chezmoi
 theme = Black Metal (Bathory)
 keybind = shift+enter=text:\x1b\r
+
+# Over ssh, install Ghostty's terminfo on the remote on first connect and
+# fall back to xterm-256color where it can't be installed.
+shell-integration-features = ssh-terminfo,ssh-env

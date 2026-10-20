@@ -77,3 +77,14 @@ setup() {
   hgit -C "$repo" pr 7 2>/dev/null
   [ "$(hgit -C "$repo" branch --show-current)" = "pr-7" ]
 }
+
+@test "commits are signed on the laptops only" {
+  local cfg="$BATS_TEST_TMPDIR/gitconfig"
+  render_as crowntail dot_gitconfig.tmpl > "$cfg"
+  [ "$(git config --file "$cfg" commit.gpgsign)" = "true" ]
+  [ "$(git config --file "$cfg" gpg.format)" = "ssh" ]
+
+  render_as severo dot_gitconfig.tmpl > "$cfg"
+  run git config --file "$cfg" commit.gpgsign
+  [ "$output" != "true" ]
+}

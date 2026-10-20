@@ -1,74 +1,3 @@
-# Show all new shell functions with brief descriptions
-shellhelp() {
-  cat << 'HELP'
-# New Shell Functions Quick Reference
-
-## Port Management (Stage 7)
-port 3000           # What's using this port?
-killport 3000       # Stop process on port (graceful SIGTERM → SIGKILL)
-ports               # List all listening ports
-
-## Environment Switcher (Stage 7)
-envs                # List available .env files
-envswitch dev       # Switch to .env.dev (auto-backup, keeps last 3)
-envnew staging      # Create new .env.staging from template
-
-## Clipboard Helpers (Stage 7)
-clip "text"         # Copy text to clipboard
-copypath            # Copy current directory path
-copyfile config.yml # Copy file contents to clipboard
-cat file | clip     # Pipe anything to clipboard
-
-## Git Workflows (Stage 4.5)
-gwt                 # List git worktrees
-gwta feature-x      # Create worktree for feature-x
-gwtr                # Remove worktree (interactive with fzf)
-gwts                # Switch to worktree (interactive)
-
-fstash              # Browse stashes with preview, pop on Enter
-fstash-show         # Browse stashes, show diff
-
-git-cleanup         # Delete merged branches (interactive)
-git-prune-local     # Delete branches removed from remote (safe -d first)
-
-gcommit feat "msg"  # Conventional commit helper
-gcfeat "msg"        # Shortcut for feat commits
-gcfix "msg"         # Shortcut for fix commits
-gcdocs "msg"        # Shortcut for docs commits
-gcchore "msg"       # Shortcut for chore commits
-
-## Modern Tool Integration (Stage 3)
-zi                  # Interactive zoxide with fzf picker
-bench "npm build"   # Benchmark command with hyperfine
-bench-compare "cmd1" "cmd2"  # Compare two commands
-tre                 # Tree view with eza (depth 3)
-tree-all            # Tree with hidden files (depth 2)
-
-## Enhanced Functions
-diff file1 file2    # Now uses delta for side-by-side diffs
-fs                  # File size - now uses dust if available
-
-## Brew Management (Brewfile is owned by the machines ansible repo)
-brew-diff           # Audit installed vs the deployed Brewfile
-brew-edit           # Edit the source Brewfile in the machines repo
-brew-orphans        # Find orphaned packages (optimized O(n))
-
-## Quick Access
-termguide           # View full terminal guide
-tg                  # Short alias for termguide
-
-## Learn More
-- Run any command without args to see usage
-- Check TERMINAL_GUIDE.md for detailed examples
-- See CLAUDE.md for migration guide
-
-HELP
-}
-
-# Aliases for discovery
-alias new='shellhelp'
-alias whatsnew='shellhelp'
-
 # `my` with no arguments cds into ~/.my directory, otherwise opens the given subdir
 function my() {
 	if [ $# -eq 0 ]; then
@@ -445,4 +374,19 @@ copyfile() {
 copypath() {
   pwd | tr -d '\n' | pbcopy
   echo "✅ Copied: $(pwd)"
+}
+
+# sev: attach to (or start) the "main" tmux session on severo. Uses mosh when
+# it's installed, so the session survives sleep and network changes; ssh
+# otherwise. An argument picks another session name: `sev scratch`.
+# mosh bypasses Ghostty's ssh wrapper (which installs xterm-ghostty's terminfo
+# remotely), so it gets a TERM every host knows; tmux still gets true colour.
+sev() {
+  local session="${1:-main}" term="$TERM"
+  [[ "$term" == xterm-ghostty ]] && term=xterm-256color
+  if command -v mosh >/dev/null 2>&1; then
+    TERM="$term" mosh severo -- tmux new-session -A -s "$session"
+  else
+    ssh -t severo tmux new-session -A -s "$session"
+  fi
 }
