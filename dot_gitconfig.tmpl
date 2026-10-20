@@ -6,7 +6,6 @@
   email = buritica@gmail.com
 
 [core]
-  editor = code --wait
   pager = delta
   autocrlf = input
   excludesfile = ~/.gitignore
@@ -46,15 +45,11 @@
 [rerere]
   enabled = true
 
-[github]
-  user = buritica
-
 [alias]
   # Basic shortcuts
   s = status -s
   st = status
   co = checkout
-  br = branch
   ci = commit
   unstage = reset HEAD --
   last = log -1 HEAD
@@ -63,7 +58,6 @@
   lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
   l = log --pretty=oneline -n 20 --graph --abbrev-commit
   ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
-  lc = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
 
   # Diff
   d = !"git diff-index --quiet HEAD -- || clear; git --no-pager diff --patch-with-stat"
@@ -82,18 +76,17 @@
 
   # Remote management
   r = remote -v
-  ra = remote add
+  radd = remote add
   rr = remote remove
-  rv = remote -v
 
   # Stash management
   sl = stash list
   sa = stash apply
   sp = stash pop
-  ss = stash save
+  ss = stash push
 
   # Submodule management
-  p = !"git pull; git submodule foreach git pull origin master"
+  p = !"git pull && git submodule update --init --recursive --remote"
   c = clone --recursive
   su = submodule update --init --recursive
 
@@ -105,14 +98,12 @@
   undo = reset --soft HEAD^
 
   # Tag management
-  tags = tag -l
   t = tag -l
   ta = tag -a
   td = tag -d
 
   # Cleanup
   cleanup = "!git branch --merged | grep -v '\\*\\|main\\|master' | xargs -n 1 git branch -d"
-  prune = remote prune origin
   prune-local = "!git branch -r | awk '{print $1}' | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk '{print $1}' | xargs git branch -d"
 
   # Work in progress
@@ -128,7 +119,6 @@
   # Modern git commands
   sw = switch
   swc = switch -c
-  restore = restore
 
   # Interactive rebase
   ri = rebase -i
@@ -149,11 +139,6 @@
   # Detect whitespace errors when applying a patch
   whitespace = fix
 
-[color]
-  # Use colors in Git commands that are capable of colored output when
-  # outputting to the terminal. (This is the default setting in Git ≥ 1.8.4.)
-  ui = true
-
 [diff]
   # Detect copies as well as renames
   renames = copies
@@ -170,13 +155,5 @@
   required = true
 
 [credential "https://github.com"]
-  helper =
-  helper = !gh auth git-credential
-
-[credential "https://gitlab.com"]
-  helper =
-  helper = !gh auth git-credential
-
-[credential "https://bitbucket.org"]
   helper =
   helper = !gh auth git-credential
