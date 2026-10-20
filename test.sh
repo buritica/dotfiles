@@ -545,6 +545,13 @@ run_test "Check deprecated tools removed" '
 # Test 21b: zsh syntax of the shared base (estanli loads it too; bash -n can't parse zsh)
 if command -v zsh >/dev/null 2>&1; then
     run_test "Check zsh-base syntax" 'zsh -n dot_config/zsh-base/*.zsh'
+
+    # The shared base owns history for both accounts; a later edit to omz.zsh
+    # or .exports must not silently lose it. Empty HOME takes the no-OMZ branch.
+    run_test "Check shared zsh history settings" '
+        out=$(HOME=$(mktemp -d) zsh -fc "source dot_config/zsh-base/omz.zsh >/dev/null; source dot_my/dot_exports; print \$HISTSIZE \$SAVEHIST")
+        [ "$out" = "120000 100000" ] || { echo "got: $out"; return 1; }
+    '
 fi
 
 # Test 22: Verify function syntax by sourcing
