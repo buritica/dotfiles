@@ -4,10 +4,12 @@
 [user]
   name = {{ .name }}
   email = {{ .email }}
-{{- if has .chezmoi.hostname (list "crowntail" "deltatail") }}
+{{- if index . "laptop" }}
   # Commits are signed through the 1Password SSH agent, only on the laptops:
   # op-ssh-sign needs the 1Password app's GUI, so signing would fail every
-  # commit on severo/halfmoon. GitHub shows them Verified once this key is
+  # commit on severo/halfmoon. On a laptop, each commit (rebases included)
+  # waits for 1Password approval, so commits from a locked Mac or an
+  # unattended script block. GitHub shows them Verified once this key is
   # also added there as a *signing* key.
   signingkey = key::{{ include "private_dot_ssh/id_ed25519.pub" | trim }}
 
@@ -19,18 +21,20 @@
 
 [commit]
   gpgsign = true
-  verbose = true
-{{- else }}
+
+[core]
+  # Laptops only: a long-lived fsmonitor daemon per repo is worth it for
+  # interactive work, not for throwaway clones and worktrees on the servers.
+  fsmonitor = true
+{{- end }}
 
 [commit]
   verbose = true
-{{- end }}
 
 [core]
   pager = delta
   autocrlf = input
   excludesfile = ~/.gitignore
-  fsmonitor = true
   untrackedCache = true
 
 [interactive]
@@ -65,8 +69,6 @@
 
 [fetch]
   prune = true
-  # Also deletes local tags that aren't on the remote.
-  pruneTags = true
 
 [rerere]
   enabled = true
