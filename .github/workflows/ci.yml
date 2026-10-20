@@ -65,3 +65,15 @@ jobs:
       - name: Run tests (without Oh My Zsh, fallback prompt)
         if: runner.os == 'Linux'
         run: bats tests/
+
+  # Branch protection requires a check named "ci"; this keeps that one name
+  # while the tests run as a matrix.
+  ci:
+    needs: [test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: All test jobs passed
+        run: |
+          [ "${{ needs.test.result }}" = "success" ] || {
+            echo "test jobs: ${{ needs.test.result }}"; exit 1; }
