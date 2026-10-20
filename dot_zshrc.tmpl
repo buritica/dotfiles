@@ -86,6 +86,20 @@ if command -v zoxide >/dev/null 2>&1; then
     fi
 fi
 
+# atuin: shell history in a local SQLite database, searched with Ctrl+R (with
+# cwd, exit code and duration). Deferred after fzf so its Ctrl+R wins; the up
+# arrow stays plain zsh history. Not in the shared zsh base on purpose: estanli
+# is a shared account, so its history stays plain zsh. Config (no sync) is
+# dot_config/atuin; existing zsh history is imported once by
+# run_once_after_atuin-import.sh.tmpl.
+if command -v atuin >/dev/null 2>&1; then
+    if command -v zsh-defer >/dev/null 2>&1; then
+        zsh-defer -c 'eval "$(atuin init zsh --disable-up-arrow)"'
+    else
+        eval "$(atuin init zsh --disable-up-arrow)"
+    fi
+fi
+
 # bat configuration
 if command -v bat >/dev/null 2>&1; then
     export BAT_THEME="Monokai Extended"

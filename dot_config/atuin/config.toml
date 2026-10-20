@@ -1,0 +1,31 @@
+# atuin (https://docs.atuin.sh/configuration/config/), buritica's accounts only:
+# dot_zshrc.tmpl inits it, the shared zsh base doesn't.
+
+# Local history only. Nothing is synced unless an account is registered and
+# this is turned back on.
+auto_sync = false
+update_check = false
+
+# Ctrl+R opens a compact inline list instead of taking the whole screen
+style = "compact"
+inline_height = 20
+show_preview = true
+
+# Enter and Tab both put the selected command on the prompt without running it
+enter_accept = false
+
+# Search everything by default; Ctrl+R inside the list cycles to this
+# session, this directory and this host
+filter_mode = "global"
+search_mode = "fuzzy"
+
+# Skip what zsh's history skips: commands that start with a space
+# (HIST_IGNORE_SPACE) and the shared base's HISTORY_IGNORE (omz.zsh). Keep
+# atuin's built-in secret filter (AWS keys, GitHub/Slack tokens, ...) on.
+# Both apply as commands are recorded, not to the one-time history import.
+secrets_filter = true
+history_filter = [
+  "^ ",
+  "^(ls|cd|cd -|pwd|exit|date)$",
+  " --help$",
+]

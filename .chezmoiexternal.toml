@@ -23,7 +23,9 @@
     stripComponents = 1
 
 # Oh My Zsh itself, at the same commit team-perrito/estanli's dotfiles role pins
-# (dotfiles_omz_version); bump both together. Upstream cuts no tags. Exact, so a
+# (dotfiles_omz_version); bump both together, this one first (estanli's
+# omz-pin workflow compares its pin to this file on master, daily and on its
+# PRs). Upstream cuts no tags. Exact, so a
 # bump also removes files upstream deleted (oh-my-zsh.sh globs lib/*.zsh) and
 # the .git of an old installer clone; the plugin externals above nest inside it,
 # and omz.zsh keeps OMZ's cache in ~/.cache/oh-my-zsh. Anything else put in

@@ -1,0 +1,15 @@
+# lazygit (https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md).
+# On macOS lazygit looks in ~/Library/Application Support, so dot_my/dot_exports
+# points LG_CONFIG_FILE here. Only overrides of the defaults go in this file.
+gui:
+  showRandomTip: false
+git:
+  # Cycle with `|`: delta (same look as `git diff`), then difftastic's
+  # structural diff (same as `git dft`)
+  diffRenderers:
+    - command: delta --{{colorScheme}} --paging=never
+    - type: extDiff
+      command: difft --color=always --background={{colorScheme}} --context={{diffContext}}
+update:
+  # Homebrew (machines core Brewfile) owns the version
+  method: never

@@ -76,7 +76,7 @@ The `machine-list` and `machine-info` shell helpers still work for informational
 - No Age encryption; no key files in the repo
 
 ### Shell Configuration
-- **Primary shell**: Zsh with Oh My Zsh, pinned to a commit in `.chezmoiexternal.toml` (same SHA as team-perrito/estanli's `dotfiles_omz_version`; bump both together). OMZ's own updater is disabled.
+- **Primary shell**: Zsh with Oh My Zsh, pinned to a commit in `.chezmoiexternal.toml` (same SHA as team-perrito/estanli's `dotfiles_omz_version`; bump both together, this repo first: estanli's `omz-pin` workflow compares its pin against this repo's master daily and on its PRs). OMZ's own updater is disabled.
 - **Prompt**: starship (from the machines core Brewfile) with `dot_config/zsh-base/starship.toml`; the per-host emoji is `ZSH_PROMPT_EMOJI` in `dot_zshrc.tmpl`. Falls back to the `geoffgarside` theme when starship is missing.
 - **Plugin management**: Via `.chezmoiexternal.toml` (pinned to tags/commits; bump by editing the URL)
   - zsh-syntax-highlighting
@@ -84,7 +84,7 @@ The `machine-list` and `machine-info` shell helpers still work for informational
   - zsh-defer (for lazy loading)
 - **Plugin loading order**:
   1. Oh My Zsh plugins (git, git-extras, npm, etc.)
-  2. Tool initialization with lazy loading (direnv eager, mise/fzf/zoxide deferred)
+  2. Tool initialization with lazy loading (direnv eager, mise/fzf/zoxide/atuin deferred; atuin after fzf so it gets Ctrl+R, and only in `dot_zshrc.tmpl`, never the shared base)
   3. Custom dotfiles from `~/.my/` (.exports, .aliases, .functions)
 - **Architecture-aware Homebrew paths**: Auto-detects ARM64 vs Intel
 - **Performance**: Lazy loading achieves < 100ms startup time (2-3x improvement)
@@ -167,10 +167,10 @@ Master branch requires:
 `test.sh` runs `bash -n` and `zsh -n` (including the rendered `.zshrc`), shellcheck when installed, then the bats suite in `tests/`. Needs `chezmoi`, `bats-core`, `zsh` and `git`.
 
 The suite applies the dotfiles once into a throwaway `$HOME` (`tests/setup_suite.bash`, scripts excluded so `~/.my/.macos` never runs) and tests the result rather than grepping the source:
-- `chezmoi.bats`: apply is clean and `chezmoi verify` passes, repo-only files stay out of `$HOME`, per-host files (`id_halfmoon.pub`), the macOS run script's re-run hash and its laptop-only gate
-- `zsh.bats`: an interactive shell starts without stderr, the shared history settings win over OMZ's, functions survive OMZ's aliases, host prompt emoji, every host's `.zshrc` parses, `.zshenv` PATH with and without `path.zsh`
+- `chezmoi.bats`: apply is clean and `chezmoi verify` passes, repo-only files stay out of `$HOME`, per-host files (`id_halfmoon.pub`), the macOS run script's re-run hash and its laptop-only gate, atuin's local-only config and its history-import script rendering only once atuin is installed
+- `zsh.bats`: an interactive shell starts without stderr, the shared history settings win over OMZ's, functions survive OMZ's aliases, host prompt emoji, every host's `.zshrc` parses, `.zshenv` PATH with and without `path.zsh`, `LG_CONFIG_FILE` pointing lazygit at the deployed config
 - `functions.bats`: the shared helpers (`gcommit`, `gwta`, `envswitch`, `envnew`, …) run against real repos and files
-- `git.bats` / `ssh.bats` / `tmux.bats`: the deployed gitconfig's aliases, merge policy and laptop-only signing; `ssh -G` resolution of `~/.ssh/config` (fleet aliases, connection reuse, halfmoon's key); `~/.tmux.conf` loads in a real tmux
+- `git.bats` / `ssh.bats` / `tmux.bats`: the deployed gitconfig's aliases (difftastic's `dft`/`dshow`/`dlog`, git-absorb's `fa`), merge policy and laptop-only signing; `ssh -G` resolution of `~/.ssh/config` (fleet aliases, connection reuse, halfmoon's key); `~/.tmux.conf` loads in a real tmux
 
 Host-specific templates are rendered per hostname by `render_as` in `tests/test_helper.bash` (including the `laptop` data `.chezmoi.toml.tmpl` derives). Set `DOTFILES_TEST_OMZ=<checkout>` to test with Oh My Zsh (CI does), or `DOTFILES_TEST_NO_EXTERNALS=1` when GitHub archive downloads are blocked.
 

@@ -88,3 +88,44 @@ setup() {
   run git config --file "$cfg" commit.gpgsign
   [ "$output" != "true" ]
 }
+
+@test "git dft shows a difftastic diff of the working tree" {
+  command -v difft >/dev/null 2>&1 || skip "difftastic not installed"
+  local repo
+  repo="$(new_repo)"
+  printf 'fn main() {}\n' > "$repo/m.rs"
+  hgit -C "$repo" add m.rs
+  hgit -C "$repo" commit -q -m "add m.rs"
+  printf 'fn main() { println!("hi"); }\n' > "$repo/m.rs"
+  run hgit -C "$repo" dft
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"m.rs"*"Rust"* ]] || { echo "$output"; return 1; }
+
+  hgit -C "$repo" commit -q -am "print hi"
+  for alias in dshow dlog; do
+    run hgit -C "$repo" "$alias" -1 --no-color
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"print hi"*"m.rs"*"Rust"* ]] || { echo "$alias: $output"; return 1; }
+  done
+}
+
+@test "git fa folds a staged fix into the commit that wrote the line" {
+  command -v git-absorb >/dev/null 2>&1 || skip "git-absorb not installed"
+  local repo
+  repo="$(new_repo)"
+  echo two > "$repo/b.txt"
+  hgit -C "$repo" add b.txt
+  hgit -C "$repo" commit -q -m "add b"
+  echo three > "$repo/c.txt"
+  hgit -C "$repo" add c.txt
+  hgit -C "$repo" commit -q -m "add c"
+  echo TWO > "$repo/b.txt"
+  hgit -C "$repo" add b.txt
+  # GIT_SEQUENCE_EDITOR: the autosquash rebase runs as is, nothing to edit
+  run env HOME="$TEST_HOME" GIT_CONFIG_NOSYSTEM=1 GIT_SEQUENCE_EDITOR=true GIT_EDITOR=true \
+    git -C "$repo" fa
+  [ "$status" -eq 0 ] || { echo "$output"; return 1; }
+  [ "$(hgit -C "$repo" rev-list --count HEAD)" -eq 3 ]
+  [ "$(hgit -C "$repo" show HEAD~1:b.txt)" = "TWO" ]
+  [ -z "$(hgit -C "$repo" status --porcelain)" ]
+}

@@ -70,6 +70,12 @@ setup() {
   [ -z "$output" ] || { echo "not functions: $output"; return 1; }
 }
 
+@test "lazygit is pointed at the deployed config" {
+  run zsh_i 'print -r -- $LG_CONFIG_FILE'
+  [ "$output" = "$TEST_HOME/.config/lazygit/config.yml" ]
+  [ -f "$output" ]
+}
+
 @test "the shared base's history settings survive OMZ and .exports" {
   # omz.zsh owns history for both accounts (estanli too); CI runs this with
   # and without OMZ, whose own smaller defaults must not win.

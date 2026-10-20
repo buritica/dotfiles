@@ -173,6 +173,33 @@
   fp = fetch --prune
   sync = !git fetch --prune && git pull --rebase
 
+  # Structural diffs with difftastic, beside delta's line diffs: dft for the
+  # working tree (takes difftool's args, e.g. `git dft main`), dlog/dshow for
+  # history. Paged with less: delta would try to parse difft's output.
+  dft = difftool --tool=difftastic
+  dlog = -c diff.external=difft -c core.pager='less -RF' log -p --ext-diff
+  dshow = -c diff.external=difft -c core.pager='less -RF' show --ext-diff
+
+  # git-absorb: fold staged hunks into fixup! commits of the commits that
+  # last touched those lines, then autosquash them in (opens the rebase todo
+  # in the editor; save it as is)
+  fa = absorb --and-rebase
+
+[difftool]
+  prompt = false
+
+[difftool "difftastic"]
+  cmd = difft "$LOCAL" "$REMOTE"
+
+[pager]
+  difftool = less -RF
+
+[absorb]
+  # Look further back than the default 10 commits for a target, and make one
+  # fixup per target commit instead of one per hunk
+  maxStack = 50
+  oneFixupPerCommit = true
+
 [apply]
   # Detect whitespace errors when applying a patch
   whitespace = fix
