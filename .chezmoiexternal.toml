@@ -21,3 +21,15 @@
     url = "https://github.com/romkatv/zsh-defer/archive/53a26e287fbbe2dcebb3aa1801546c6de32416fa.tar.gz"
     exact = true
     stripComponents = 1
+
+# Oh My Zsh itself, at the same commit team-perrito/estanli's dotfiles role pins
+# (dotfiles_omz_version); bump both together. Upstream cuts no tags. Exact, so a
+# bump also removes files upstream deleted (oh-my-zsh.sh globs lib/*.zsh) and
+# the .git of an old installer clone; the plugin externals above nest inside it,
+# and omz.zsh keeps OMZ's cache in ~/.cache/oh-my-zsh. Anything else put in
+# ~/.oh-my-zsh/custom by hand is removed: add it as an external here instead.
+[".oh-my-zsh"]
+    type = "archive"
+    exact = true
+    url = "https://github.com/ohmyzsh/ohmyzsh/archive/0650a250405af1e480b1ecf8c33bc960b9f333f5.tar.gz"
+    stripComponents = 1

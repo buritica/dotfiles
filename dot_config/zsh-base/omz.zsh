@@ -1,8 +1,14 @@
-# omz.zsh — shared zsh base: Oh My Zsh with the theme and plugin set every
+# omz.zsh — shared zsh base: Oh My Zsh with the plugin set and prompt every
 # account uses. Each account's .zshrc sources this, then layers its own config.
 # Oh My Zsh and the two community plugins are installed by the account's
 # provisioner (chezmoi's .chezmoiexternal.toml for buritica, the estanli
-# collection's dotfiles role for estanli); missing pieces degrade, never break.
+# collection's dotfiles role for estanli), both pinned to the same Oh My Zsh
+# commit; missing pieces degrade, never break.
+#
+# The prompt is starship (installed by the machines core Brewfile) with
+# starship.toml from this directory. An account can put an emoji in front of it
+# by exporting ZSH_PROMPT_EMOJI before sourcing this file. Without starship it
+# falls back to the geoffgarside theme.
 
 # shellcheck shell=bash disable=SC2034,SC2154  # zsh: OMZ reads these; vcs_info sets vcs_info_msg_0_
 # Terminal: keep the TERM the terminal set (Ghostty's xterm-ghostty) rather than
@@ -22,8 +28,20 @@ if [[ -n "$TERM" && "$TERM" != xterm-256color ]] && command -v infocmp >/dev/nul
 fi
 
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="geoffgarside"
+# Outside $ZSH: chezmoi manages ~/.oh-my-zsh as an exact archive, so anything
+# OMZ wrote inside it would be deleted on the next apply.
+export ZSH_CACHE_DIR="$HOME/.cache/oh-my-zsh"
+_zsh_base_starship=0
+command -v starship >/dev/null 2>&1 && _zsh_base_starship=1
+if (( _zsh_base_starship )); then
+  ZSH_THEME=""
+else
+  ZSH_THEME="geoffgarside"
+fi
 export ZSH_DISABLE_COMPFIX=true  # skip insecure directory checks (faster)
+# The provisioners own the version; OMZ's own updater would git-pull it off the
+# pin (and prompts about it in every shell, SSH included, every 13 days).
+zstyle ':omz:update' mode disabled
 
 plugins=(
   git git-extras
@@ -44,6 +62,14 @@ else
   setopt PROMPT_SUBST
   PS1='%F{cyan}%m%f %F{blue}%1~%f${vcs_info_msg_0_} %# '
 fi
+
+if (( _zsh_base_starship )); then
+  export STARSHIP_CONFIG="$HOME/.config/zsh-base/starship.toml"
+  eval "$(starship init zsh)"
+else
+  PS1="${ZSH_PROMPT_EMOJI:+$ZSH_PROMPT_EMOJI }$PS1"
+fi
+unset _zsh_base_starship
 
 # History, the same on every account. OMZ's lib/history.zsh sets most of these
 # options already; they're repeated so the fallback branch above matches, and

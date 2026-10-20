@@ -76,8 +76,8 @@ The `machine-list` and `machine-info` shell helpers still work for informational
 - No Age encryption; no key files in the repo
 
 ### Shell Configuration
-- **Primary shell**: Zsh with Oh My Zsh
-- **Theme**: `geoffgarside`
+- **Primary shell**: Zsh with Oh My Zsh, pinned to a commit in `.chezmoiexternal.toml` (same SHA as team-perrito/estanli's `dotfiles_omz_version`; bump both together). OMZ's own updater is disabled.
+- **Prompt**: starship (from the machines core Brewfile) with `dot_config/zsh-base/starship.toml`; the per-host emoji is `ZSH_PROMPT_EMOJI` in `dot_zshrc.tmpl`. Falls back to the `geoffgarside` theme when starship is missing.
 - **Plugin management**: Via `.chezmoiexternal.toml` (pinned to tags/commits; bump by editing the URL)
   - zsh-syntax-highlighting
   - zsh-autosuggestions
@@ -91,7 +91,7 @@ The `machine-list` and `machine-info` shell helpers still work for informational
 
 ### Shared zsh base (`dot_config/zsh-base/`)
 Plain zsh (no templating, no `~/.my` or other buritica-only paths; optional tools like fzf/bat/gh are `command -v`-guarded, macOS basics like `open`/`lsof` are assumed) shared with the `estanli` account on severo:
-- `omz.zsh`: Oh My Zsh theme + plugin set, and the zsh history settings (sizes, `HISTORY_IGNORE`, setopts) for both accounts; `functions.zsh`: git worktree/stash, fzf pickers, port/env helpers
+- `omz.zsh`: Oh My Zsh plugin set and the starship prompt (`starship.toml`), and the zsh history settings (sizes, `HISTORY_IGNORE`, setopts) for both accounts; `functions.zsh`: git worktree/stash, fzf pickers, port/env helpers
 - Here, chezmoi deploys it to `~/.config/zsh-base/` and `dot_zshrc.tmpl` sources it. On severo, team-perrito/estanli's `dotfiles` role clones this public repo and links `~/.config/zsh-base` to it; team-perrito/estanli-dotfiles keeps only that account's overrides.
 - Anything that only makes sense for buritica stays in `dot_my/` (loads after the base). Changes here reach estanli on its next dotfiles deploy, so keep it portable.
 

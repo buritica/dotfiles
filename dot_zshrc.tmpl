@@ -11,8 +11,17 @@ fi
 # Oh My Zsh Configuration
 # =============================================================================
 
-# Theme + plugin set is the shared zsh base (dot_config/zsh-base), the same
-# one the estanli account on severo loads.
+# Plugin set + starship prompt is the shared zsh base (dot_config/zsh-base),
+# the same one the estanli account on severo loads.
+# Prompt prefix: host-specific emoji so it's obvious which machine you're on.
+{{- if eq .chezmoi.hostname "crowntail" }}
+export ZSH_PROMPT_EMOJI="🦇"
+{{- else if eq .chezmoi.hostname "severo" }}
+export ZSH_PROMPT_EMOJI="🤘"
+{{- else }}
+export ZSH_PROMPT_EMOJI="💀"
+{{- end }}
+
 # Completion cache settings (improves startup time); Oh My Zsh runs compinit.
 export ZSH_COMPDUMP="${ZDOTDIR:-$HOME}/.zcompdump"
 [ -r "$HOME/.config/zsh-base/omz.zsh" ] && source "$HOME/.config/zsh-base/omz.zsh"
@@ -110,19 +119,6 @@ unset file
 
 # Set file size limit
 ulimit -n 10000
-
-# =============================================================================
-# Prompt Configuration
-# =============================================================================
-
-# Prompt prefix — host-specific emoji so it's obvious which machine you're on.
-{{- if eq .chezmoi.hostname "crowntail" }}
-export PS1="🦇 $PS1"
-{{- else if eq .chezmoi.hostname "severo" }}
-export PS1="🤘 $PS1"
-{{- else }}
-export PS1="💀 $PS1"
-{{- end }}
 
 # =============================================================================
 # Aliases and Completions

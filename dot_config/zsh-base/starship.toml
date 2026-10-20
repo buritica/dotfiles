@@ -1,0 +1,67 @@
+# starship prompt for every account that loads the shared zsh base (omz.zsh
+# points STARSHIP_CONFIG here). Close to the geoffgarside theme it replaced,
+# [time] user:dir git:(branch) $, with up to three path segments instead of
+# one, plus the host over SSH, git state, slow-command duration and the exit
+# status.
+"$schema" = "https://starship.rs/config-schema.json"
+
+add_newline = false
+format = """
+${env_var.ZSH_PROMPT_EMOJI}\
+$time\
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$cmd_duration\
+$jobs\
+$status\
+$character"""
+
+# Per-host emoji, set by the account's .zshrc (buritica: from chezmoi's hostname).
+[env_var.ZSH_PROMPT_EMOJI]
+format = "$env_value "
+
+[time]
+disabled = false
+format = "[\\[$time\\]]($style) "
+style = "dimmed white"
+
+[username]
+show_always = true  # buritica and estanli share severo; always say which
+format = "[$user]($style)"
+style_user = "cyan"
+style_root = "bold red"
+
+[hostname]
+ssh_only = true
+format = "@[$hostname]($style)"
+style = "bold blue"
+
+[directory]
+format = ":[$path]($style)[$read_only]($read_only_style) "
+style = "green"
+truncation_length = 3
+truncate_to_repo = true
+
+[git_branch]
+format = "[git:\\($branch\\)]($style) "
+style = "yellow"
+
+[git_status]
+format = "([$all_status$ahead_behind]($style) )"
+style = "red"
+
+[cmd_duration]
+min_time = 2_000
+format = "[$duration]($style) "
+
+[status]
+disabled = false
+format = "[$status]($style) "
+
+[character]
+success_symbol = "[\\$](bold white)"
+error_symbol = "[\\$](bold red)"
