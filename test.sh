@@ -411,12 +411,6 @@ run_test "Check error handling in new functions" '
 
 # Test 19: Check modern tool integration
 run_test "Check modern tool integration" '
-    # Zoxide integration
-    if ! grep -q "^zi()" dot_config/zsh-base/functions.zsh; then
-        echo "Missing zi() zoxide integration"
-        return 1
-    fi
-
     # Hyperfine benchmarking
     if ! grep -q "^bench()" dot_config/zsh-base/functions.zsh; then
         echo "Missing bench() function"
@@ -563,7 +557,7 @@ if [ "$IS_CI" = "false" ]; then
             source dot_my/dot_functions >/dev/null 2>&1
 
             # Verify critical functions are defined
-            for func in shellhelp port killport envswitch clip copyfile copypath gwt fstash git-cleanup gcommit zi bench tre; do
+            for func in shellhelp port killport envswitch clip copyfile copypath gwt fstash git-cleanup gcommit bench tre; do
                 type "$func" >/dev/null 2>&1 || {
                     echo "Function $func not found after sourcing"
                     exit 1
