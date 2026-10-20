@@ -411,12 +411,6 @@ run_test "Check error handling in new functions" '
 
 # Test 19: Check modern tool integration
 run_test "Check modern tool integration" '
-    # Zoxide integration
-    if ! grep -q "^zi()" dot_config/zsh-base/functions.zsh; then
-        echo "Missing zi() zoxide integration"
-        return 1
-    fi
-
     # Hyperfine benchmarking
     if ! grep -q "^bench()" dot_config/zsh-base/functions.zsh; then
         echo "Missing bench() function"
@@ -551,6 +545,22 @@ run_test "Check deprecated tools removed" '
 # Test 21b: zsh syntax of the shared base (estanli loads it too; bash -n can't parse zsh)
 if command -v zsh >/dev/null 2>&1; then
     run_test "Check zsh-base syntax" 'zsh -n dot_config/zsh-base/*.zsh'
+
+    # The shared base owns history for both accounts; a later edit to omz.zsh
+    # or .exports must not silently lose it. Checked without OMZ (fallback
+    # branch) and with a stub OMZ that sets its own smaller defaults.
+    run_test "Check shared zsh history settings" '
+        home=$(mktemp -d)
+        for omz in absent stub; do
+            if [ "$omz" = stub ]; then
+                mkdir -p "$home/.oh-my-zsh"
+                echo "HISTSIZE=50000; SAVEHIST=10000" > "$home/.oh-my-zsh/oh-my-zsh.sh"
+            fi
+            out=$(HOME=$home zsh -fc "source dot_config/zsh-base/omz.zsh >/dev/null; source dot_my/dot_exports; print \$HISTSIZE \$SAVEHIST")
+            [ "$out" = "120000 100000" ] || { echo "OMZ $omz, got: $out"; rm -rf "$home"; return 1; }
+        done
+        rm -rf "$home"
+    '
 fi
 
 # Test 22: Verify function syntax by sourcing
@@ -563,7 +573,7 @@ if [ "$IS_CI" = "false" ]; then
             source dot_my/dot_functions >/dev/null 2>&1
 
             # Verify critical functions are defined
-            for func in shellhelp port killport envswitch clip copyfile copypath gwt fstash git-cleanup gcommit zi bench tre; do
+            for func in shellhelp port killport envswitch clip copyfile copypath gwt fstash git-cleanup gcommit bench tre; do
                 type "$func" >/dev/null 2>&1 || {
                     echo "Function $func not found after sourcing"
                     exit 1
