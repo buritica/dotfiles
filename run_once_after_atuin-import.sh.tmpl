@@ -1,10 +1,13 @@
 {{- if lookPath "atuin" -}}
 #!/bin/bash
-# Import the existing zsh history into atuin once per host. Renders empty
-# (so chezmoi skips it and doesn't record it as run) until atuin is installed,
-# which the machines core Brewfile does before chezmoi applies.
+# Import the existing zsh history into atuin once per host. Renders empty, so
+# chezmoi has nothing to run, until atuin is on PATH (the machines core
+# Brewfile installs it before chezmoi applies); then it renders and runs once.
 set -euo pipefail
 HISTFILE="${HISTFILE:-$HOME/.zsh_history}"
 [ -s "$HISTFILE" ] || exit 0
-HISTFILE="$HISTFILE" atuin import zsh
+# A failed import must not fail chezmoi apply (and with it a whole provision
+# run); it's a convenience, so warn and let chezmoi record it as done.
+HISTFILE="$HISTFILE" atuin import zsh \
+  || echo "atuin: history import failed; run 'atuin import zsh' by hand" >&2
 {{ end -}}

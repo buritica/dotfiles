@@ -40,7 +40,7 @@ jobs:
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
             dirname "$(command -v brew)" >> "$GITHUB_PATH"
           fi
-          brew install chezmoi bats-core shellcheck tmux
+          brew install chezmoi bats-core shellcheck tmux atuin difftastic git-absorb
           # The starship prompt is tested on macOS; Linux keeps testing the
           # geoffgarside fallback.
           if [ "$RUNNER_OS" = "macOS" ]; then brew install starship; fi

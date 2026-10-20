@@ -101,9 +101,12 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"m.rs"*"Rust"* ]] || { echo "$output"; return 1; }
 
-  run hgit -C "$repo" dshow --no-color HEAD
-  [ "$status" -eq 0 ]
-  [[ "$output" == *"m.rs"*"Rust"* ]] || { echo "$output"; return 1; }
+  hgit -C "$repo" commit -q -am "print hi"
+  for alias in dshow dlog; do
+    run hgit -C "$repo" "$alias" -1 --no-color
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"print hi"*"m.rs"*"Rust"* ]] || { echo "$alias: $output"; return 1; }
+  done
 }
 
 @test "git fa folds a staged fix into the commit that wrote the line" {
@@ -119,8 +122,9 @@ setup() {
   echo TWO > "$repo/b.txt"
   hgit -C "$repo" add b.txt
   # GIT_SEQUENCE_EDITOR: the autosquash rebase runs as is, nothing to edit
-  HOME="$TEST_HOME" GIT_CONFIG_NOSYSTEM=1 GIT_SEQUENCE_EDITOR=true GIT_EDITOR=true \
-    git -C "$repo" fa 2>/dev/null
+  run env HOME="$TEST_HOME" GIT_CONFIG_NOSYSTEM=1 GIT_SEQUENCE_EDITOR=true GIT_EDITOR=true \
+    git -C "$repo" fa
+  [ "$status" -eq 0 ] || { echo "$output"; return 1; }
   [ "$(hgit -C "$repo" rev-list --count HEAD)" -eq 3 ]
   [ "$(hgit -C "$repo" show HEAD~1:b.txt)" = "TWO" ]
   [ -z "$(hgit -C "$repo" status --porcelain)" ]

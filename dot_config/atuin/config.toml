@@ -19,8 +19,12 @@ enter_accept = false
 filter_mode = "global"
 search_mode = "fuzzy"
 
-# Don't record commands that start with a space (same rule as zsh's
-# HIST_IGNORE_SPACE), and keep atuin's built-in secret filter (AWS keys,
-# GitHub/Slack tokens, ...) on
+# Skip what zsh's history skips: commands that start with a space
+# (HIST_IGNORE_SPACE) and the shared base's HISTORY_IGNORE (omz.zsh). Keep
+# atuin's built-in secret filter (AWS keys, GitHub/Slack tokens, ...) on.
 secrets_filter = true
-history_filter = ["^ "]
+history_filter = [
+  "^ ",
+  "^(ls|cd|cd -|pwd|exit|date)$",
+  " --help$",
+]
