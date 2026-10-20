@@ -226,6 +226,45 @@ run_test "Check brew management functions" '
     return 0
 '
 
+# Test 12b: Remote ergonomics (tmux config, sev, SSH config) load and resolve
+run_test "Check remote ergonomics config" '
+    if ! grep -q "^sev()" dot_my/dot_functions; then
+        echo "Missing sev function"
+        return 1
+    fi
+    if command -v tmux >/dev/null 2>&1; then
+        sock="dotfiles-test-$$"
+        # new-session -f exits 0 even on config errors; source-file does not.
+        if ! tmux -L "$sock" -f /dev/null new-session -d "sleep 1" \; source-file dot_tmux.conf; then
+            echo "dot_tmux.conf failed to load"
+            return 1
+        fi
+        tmux -L "$sock" kill-server 2>/dev/null || true
+    fi
+    if command -v ssh >/dev/null 2>&1; then
+        cfg=$(mktemp)
+        # Drops the host-gated {{ if }}...{{ end }} block(s) at the top.
+        sed "/^{{ if/,/^{{ end/d" private_dot_ssh/config.tmpl > "$cfg"
+        if ! ssh -T -G -F "$cfg" severo | grep -q "^hostname severo.chestnut-shark.ts.net$"; then
+            echo "ssh config does not resolve severo to its Tailscale name"
+            rm -f "$cfg"
+            return 1
+        fi
+        if ! ssh -T -G -F "$cfg" severo | grep -q "^controlmaster auto$"; then
+            echo "ssh config does not enable connection reuse"
+            rm -f "$cfg"
+            return 1
+        fi
+        if ! ssh -T -G -F "$cfg" estanli | grep -q "^user estanli$"; then
+            echo "ssh config estanli alias does not set User estanli"
+            rm -f "$cfg"
+            return 1
+        fi
+        rm -f "$cfg"
+    fi
+    return 0
+'
+
 # Test 13: Check modern tools configured
 run_test "Check modern tool configuration" '
     if [ -f "dot_ripgreprc" ] && [ -s "dot_ripgreprc" ]; then

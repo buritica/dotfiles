@@ -446,3 +446,18 @@ copypath() {
   pwd | tr -d '\n' | pbcopy
   echo "✅ Copied: $(pwd)"
 }
+
+# sev: attach to (or start) the "main" tmux session on severo. Uses mosh when
+# it's installed, so the session survives sleep and network changes; ssh
+# otherwise. An argument picks another session name: `sev scratch`.
+# mosh bypasses Ghostty's ssh wrapper (which installs xterm-ghostty's terminfo
+# remotely), so it gets a TERM every host knows; tmux still gets true colour.
+sev() {
+  local session="${1:-main}" term="$TERM"
+  [[ "$term" == xterm-ghostty ]] && term=xterm-256color
+  if command -v mosh >/dev/null 2>&1; then
+    TERM="$term" mosh severo -- tmux new-session -A -s "$session"
+  else
+    ssh -t severo tmux new-session -A -s "$session"
+  fi
+}
