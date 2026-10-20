@@ -1,15 +1,8 @@
-{{- $codespaces := env "CODESPACES" | not | not -}}
-{{- $ci := env "CI" | not | not -}}
-
-sourceDir = "{{ .chezmoi.sourceDir }}"
-
 [data]
-  name = "Juan Pablo Buritica"
-  codespaces = {{ env "CODESPACES" | not | not }}
+  name = "Juan Pablo Buriticá"
   email = "buritica@gmail.com"
-
-[data.machine]
-  hostname = "{{ .chezmoi.hostname }}"
+  # GUI laptops with the 1Password app: macOS defaults, commit signing, fsmonitor
+  laptop = {{ has .chezmoi.hostname (list "crowntail" "deltatail") }}
 
 # Capabilities are now declared in host_vars/<hostname>.yml in the machines
 # ansible repo and gated by the packages role. dotfiles no longer manages

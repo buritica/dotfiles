@@ -417,7 +417,7 @@ envnew() {
     touch "$env_file"
     echo "✅ Created empty $env_file"
   fi
-  ${EDITOR:-code} "$env_file"
+  ${=EDITOR:-code} "$env_file"   # ${=...} word-splits so EDITOR="code -w" works
 }
 
 json() {
