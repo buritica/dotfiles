@@ -5,27 +5,53 @@ on:
     branches: [ master ]
   workflow_dispatch:  # Allow manual trigger
 
-jobs:
-  ci:
-    runs-on: ubuntu-latest
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
-    permissions:
-      contents: read
-      pull-requests: read
+permissions:
+  contents: read
+
+env:
+  # Oh My Zsh at the SHA the estanli account runs on severo; keep in sync with
+  # dotfiles_omz_version in team-perrito/estanli roles/dotfiles/defaults/main.yml
+  OMZ_SHA: 4d4cfc287e9d887b81242c0e431b5f49f9cec5c1
+  HOMEBREW_NO_AUTO_UPDATE: 1
+  HOMEBREW_NO_INSTALL_CLEANUP: 1
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
-      - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@master
-        with:
-          scandir: '.'
-          severity: warning
-          ignore_paths: .git .github
+      - name: Install test tools
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq zsh
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+            dirname "$(command -v brew)" >> "$GITHUB_PATH"
+          fi
+          brew install chezmoi bats-core shellcheck
 
-      - name: Set execute permissions on test.sh
-        run: chmod +x ./test.sh
+      - name: Fetch Oh My Zsh
+        run: |
+          git init -q "$RUNNER_TEMP/ohmyzsh"
+          git -C "$RUNNER_TEMP/ohmyzsh" fetch -q --depth 1 https://github.com/ohmyzsh/ohmyzsh.git "$OMZ_SHA"
+          git -C "$RUNNER_TEMP/ohmyzsh" checkout -q FETCH_HEAD
 
-      - name: Run tests
+      - name: Run tests (with Oh My Zsh)
+        env:
+          DOTFILES_TEST_OMZ: ${{ runner.temp }}/ohmyzsh
         run: ./test.sh
+
+      - name: Run tests (without Oh My Zsh, fallback prompt)
+        if: runner.os == 'Linux'
+        run: bats tests/

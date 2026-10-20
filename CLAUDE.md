@@ -12,7 +12,7 @@ This is a personal dotfiles repository managed with [chezmoi](https://chezmoi.io
 
 ### Testing
 ```bash
-./test.sh                    # Run all tests (validates files, syntax, templates)
+./test.sh                    # Run all tests: syntax, shellcheck, then the bats suite in tests/
 ```
 
 ### Setup and Deployment
@@ -146,13 +146,13 @@ gh pr create --title "feat: add new feature" --body-file pr_body.md
 See `.chezmoiignore` for full list. Key items:
 - Documentation files (README.md, LICENSE, CONTRIBUTING.md, CLAUDE.md, CHANGELOG.md)
 - GitHub workflows and configs
-- Repository scripts (setup.sh, test.sh)
+- Repository scripts and tests (setup.sh, test.sh, tests/)
 - OS generated files
 
 ## CI/CD
 
 ### Workflows
-- **ci** (`.github/workflows/ci.yml`): Runs ShellCheck and `test.sh` on PRs (manual trigger available)
+- **ci** (`.github/workflows/ci.yml`): Runs `test.sh` on PRs on Ubuntu and macOS, with Oh My Zsh at the SHA estanli pins (manual trigger available)
 - **security** (`.github/workflows/security.yml`): Weekly scans (Sundays at midnight) + PR checks with ShellCheck and Trivy config scanner
 
 ### Branch Protection
@@ -164,19 +164,15 @@ Master branch requires:
 
 ## Testing
 
-The `test.sh` script validates:
-1. Source files exist and are non-empty
-2. Executable permissions on scripts
-3. Configuration patterns in dotfiles
-4. Shell script syntax (bash -n)
-5. macOS-specific files (skipped in CI)
-6. Template syntax (validates Go template structure)
-7. Python 3 compatibility (no Python 2 code)
-8. Dangerous git operations (with proper warnings)
-9. Modern git configuration (no deprecated options)
-10. No deprecated hub CLI usage
-11. Essential config files exist (.gitattributes, .editorconfig)
-12. Brew management functions exist (brew-diff, brew-missing, etc.)
+`test.sh` runs `bash -n` and `zsh -n` (including the rendered `.zshrc`), shellcheck when installed, then the bats suite in `tests/`. Needs `chezmoi`, `bats-core`, `zsh` and `git`.
+
+The suite applies the dotfiles once into a throwaway `$HOME` (`tests/setup_suite.bash`, scripts excluded so `~/.my/.macos` never runs) and tests the result rather than grepping the source:
+- `chezmoi.bats`: apply is clean and `chezmoi verify` passes, repo-only files stay out of `$HOME`, per-host files (`id_halfmoon.pub`), the macOS run script's re-run hash
+- `zsh.bats`: an interactive shell starts without stderr, functions survive OMZ's aliases, host prompt emoji, every host's `.zshrc` parses, `.zshenv` PATH with and without `path.zsh`
+- `functions.bats`: the shared helpers (`gcommit`, `gwta`, `envswitch`, `envnew`, …) run against real repos and files
+- `git.bats` / `ssh.bats`: the deployed gitconfig's aliases and merge policy on real repos; `ssh -G` resolution of `~/.ssh/config`, including halfmoon's
+
+Host-specific templates are rendered with `chezmoi execute-template --override-data '{"chezmoi":{"hostname":"<host>"}}'`. Set `DOTFILES_TEST_OMZ=<checkout>` to test with Oh My Zsh (CI does), or `DOTFILES_TEST_NO_EXTERNALS=1` when GitHub archive downloads are blocked.
 
 ## Important Files
 
