@@ -121,3 +121,27 @@ setup() {
   rm -rf "$TEST_HOME/.config/shell"
   [ "$output" = "/from/path-zsh:/usr/bin:/bin" ]
 }
+
+@test ".zshenv word-splits unquoted vars only in Claude Code commands" {
+  local split='w="a b"; for x in $w; do print -r -- "[$x]"; done'
+  run env -i HOME="$TEST_HOME" PATH="$PATH" zsh -c "$split"
+  [ "$output" = "[a b]" ]
+  run env -i HOME="$TEST_HOME" PATH="$PATH" CLAUDECODE=1 zsh -c "$split"
+  [ "$output" = $'[a]\n[b]' ]
+  # a zsh script run from a Claude Code shell keeps zsh semantics
+  printf '%s\n' "$split" > "$BATS_TEST_TMPDIR/split.zsh"
+  run env -i HOME="$TEST_HOME" PATH="$PATH" CLAUDECODE=1 zsh "$BATS_TEST_TMPDIR/split.zsh"
+  [ "$output" = "[a b]" ]
+}
+
+@test "gadm aliases GAM only where it is installed" {
+  run zsh_i 'whence -w gadm'
+  [ "$output" = "gadm: none" ]
+
+  mkdir -p "$TEST_HOME/bin/gam7"
+  printf '#!/bin/sh\n' > "$TEST_HOME/bin/gam7/gam"
+  chmod +x "$TEST_HOME/bin/gam7/gam"
+  run zsh_i 'whence -w gadm'
+  rm -rf "$TEST_HOME/bin/gam7"
+  [ "$output" = "gadm: alias" ]
+}

@@ -19,3 +19,8 @@ else
     export PATH="$HOME/.local/share/mise/shims:$PATH"
     export PATH="$HOME/.bun/bin:$PATH"
 fi
+
+# Claude Code's commands (zsh -c under $CLAUDECODE): split unquoted variables
+# like bash (zsh's default is no split), so agent-written bash-isms don't fail
+# and get retried. Interactive shells and zsh scripts keep zsh semantics.
+[[ -n $CLAUDECODE && -n $ZSH_EXECUTION_STRING ]] && setopt SH_WORD_SPLIT
