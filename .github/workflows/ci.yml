@@ -24,6 +24,11 @@ jobs:
           severity: warning
           ignore_paths: .git .github
 
+      # ubuntu runners ship without zsh, which skips test.sh's zsh-base
+      # checks (syntax + shared history settings) silently.
+      - name: Install zsh
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq zsh
+
       - name: Set execute permissions on test.sh
         run: chmod +x ./test.sh
 
