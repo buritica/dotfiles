@@ -17,15 +17,43 @@ setup() {
 }
 
 @test "OMZ loads when installed, else the fallback prompt is used" {
+  local theme=geoffgarside
+  command -v starship >/dev/null 2>&1 && theme=''
   run zsh_i 'print -r -- "${ZSH_VERSION:+zsh} ${+functions[omz]} ${ZSH_THEME}"'
   [ "$status" -eq 0 ]
-  if [ -n "${DOTFILES_TEST_OMZ:-}" ]; then
-    [ "$output" = "zsh 1 geoffgarside" ]
+  if [ -f "$TEST_HOME/.oh-my-zsh/oh-my-zsh.sh" ]; then
+    [ "$output" = "zsh 1 $theme" ]
   else
-    [ "$output" = "zsh 0 geoffgarside" ]
-    run zsh_i 'print -r -- $PS1'
-    [[ "$output" == *'vcs_info_msg_0_'* ]]
+    [ "$output" = "zsh 0 $theme" ]
+    if [ -n "$theme" ]; then
+      run zsh_i 'print -r -- $PS1'
+      [[ "$output" == *'vcs_info_msg_0_'* ]]
+    fi
   fi
+}
+
+@test "OMZ's updater is off and its cache lives outside ~/.oh-my-zsh" {
+  # The provisioners own the version, and the exact external would wipe a
+  # cache kept inside it on every apply.
+  run zsh_i 'zstyle -s :omz:update mode m; print -r -- $m $ZSH_CACHE_DIR'
+  [ "$output" = "disabled $TEST_HOME/.cache/oh-my-zsh" ]
+}
+
+@test "with starship installed, it draws the prompt from the shared config" {
+  command -v starship >/dev/null 2>&1 || skip "starship not installed"
+  run zsh_i 'print -r -- $STARSHIP_CONFIG; [[ $PROMPT == *starship* ]] && print -r -- starship'
+  [ "$output" = "$TEST_HOME/.config/zsh-base/starship.toml"$'\n'"starship" ]
+
+  run env -i HOME="$TEST_HOME" PATH="$PATH" ZSH_PROMPT_EMOJI=💀 \
+    STARSHIP_CONFIG="$TEST_HOME/.config/zsh-base/starship.toml" starship prompt
+  [ "$status" -eq 0 ]
+  [[ "$output" == "💀 "* ]]
+}
+
+@test "starship.toml is valid TOML" {
+  python3 -c 'import tomllib' 2>/dev/null || skip "python3 without tomllib"
+  python3 -c 'import sys, tomllib; tomllib.load(open(sys.argv[1], "rb"))' \
+    "$TEST_HOME/.config/zsh-base/starship.toml"
 }
 
 @test "OMZ's git aliases don't clobber the shared worktree functions" {
@@ -50,13 +78,17 @@ setup() {
 }
 
 @test "the prompt carries the host emoji" {
-  run zsh_i '[[ $PS1 == "💀 "* ]] && print -r -- prefixed'
-  [ "$output" = "prefixed" ]
+  run zsh_i 'print -r -- $ZSH_PROMPT_EMOJI'
+  [ "$output" = "💀" ]
+  if ! command -v starship >/dev/null 2>&1; then
+    run zsh_i '[[ $PS1 == "💀 "* ]] && print -r -- prefixed'
+    [ "$output" = "prefixed" ]
+  fi
 
   run render_as crowntail dot_zshrc.tmpl
-  grep -q 'export PS1="🦇 $PS1"' <<<"$output"
+  grep -q 'export ZSH_PROMPT_EMOJI="🦇"' <<<"$output"
   run render_as severo dot_zshrc.tmpl
-  grep -q 'export PS1="🤘 $PS1"' <<<"$output"
+  grep -q 'export ZSH_PROMPT_EMOJI="🤘"' <<<"$output"
 }
 
 @test "security-gui exists on severo only" {

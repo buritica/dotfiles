@@ -13,9 +13,10 @@ permissions:
   contents: read
 
 env:
-  # Oh My Zsh at the SHA the estanli account runs on severo; keep in sync with
+  # Oh My Zsh at the SHA both accounts pin: .chezmoiexternal.toml here and
   # dotfiles_omz_version in team-perrito/estanli roles/dotfiles/defaults/main.yml
-  OMZ_SHA: 4d4cfc287e9d887b81242c0e431b5f49f9cec5c1
+  # (tests/chezmoi.bats checks this one matches the external)
+  OMZ_SHA: 0650a250405af1e480b1ecf8c33bc960b9f333f5
   HOMEBREW_NO_AUTO_UPDATE: 1
   HOMEBREW_NO_INSTALL_CLEANUP: 1
 
@@ -40,6 +41,9 @@ jobs:
             dirname "$(command -v brew)" >> "$GITHUB_PATH"
           fi
           brew install chezmoi bats-core shellcheck tmux
+          # The starship prompt is tested on macOS; Linux keeps testing the
+          # geoffgarside fallback.
+          if [ "$RUNNER_OS" = "macOS" ]; then brew install starship; fi
 
       - name: Make the runner's zsh fpath secure
         # Ubuntu's /etc/zsh/zshrc runs a plain compinit, which refuses
@@ -52,6 +56,8 @@ jobs:
           [ -z "$insecure" ] || echo "$insecure" | xargs sudo chmod g-w,o-w
 
       - name: Fetch Oh My Zsh
+        # Pre-seeds ~/.oh-my-zsh as a git checkout, the way existing hosts have
+        # it; the exact .oh-my-zsh external then replaces it on apply.
         run: |
           git init -q "$RUNNER_TEMP/ohmyzsh"
           git -C "$RUNNER_TEMP/ohmyzsh" fetch -q --depth 1 https://github.com/ohmyzsh/ohmyzsh.git "$OMZ_SHA"
@@ -64,6 +70,9 @@ jobs:
 
       - name: Run tests (without Oh My Zsh, fallback prompt)
         if: runner.os == 'Linux'
+        env:
+          # The .oh-my-zsh external would install it; drop externals instead
+          DOTFILES_TEST_NO_EXTERNALS: 1
         run: bats tests/
 
   # Branch protection requires a check named "ci"; this keeps that one name

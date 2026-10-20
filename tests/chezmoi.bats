@@ -79,4 +79,15 @@ setup() {
   [ -f "$plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh" ]
   [ -f "$plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh" ]
   [ -f "$plugins/zsh-defer/zsh-defer.plugin.zsh" ]
+  # Oh My Zsh itself, from the archive: no installer .git left behind
+  [ -f "$TEST_HOME/.oh-my-zsh/oh-my-zsh.sh" ]
+  [ ! -e "$TEST_HOME/.oh-my-zsh/.git" ]
+}
+
+@test "Oh My Zsh is pinned to a full SHA, the same one CI tests" {
+  local repo="$BATS_TEST_DIRNAME/.." pinned ci
+  pinned=$(sed -n 's|.*ohmyzsh/archive/\([0-9a-f]\{40\}\)\.tar\.gz.*|\1|p' "$repo/.chezmoiexternal.toml")
+  ci=$(sed -n 's/^ *OMZ_SHA: *\([0-9a-f]\{40\}\).*/\1/p' "$repo/.github/workflows/ci.yml")
+  [ -n "$pinned" ] || { echo "no 40-char SHA in the .oh-my-zsh external"; return 1; }
+  [ "$pinned" = "$ci" ] || { echo "external $pinned != CI OMZ_SHA $ci"; return 1; }
 }

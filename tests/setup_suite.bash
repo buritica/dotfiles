@@ -1,11 +1,13 @@
 # Applies the dotfiles once into a throwaway $HOME that every test file shares.
 #
 # Env knobs:
-#   DOTFILES_TEST_OMZ=<dir>       an Oh My Zsh checkout to install first (CI pins
-#                                 the SHA estanli runs); unset tests the
-#                                 no-OMZ fallback prompt instead
-#   DOTFILES_TEST_NO_EXTERNALS=1  drop .chezmoiexternal.toml, for when GitHub
-#                                 archive downloads are blocked
+#   DOTFILES_TEST_OMZ=<dir>       an Oh My Zsh checkout to put in ~/.oh-my-zsh
+#                                 first, like an existing host's; the exact
+#                                 .oh-my-zsh external replaces it on apply
+#   DOTFILES_TEST_NO_EXTERNALS=1  drop .chezmoiexternal.toml (no Oh My Zsh or
+#                                 plugins unless DOTFILES_TEST_OMZ is set), for
+#                                 the fallback prompt or when GitHub archive
+#                                 downloads are blocked
 #
 # Scripts are always excluded: the run_onchange script runs ~/.my/.macos, which
 # writes real defaults and killalls Finder/Dock.
