@@ -1,0 +1,2 @@
+# Files chezmoi deletes from the home directory (no longer shipped).
+.my/TERMINAL_GUIDE.md
