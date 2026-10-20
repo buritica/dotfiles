@@ -68,12 +68,13 @@ gwta() {
     return 1
   fi
   local branch="$1"
-  local path="${2:-../${branch}}"
+  # not `path`: zsh ties it to $PATH, so `local path=...` would clobber PATH
+  local wt_path="${2:-../${branch}}"
   if [[ -z "$branch" ]]; then
     echo "Usage: gwta <branch-name> [path]"
     return 1
   fi
-  git worktree add -b "$branch" "$path" && cd "$path" || return
+  git worktree add -b "$branch" "$wt_path" && cd "$wt_path" || return
 }
 
 gwtr() {
