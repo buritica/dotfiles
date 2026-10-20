@@ -11,7 +11,7 @@ style = "compact"
 inline_height = 20
 show_preview = true
 
-# Enter edits the selected command first, Tab too; nothing runs unseen
+# Enter and Tab both put the selected command on the prompt without running it
 enter_accept = false
 
 # Search everything by default; Ctrl+R inside the list cycles to this
@@ -22,6 +22,7 @@ search_mode = "fuzzy"
 # Skip what zsh's history skips: commands that start with a space
 # (HIST_IGNORE_SPACE) and the shared base's HISTORY_IGNORE (omz.zsh). Keep
 # atuin's built-in secret filter (AWS keys, GitHub/Slack tokens, ...) on.
+# Both apply as commands are recorded, not to the one-time history import.
 secrets_filter = true
 history_filter = [
   "^ ",
