@@ -40,3 +40,17 @@ ssh_g() {
   grep -qx 'hostname severo.chestnut-shark.ts.net' <<<"$output"
   grep -qx 'user estanli' <<<"$output"
 }
+
+@test "on crowntail, halfmoon uses the deploy key and skips the agent" {
+  local cfg="$BATS_TEST_TMPDIR/crowntail_config"
+  render_as crowntail private_dot_ssh/config.tmpl > "$cfg"
+  run ssh_g "$cfg" halfmoon
+  [ "$status" -eq 0 ]
+  [ "$(grep '^identityfile ' <<<"$output" | head -1)" = "identityfile ~/.ssh/id_halfmoon_deploy" ]
+  grep -qx 'identityagent none' <<<"$output"
+  grep -qx 'identitiesonly yes' <<<"$output"
+  grep -qx 'hostname halfmoon.chestnut-shark.ts.net' <<<"$output"
+
+  run ssh_g "$TEST_HOME/.ssh/config" halfmoon
+  grep -qix 'identityagent .*1password/t/agent.sock' <<<"$output"
+}
