@@ -78,15 +78,15 @@ setup() {
   [ "$(hgit -C "$repo" branch --show-current)" = "pr-7" ]
 }
 
-@test "commits are signed on the laptops only" {
-  local cfg="$BATS_TEST_TMPDIR/gitconfig"
-  render_as crowntail dot_gitconfig.tmpl > "$cfg"
-  [ "$(git config --file "$cfg" commit.gpgsign)" = "true" ]
-  [ "$(git config --file "$cfg" gpg.format)" = "ssh" ]
-
-  render_as severo dot_gitconfig.tmpl > "$cfg"
-  run git config --file "$cfg" commit.gpgsign
-  [ "$output" != "true" ]
+@test "commits are not signed on any host" {
+  local cfg="$BATS_TEST_TMPDIR/gitconfig" host
+  for host in crowntail severo; do
+    render_as "$host" dot_gitconfig.tmpl > "$cfg"
+    run git config --file "$cfg" commit.gpgsign
+    [ "$output" != "true" ]
+    run git config --file "$cfg" user.signingkey
+    [ -z "$output" ]
+  done
 }
 
 @test "git dft shows a difftastic diff of the working tree" {

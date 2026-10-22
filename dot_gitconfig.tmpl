@@ -5,22 +5,6 @@
   name = {{ .name }}
   email = {{ .email }}
 {{- if index . "laptop" }}
-  # Commits are signed through the 1Password SSH agent, only on the laptops:
-  # op-ssh-sign needs the 1Password app's GUI, so signing would fail every
-  # commit on severo/halfmoon. On a laptop, each commit (rebases included)
-  # waits for 1Password approval, so commits from a locked Mac or an
-  # unattended script block. GitHub shows them Verified once this key is
-  # also added there as a *signing* key.
-  signingkey = key::{{ include "private_dot_ssh/id_ed25519.pub" | trim }}
-
-[gpg]
-  format = ssh
-
-[gpg "ssh"]
-  program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
-
-[commit]
-  gpgsign = true
 
 [core]
   # Laptops only: a long-lived fsmonitor daemon per repo is worth it for
