@@ -3,6 +3,17 @@ Host github.com
   IdentityFile ~/.ssh/id_halfmoon
 
 {{ end -}}
+{{ if eq .chezmoi.hostname "crowntail" -}}
+# Deploy-only key for halfmoon, so repeated `ssh halfmoon` calls (ansible
+# runs) don't go through the 1Password agent. The key lives only on
+# crowntail; chezmoi doesn't deploy it. Comes before the fleet aliases
+# and `Host *` because the first IdentityAgent/IdentitiesOnly match wins.
+Host halfmoon
+  IdentityFile ~/.ssh/id_halfmoon_deploy
+  IdentityAgent none
+  IdentitiesOnly yes
+
+{{ end -}}
 # Fleet aliases on Tailscale MagicDNS names, so they resolve from any network
 # (bare .local names only work on the same LAN). Needs MagicDNS accepted at
 # the OS level: `scutil --dns | grep 100.100.100.100`.
