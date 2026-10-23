@@ -7,11 +7,11 @@
 3. Open a pull request with a conventional-commit title (`type: description`, e.g. `fix: zsh path issue`).
 4. CI must pass and every conversation must be resolved before it merges.
 
-Managed hosts get `master` through the machines repo's `chezmoi` role (see the "Dotfiles" section of its `CLAUDE.md`). Changes under `dot_config/zsh-base/` also reach the `estanli` account on severo on its next dotfiles deploy, so keep that directory portable.
+Managed hosts get `master` through the machines repo's `chezmoi` role (see the "Dotfiles" section of its `CLAUDE.md`). Changes under `dot_config/zsh-base/` and `dot_config/ghostty/config` also reach the `estanli` account on severo on its next dotfiles deploy, so keep them portable.
 
 ## Branch protection
 
-`master` requires the `ci` check to pass (on an up-to-date branch) and all conversations resolved. Force pushes, branch deletion and direct commits are not allowed. The rules live in `.github/branch-protection.json`.
+`master` requires the `ci` check to pass on an up-to-date branch (admins included) and all conversations resolved, and blocks force pushes and branch deletion. `ci` only runs on pull requests, so every change goes through one. `.github/branch-protection.json` is a reference copy of these settings; nothing applies it automatically.
 
 ## Checks
 

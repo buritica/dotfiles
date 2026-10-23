@@ -6,13 +6,6 @@
 
 My personal dotfiles and system configuration, managed with [chezmoi](https://chezmoi.io/). Packages and machine setup live in [buritica/machines](https://github.com/buritica/machines); this repo is config only.
 
-## Overview
-
-This setup provides:
-- Custom shell configuration with Zsh, including prompt and aliases
-- Optimized macOS system settings for performance and privacy
-- git and Ghostty configuration
-
 ## Quick Start
 
 ### For a Brand New Mac
@@ -30,14 +23,14 @@ Managed Macs get these dotfiles from [buritica/machines](https://github.com/buri
 
 ### Updating
 
-Managed hosts (crowntail, halfmoon, severo) get dotfiles from the machines repo's `chezmoi` role; see the "Dotfiles" section of its `CLAUDE.md`. Don't run `chezmoi update` or `chezmoi apply` by hand there. `chezmoi update` is only for a Mac the machines repo doesn't manage.
+Macs the machines repo manages (its `[macs]` inventory) get dotfiles from the machines repo's `chezmoi` role; see the "Dotfiles" section of its `CLAUDE.md`. Don't run `chezmoi update` or `chezmoi apply` by hand there: the role is the one rollout path, and it runs the `verify` checks afterwards. `chezmoi update` is only for a Mac the machines repo doesn't manage.
 
 ## What's Included
 
 - zsh with Oh My Zsh and the zsh plugins, pinned in `.chezmoiexternal.toml`, and the starship prompt
-- A shared zsh base (`dot_config/zsh-base/`) that the `estanli` account on severo also loads
+- A shared zsh base (`dot_config/zsh-base/`) and Ghostty config that the `estanli` account on severo also loads
 - git (with difftastic and git-absorb aliases), tmux, SSH client config, ripgrep, direnv, gh, atuin, lazygit and Ghostty
-- macOS preferences (`~/.my/.macos`, laptops only)
+- macOS preferences (`~/.my/.macos`, deployed everywhere, run only on the laptops)
 
 No packages: those live in the machines repo's `ansible/roles/packages/files/Brewfile`.
 
