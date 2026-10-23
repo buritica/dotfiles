@@ -16,6 +16,18 @@ setup() {
     || { echo "stderr: $stderr"; return 1; }
 }
 
+@test "a TERM zsh has no terminfo for falls back to xterm-256color, a known one stays" {
+  # Ghostty over SSH to a host without its terminfo: zle can't move the cursor
+  # and every redraw garbles the line. A known TERM is left alone.
+  run --separate-stderr env -i HOME="$TEST_HOME" PATH="$PATH" TERM=xterm-no-such-term \
+    zsh -i -c 'print -r -- $TERM; echoti cup 0 0 >/dev/null && print -r -- cup'
+  [ "${lines[${#lines[@]}-2]}" = "xterm-256color" ]
+  [ "${lines[${#lines[@]}-1]}" = "cup" ]
+  run --separate-stderr env -i HOME="$TEST_HOME" PATH="$PATH" TERM=vt100 \
+    zsh -i -c 'print -r -- $TERM'
+  [ "${lines[${#lines[@]}-1]}" = "vt100" ]
+}
+
 @test "OMZ loads when installed, else the fallback prompt is used" {
   local theme=geoffgarside
   command -v starship >/dev/null 2>&1 && theme=''
