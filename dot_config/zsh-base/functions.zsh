@@ -232,7 +232,7 @@ fcd() {
     return 1
   fi
   local dir
-  dir=$(fd --type d --hidden --follow --exclude .git | fzf --preview 'eza --tree --level=2 --icons {}') && cd "$dir" || return
+  dir=$(fd --type d --hidden --follow --exclude .git | fzf --preview 'eza --tree --level=2 --icons=auto {}') && cd "$dir" || return
 }
 
 fe() {

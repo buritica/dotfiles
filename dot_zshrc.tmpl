@@ -65,7 +65,7 @@ if command -v fzf >/dev/null 2>&1; then
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
     export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
     export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
-    export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --icons {}'"
+    export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --icons=auto {}'"
     export FZF_DEFAULT_OPTS='--color=bg+:#3e3d32,bg:#272822,spinner:#e6db74,hl:#a6e22e --color=fg:#f8f8f2,header:#a6e22e,info:#e6db74,pointer:#e6db74 --color=marker:#e6db74,fg+:#f8f8f2,prompt:#e6db74,hl+:#a6e22e'
 
     # Key bindings + completion (Ctrl+R, Ctrl+T, Alt+C) straight from fzf

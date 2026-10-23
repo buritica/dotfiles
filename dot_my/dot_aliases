@@ -1,7 +1,8 @@
 # better ls (now using eza). --icons=auto, not bare --icons: eza 0.23 takes an
 # optional value there, so `ls <path>` read the path as the value and failed.
-# Not in Claude Code shells ($CLAUDECODE): agents expect plain ls output and
-# exit codes (a broken `ls <path>` made ca report files as missing).
+# Not in Claude Code shells ($CLAUDECODE): agents expect ls's own output and
+# exit codes (a broken `ls <path>` made a Claude Code agent report existing
+# files as missing).
 if [[ -z $CLAUDECODE ]]; then
   alias ls="eza --long --all --header --git --icons=auto"
   alias ll="eza --long --header --git --icons=auto"

@@ -168,7 +168,7 @@ Master branch requires:
 
 The suite applies the dotfiles once into a throwaway `$HOME` (`tests/setup_suite.bash`, scripts excluded so `~/.my/.macos` never runs) and tests the result rather than grepping the source:
 - `chezmoi.bats`: apply is clean and `chezmoi verify` passes, repo-only files stay out of `$HOME`, per-host files (`id_halfmoon.pub`), the macOS run script's re-run hash and its laptop-only gate, atuin's local-only config and its history-import script rendering only once atuin is installed
-- `zsh.bats`: an interactive shell starts without stderr, the shared history settings win over OMZ's, functions survive OMZ's aliases, host prompt emoji, every host's `.zshrc` parses, `.zshenv` PATH with and without `path.zsh`, `LG_CONFIG_FILE` pointing lazygit at the deployed config
+- `zsh.bats`: an interactive shell starts without stderr, the shared history settings win over OMZ's, functions survive OMZ's aliases, host prompt emoji, every host's `.zshrc` parses, `.zshenv` PATH with and without `path.zsh`, `LG_CONFIG_FILE` pointing lazygit at the deployed config, the eza `ls` aliases (`--icons=auto`, absent in Claude Code shells)
 - `functions.bats`: the shared helpers (`gcommit`, `gwta`, `envswitch`, `envnew`, …) run against real repos and files
 - `git.bats` / `ssh.bats` / `tmux.bats`: the deployed gitconfig's aliases (difftastic's `dft`/`dshow`/`dlog`, git-absorb's `fa`), merge policy and no commit signing; `ssh -G` resolution of `~/.ssh/config` (fleet aliases, connection reuse, halfmoon's keys); `~/.tmux.conf` loads in a real tmux
 

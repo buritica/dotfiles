@@ -169,25 +169,25 @@ setup() {
 }
 
 @test "ls aliases pass eza a path it can't mistake for an --icons value" {
-  # eza 0.23 reads `--icons <path>` as --icons=<path> and fails
-  mkdir -p "$BATS_TEST_TMPDIR/bin"
-  cat > "$BATS_TEST_TMPDIR/bin/eza" <<'SH'
+  # eza 0.23 reads `--icons <path>` as --icons=<path> and fails. path.zsh puts
+  # the fake first, ahead of any Homebrew eza.
+  local fakebin="$BATS_TEST_TMPDIR/bin"
+  mkdir -p "$fakebin" "$TEST_HOME/.config/shell"
+  cat >"$fakebin/eza" <<'SH'
 #!/bin/sh
 for a; do [ "$a" = --icons ] && { echo "invalid value for '--icons'" >&2; exit 2; }; done
 exit 0
 SH
-  chmod +x "$BATS_TEST_TMPDIR/bin/eza"
-  run zsh_i 'whence -w ls'
+  chmod +x "$fakebin/eza"
+  echo "export PATH=\"$fakebin:\$PATH\"" >"$TEST_HOME/.config/shell/path.zsh"
+  run zsh_i 'whence -w ls; for a in ls ll la lt lta; do eval "$a $BATS_TEST_TMPDIR" || print -r -- "$a failed"; done'
+  rm -rf "$TEST_HOME/.config/shell"
   [ "$output" = "ls: alias" ]
-  for a in ls ll la lt lta; do
-    run env -i HOME="$TEST_HOME" PATH="$BATS_TEST_TMPDIR/bin:$PATH" TERM=xterm-256color \
-      zsh -i -c "$a /etc/hosts"
-    [ "$status" -eq 0 ] || { echo "$a: $output"; false; }
-  done
 }
 
-@test "Claude Code shells keep the real ls" {
+@test "Claude Code shells don't get the eza ls aliases" {
   run env -i HOME="$TEST_HOME" PATH="$PATH" TERM=xterm-256color CLAUDECODE=1 \
-    zsh -i -c 'whence -w ls ll'
-  [[ "$output" == *"ls: command"* && "$output" == *"ll: none"* ]]
+    zsh -i -c 'alias ls ll la lt lta; whence -w fixit' 2>&1
+  # fixit proves ~/.my/.aliases loaded; OMZ's own ls/ll/la aliases may remain
+  [[ "$output" != *eza* && "$output" == *"fixit: alias"* ]]
 }
