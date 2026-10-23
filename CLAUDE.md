@@ -170,7 +170,7 @@ The suite applies the dotfiles once into a throwaway `$HOME` (`tests/setup_suite
 - `chezmoi.bats`: apply is clean and `chezmoi verify` passes, repo-only files stay out of `$HOME`, per-host files (`id_halfmoon.pub`), the macOS run script's re-run hash and its laptop-only gate, atuin's local-only config and its history-import script rendering only once atuin is installed
 - `zsh.bats`: an interactive shell starts without stderr, the shared history settings win over OMZ's, functions survive OMZ's aliases, host prompt emoji, every host's `.zshrc` parses, `.zshenv` PATH with and without `path.zsh`, `LG_CONFIG_FILE` pointing lazygit at the deployed config
 - `functions.bats`: the shared helpers (`gcommit`, `gwta`, `envswitch`, `envnew`, …) run against real repos and files
-- `git.bats` / `ssh.bats` / `tmux.bats`: the deployed gitconfig's aliases (difftastic's `dft`/`dshow`/`dlog`, git-absorb's `fa`), merge policy and no commit signing; `ssh -G` resolution of `~/.ssh/config` (fleet aliases, connection reuse, halfmoon's key); `~/.tmux.conf` loads in a real tmux
+- `git.bats` / `ssh.bats` / `tmux.bats`: the deployed gitconfig's aliases (difftastic's `dft`/`dshow`/`dlog`, git-absorb's `fa`), merge policy and no commit signing; `ssh -G` resolution of `~/.ssh/config` (fleet aliases, connection reuse, halfmoon's keys); `~/.tmux.conf` loads in a real tmux
 
 Host-specific templates are rendered per hostname by `render_as` in `tests/test_helper.bash` (including the `laptop` data `.chezmoi.toml.tmpl` derives). Set `DOTFILES_TEST_OMZ=<checkout>` to test with Oh My Zsh (CI does), or `DOTFILES_TEST_NO_EXTERNALS=1` when GitHub archive downloads are blocked.
 

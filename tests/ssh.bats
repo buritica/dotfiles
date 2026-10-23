@@ -54,3 +54,14 @@ ssh_g() {
   run ssh_g "$TEST_HOME/.ssh/config" halfmoon
   grep -qix 'identityagent .*1password/t/agent.sock' <<<"$output"
 }
+
+@test "on severo, halfmoon uses severo's deploy key and skips the agent" {
+  local cfg="$BATS_TEST_TMPDIR/severo_config"
+  render_as severo private_dot_ssh/config.tmpl > "$cfg"
+  run ssh_g "$cfg" halfmoon
+  [ "$status" -eq 0 ]
+  [ "$(grep '^identityfile ' <<<"$output" | head -1)" = "identityfile ~/.ssh/id_ed25519_halfmoon_auto" ]
+  grep -qx 'identityagent none' <<<"$output"
+  grep -qx 'identitiesonly yes' <<<"$output"
+  grep -qx 'hostname halfmoon.chestnut-shark.ts.net' <<<"$output"
+}
