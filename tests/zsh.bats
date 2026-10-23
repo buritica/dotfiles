@@ -18,14 +18,18 @@ setup() {
 
 @test "a TERM zsh has no terminfo for falls back to xterm-256color, a known one stays" {
   # Ghostty over SSH to a host without its terminfo: zle can't move the cursor
-  # and every redraw garbles the line. A known TERM is left alone.
-  run --separate-stderr env -i HOME="$TEST_HOME" PATH="$PATH" TERM=xterm-no-such-term \
-    zsh -i -c 'print -r -- $TERM; echoti cup 0 0 >/dev/null && print -r -- cup'
-  [ "${lines[${#lines[@]}-2]}" = "xterm-256color" ]
-  [ "${lines[${#lines[@]}-1]}" = "cup" ]
-  run --separate-stderr env -i HOME="$TEST_HOME" PATH="$PATH" TERM=vt100 \
-    zsh -i -c 'print -r -- $TERM'
-  [ "${lines[${#lines[@]}-1]}" = "vt100" ]
+  # and every redraw garbles the line. An infocmp that knows the entry (a
+  # different ncurses than zsh's) must not keep zsh on it.
+  local fakebin="$BATS_TEST_TMPDIR/bin"
+  mkdir -p "$fakebin"
+  printf '#!/bin/sh\nexit 0\n' >"$fakebin/infocmp"
+  chmod +x "$fakebin/infocmp"
+  ZSH_I_TERM=xterm-no-such-term PATH="$fakebin:$PATH" \
+    run zsh_i 'print -r -- $TERM; echoti cup 0 0 >/dev/null && print -r -- cup'
+  [ "$output" = "xterm-256color"$'\n'"cup" ]
+
+  ZSH_I_TERM=vt100 run zsh_i 'print -r -- $TERM; echoti cup 0 0 >/dev/null && print -r -- cup'
+  [ "$output" = "vt100"$'\n'"cup" ]
 }
 
 @test "OMZ loads when installed, else the fallback prompt is used" {
