@@ -6,13 +6,6 @@
 
 My personal dotfiles and system configuration, managed with [chezmoi](https://chezmoi.io/). Packages and machine setup live in [buritica/machines](https://github.com/buritica/machines); this repo is config only.
 
-## Overview
-
-This setup provides:
-- Custom shell configuration with Zsh, including prompt and aliases
-- Optimized macOS system settings for performance and privacy
-- git and Ghostty configuration
-
 ## Quick Start
 
 ### For a Brand New Mac
@@ -28,36 +21,22 @@ Managed Macs get these dotfiles from [buritica/machines](https://github.com/buri
 
 2. Restart your terminal.
 
-### For an Existing Setup
+### Updating
 
-```bash
-chezmoi update
-```
+Macs the machines repo manages (its `[macs]` inventory) get dotfiles from the machines repo's `chezmoi` role; see the "Dotfiles" section of its `CLAUDE.md`. Don't run `chezmoi update` or `chezmoi apply` by hand there: the role is the one rollout path, and it runs the `verify` checks afterwards. `chezmoi update` is only for a Mac the machines repo doesn't manage.
 
 ## What's Included
 
-Shell (zsh + Oh My Zsh), git, Ghostty and macOS preferences. No packages: those live in the machines repo's `ansible/roles/packages/files/Brewfile`.
+- zsh with Oh My Zsh and the zsh plugins, pinned in `.chezmoiexternal.toml`, and the starship prompt
+- A shared zsh base (`dot_config/zsh-base/`) and Ghostty config that the `estanli` account on severo also loads
+- git (with difftastic and git-absorb aliases), tmux, SSH client config, ripgrep, direnv, gh, atuin, lazygit and Ghostty
+- macOS preferences (`~/.my/.macos`, deployed everywhere, run only on the laptops)
+
+No packages: those live in the machines repo's `ansible/roles/packages/files/Brewfile`.
 
 ## How It Works
 
 `setup.sh` checks chezmoi is installed and runs `chezmoi init --apply` against this repo. chezmoi applies the dotfiles, pulls zsh plugins (`.chezmoiexternal.toml`) and runs the macOS defaults script when it changes.
-
-## Release Process
-
-This repository uses an automated release process through GitHub Actions. When changes are merged to the master branch:
-
-1. Tests are run to ensure stability
-2. A new version is automatically determined based on PR labels:
-   - `version/major`: Bumps the major version (e.g., 1.0.0 → 2.0.0)
-   - `version/patch`: Bumps the patch version (e.g., 1.0.0 → 1.0.1)
-   - No label: Bumps the minor version (e.g., 1.0.0 → 1.1.0)
-3. A changelog is automatically generated from commit messages
-4. A new GitHub release is created with:
-   - Semantic version tag (e.g., v1.0.0)
-   - Release notes from the changelog
-   - Associated commit history
-
-To trigger a specific version bump, simply add the appropriate label to your pull request before merging.
 
 ## License
 
