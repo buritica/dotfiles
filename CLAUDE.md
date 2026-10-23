@@ -110,11 +110,8 @@ Use these prefixes:
 - `docs/` - Documentation updates
 - `chore/` - Maintenance tasks
 
-### Pull Request Labels
-Version labels control semantic versioning on merge to master:
-- `version/major` - Breaking changes (1.0.0 → 2.0.0)
-- `version/patch` - Bug fixes (1.0.0 → 1.0.1)
-- No label - Minor changes (1.0.0 → 1.1.0) **[DEFAULT]**
+### Releases
+There is no release process: the release workflow was deleted in 2025, and `version/*` labels do nothing. Hosts track `master`.
 
 ### PR Title Format
 Follow conventional commits: `type: description`

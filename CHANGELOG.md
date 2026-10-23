@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+No longer maintained: releases stopped in 2025 and this file stops at the 2026 migration to the machines repo. The merged pull requests are the record.
 
 ## Unreleased
 

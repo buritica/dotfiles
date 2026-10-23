@@ -1,102 +1,23 @@
 # Contributing to dotfiles
 
-Thank you for your interest in contributing to this repository! This document outlines the process for contributing to this project.
+## Workflow
 
-## Development Workflow
+1. Branch off `master` with a prefix: `feature/`, `fix/`, `docs/` or `chore/`.
+2. Make the change and run `./test.sh` (syntax checks, shellcheck, then the bats suite in `tests/`).
+3. Open a pull request with a conventional-commit title (`type: description`, e.g. `fix: zsh path issue`).
+4. CI must pass and every conversation must be resolved before it merges.
 
-1. **Fork the Repository**
-   - Create a fork of this repository to your GitHub account
-   - Clone your fork locally: `git clone git@github.com:your-username/dotfiles.git`
+Managed hosts get `master` through the machines repo's `chezmoi` role (see the "Dotfiles" section of its `CLAUDE.md`). Changes under `dot_config/zsh-base/` also reach the `estanli` account on severo on its next dotfiles deploy, so keep that directory portable.
 
-2. **Create a Feature Branch**
-   - Create a new branch for your changes:
-     ```bash
-     git checkout -b feature/your-feature-name
-     ```
-   - Or for bug fixes:
-     ```bash
-     git checkout -b fix/your-bug-fix
-     ```
-   - Or for documentation:
-     ```bash
-     git checkout -b docs/your-doc-update
-     ```
+## Branch protection
 
-3. **Make Your Changes**
-   - Make your changes in your local branch
-   - Test your changes thoroughly
-   - Commit your changes with clear, descriptive commit messages
+`master` requires the `ci` check to pass (on an up-to-date branch) and all conversations resolved. Force pushes, branch deletion and direct commits are not allowed. The rules live in `.github/branch-protection.json`.
 
-4. **Push Your Changes**
-   - Push your branch to your fork:
-     ```bash
-     git push origin your-branch-name
-     ```
+## Checks
 
-5. **Create a Pull Request**
-   - Go to the original repository on GitHub
-   - Click "New Pull Request"
-   - Select your branch from your fork
-   - Fill in the PR template with details about your changes
-   - Add appropriate version label if needed:
-     - `version/patch` for backward-compatible bug fixes
-     - `version/major` for breaking changes
-     - No label for minor changes (default)
-   - Wait for CI checks to pass
-   - Address any feedback or requested changes
-
-## Important Notes
-
-- **Direct Commits to Master are Not Allowed**: All changes must go through a pull request process
-- **CI Checks are Required**: All CI checks must pass before a PR can be merged
-- **Security Scans**: Weekly security scans run automatically, but don't block PR merges
-- **Branch Naming**: Use descriptive branch names with prefixes:
-  - `feature/` for new features
-  - `fix/` for bug fixes
-  - `docs/` for documentation updates
-  - `chore/` for maintenance tasks
-- **Version Labels**: 
-  - Default version bump is minor
-  - Use `version/patch` label for backward-compatible bug fixes
-  - Use `version/major` label for breaking changes
-- **Auto-Releasing**: 
-  - Releases are automatically created on merge to master
-  - Version is determined by PR labels
-  - If no version label is present, defaults to minor version bump
-
-## Branch Protection Rules
-
-The `master` branch is protected with the following rules:
-
-- **CI Checks**: All CI checks must pass before merging
-- **Force Push Protection**: Force pushes are not allowed
-- **Conversation Resolution**: All conversations must be resolved before merging
-- **Fork Syncing**: Fork syncing is allowed
-- **Branch Deletion**: Branch deletion is not allowed
-- **Branch Locking**: Branch is not locked
-
-## Security Checks
-
-- Security scans run automatically every Sunday at midnight
-- The security workflow includes:
-  - tfsec for infrastructure security scanning
-  - Checkov for infrastructure security scanning
-  - Results are uploaded as SARIF format
-
-## Code Style and Guidelines
-
-- Follow existing code style and patterns
-- Keep commits focused and atomic
-- Write clear commit messages
-- Update documentation when making changes
-
-## Getting Help
-
-If you need help or have questions:
-- Open an issue in the repository
-- Check existing issues for similar questions
-- Review the repository documentation
+- **ci** (`.github/workflows/ci.yml`) runs `test.sh` on Ubuntu and macOS with Oh My Zsh, plus the bats suite without it on Ubuntu.
+- **security** (`.github/workflows/security.yml`) runs ShellCheck and Trivy's config scanner on pull requests and every Sunday at midnight, and uploads the Trivy results as SARIF. It isn't a required check.
 
 ## License
 
-By contributing to this project, you agree that your contributions will be licensed under the same license as the project. 
+By contributing to this project, you agree that your contributions will be licensed under the same license as the project.
