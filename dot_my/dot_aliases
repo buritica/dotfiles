@@ -1,9 +1,14 @@
-# better ls (now using eza)
-alias ls="eza --long --all --header --git --icons"
-alias ll="eza --long --header --git --icons"
-alias la="eza --long --all --header --git --icons"
-alias lt="eza --tree --level=2 --icons"
-alias lta="eza --tree --level=2 --all --icons"
+# better ls (now using eza). --icons=auto, not bare --icons: eza 0.23 takes an
+# optional value there, so `ls <path>` read the path as the value and failed.
+# Not in Claude Code shells ($CLAUDECODE): agents expect plain ls output and
+# exit codes (a broken `ls <path>` made ca report files as missing).
+if [[ -z $CLAUDECODE ]]; then
+  alias ls="eza --long --all --header --git --icons=auto"
+  alias ll="eza --long --header --git --icons=auto"
+  alias la="eza --long --all --header --git --icons=auto"
+  alias lt="eza --tree --level=2 --icons=auto"
+  alias lta="eza --tree --level=2 --all --icons=auto"
+fi
 
 # DANGEROUS: Use fixup instead - safer alternative that doesn't force push
 # Kept for backwards compatibility but use 'fixup' for new workflows

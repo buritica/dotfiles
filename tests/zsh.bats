@@ -167,3 +167,27 @@ setup() {
   rm -rf "$TEST_HOME/bin/gam7"
   [ "$output" = "gadm: alias" ]
 }
+
+@test "ls aliases pass eza a path it can't mistake for an --icons value" {
+  # eza 0.23 reads `--icons <path>` as --icons=<path> and fails
+  mkdir -p "$BATS_TEST_TMPDIR/bin"
+  cat > "$BATS_TEST_TMPDIR/bin/eza" <<'SH'
+#!/bin/sh
+for a; do [ "$a" = --icons ] && { echo "invalid value for '--icons'" >&2; exit 2; }; done
+exit 0
+SH
+  chmod +x "$BATS_TEST_TMPDIR/bin/eza"
+  run zsh_i 'whence -w ls'
+  [ "$output" = "ls: alias" ]
+  for a in ls ll la lt lta; do
+    run env -i HOME="$TEST_HOME" PATH="$BATS_TEST_TMPDIR/bin:$PATH" TERM=xterm-256color \
+      zsh -i -c "$a /etc/hosts"
+    [ "$status" -eq 0 ] || { echo "$a: $output"; false; }
+  done
+}
+
+@test "Claude Code shells keep the real ls" {
+  run env -i HOME="$TEST_HOME" PATH="$PATH" TERM=xterm-256color CLAUDECODE=1 \
+    zsh -i -c 'whence -w ls ll'
+  [[ "$output" == *"ls: command"* && "$output" == *"ll: none"* ]]
+}

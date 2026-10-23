@@ -81,12 +81,12 @@ fi
 # `less` with options to preserve color and line numbers, unless the output is
 # small enough for one screen.
 function tre() {
-  eza --tree --git-ignore --icons --level="${1:-3}" "${@:2}" | less -FRN;
+  eza --tree --git-ignore --icons=auto --level="${1:-3}" "${@:2}" | less -FRN;
 }
 
 # Tree variants using eza
-tree() { eza --tree --git-ignore --icons --level="${1:-3}"; }
-tree-all() { eza --tree --all --icons --level="${1:-2}"; }  # Default depth 2 (--all is verbose)
+tree() { eza --tree --git-ignore --icons=auto --level="${1:-3}"; }
+tree-all() { eza --tree --all --icons=auto --level="${1:-2}"; }  # Default depth 2 (--all is verbose)
 
 # Safer alternative to fixit - amend and push without force
 # Uses --force-with-lease which is safer than --force
