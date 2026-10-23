@@ -14,6 +14,15 @@ Host halfmoon
   IdentitiesOnly yes
 
 {{ end -}}
+{{ if eq .chezmoi.hostname "severo" -}}
+# buritica@severo has no ~/.ssh/id_ed25519 and no 1Password agent, so
+# halfmoon goes through severo's own deploy key, kept on severo only.
+Host halfmoon
+  IdentityFile ~/.ssh/id_ed25519_halfmoon_auto
+  IdentityAgent none
+  IdentitiesOnly yes
+
+{{ end -}}
 # Fleet aliases on Tailscale MagicDNS names, so they resolve from any network
 # (bare .local names only work on the same LAN). Needs MagicDNS accepted at
 # the OS level: `scutil --dns | grep 100.100.100.100`.
