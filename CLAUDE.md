@@ -15,16 +15,22 @@ This is a personal dotfiles repository managed with [chezmoi](https://chezmoi.io
 ./test.sh                    # Run all tests: syntax, shellcheck, then the bats suite in tests/
 ```
 
+### Rollout to the fleet
+
+Merging to master is the whole rollout. A fleet host is any host the machines repo provisions (today severo, halfmoon, crowntail). On each one its `chezmoi` role runs a `dotfiles-rollout` LaunchDaemon that fetches this repo periodically and applies new commits. It keeps hand-edited files instead of overwriting them (and logs them for folding back in here), rolls a commit back if the shell stops starting cleanly, and leaves `run_onchange_` scripts (the macOS defaults) to the next provision. Details (interval, logs, status) live in `buritica/machines` CLAUDE.md, "Dotfiles".
+
+**Agents: never run `chezmoi update`, `chezmoi apply`, `chezmoi init --apply` (or `dsync`/`dapply`) on a fleet host.** That bypasses the hand-edit guard and the rollback. To apply before the next tick, run the machines playbook: `ansible-playbook ansible/playbooks/provision.yml --limit <host> --tags chezmoi`. Read-only `chezmoi status`/`chezmoi diff` are fine. The `d*` helpers below (`dsync` is `chezmoi update`) are for a person typing at a Mac, or a Mac machines doesn't manage.
+
 ### Setup and Deployment
 ```bash
 ./setup.sh                   # Apply dotfiles on a Mac machines doesn't manage (needs chezmoi)
-chezmoi apply                # Apply dotfile changes
-chezmoi update              # Pull and apply latest changes
+chezmoi apply                # Apply dotfile changes (not on a fleet host, see above)
+chezmoi update              # Pull and apply latest changes (not on a fleet host)
 ```
 
 ### Development Workflow
 
-**Simplified Dotfiles Commands:**
+**Simplified Dotfiles Commands** (for a person at a Mac; on a machines-managed host agents use the playbook instead, see "Rollout to the fleet" above):
 ```bash
 # Easy-to-remember helpers (no chezmoi knowledge required)
 dsync                       # Pull and apply latest changes (= chezmoi update)
@@ -35,7 +41,7 @@ dadd ~/.myfile              # Track new file (= chezmoi add)
 dstatus                     # Check status (= chezmoi status)
 dcd                         # Go to dotfiles source directory
 
-# Traditional chezmoi commands (still work)
+# Traditional chezmoi commands (update/apply: not on a fleet host)
 chezmoi update              # Pull and apply latest changes
 chezmoi apply               # Apply dotfile changes
 chezmoi add ~/.myfile       # Track a new dotfile
