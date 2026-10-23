@@ -16,6 +16,22 @@ setup() {
     || { echo "stderr: $stderr"; return 1; }
 }
 
+@test "a TERM zsh has no terminfo for falls back to xterm-256color, a known one stays" {
+  # Ghostty over SSH to a host without its terminfo: zle can't move the cursor
+  # and every redraw garbles the line. An infocmp that knows the entry (a
+  # different ncurses than zsh's) must not keep zsh on it.
+  local fakebin="$BATS_TEST_TMPDIR/bin"
+  mkdir -p "$fakebin"
+  printf '#!/bin/sh\nexit 0\n' >"$fakebin/infocmp"
+  chmod +x "$fakebin/infocmp"
+  ZSH_I_TERM=xterm-no-such-term PATH="$fakebin:$PATH" \
+    run zsh_i 'print -r -- $TERM; echoti cup 0 0 >/dev/null && print -r -- cup'
+  [ "$output" = "xterm-256color"$'\n'"cup" ]
+
+  ZSH_I_TERM=vt100 run zsh_i 'print -r -- $TERM; echoti cup 0 0 >/dev/null && print -r -- cup'
+  [ "$output" = "vt100"$'\n'"cup" ]
+}
+
 @test "OMZ loads when installed, else the fallback prompt is used" {
   local theme=geoffgarside
   command -v starship >/dev/null 2>&1 && theme=''

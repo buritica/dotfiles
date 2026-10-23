@@ -23,8 +23,9 @@ render_as() {
 # Run a command inside an interactive zsh started from the test home, with a
 # clean environment. Only what the command prints after startup is kept, so
 # the "dotfiles sourced" banner and OMZ noise stay out of assertions.
+# ZSH_I_TERM overrides the terminal type.
 zsh_i() {
-  env -i HOME="$TEST_HOME" PATH="$PATH" TERM=xterm-256color USER="${USER:-runner}" \
+  env -i HOME="$TEST_HOME" PATH="$PATH" TERM="${ZSH_I_TERM:-xterm-256color}" USER="${USER:-runner}" \
     GIT_CONFIG_NOSYSTEM=1 \
     zsh -i -c "print -r -- '@@ready'; $1" 2>&1 | awk 'seen; /^@@ready$/ { seen = 1 }'
   return "${PIPESTATUS[0]}"
