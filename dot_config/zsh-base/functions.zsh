@@ -6,6 +6,8 @@
 # ~/.config/zsh-base) and the estanli account on severo (the dotfiles role in
 # team-perrito/estanli clones this repo and links ~/.config/zsh-base here).
 # Per-account functions stay in their own repos and load after this file.
+# Changes reach every fleet host on their own: machines' dotfiles-rollout
+# daemon applies new master commits within about 10 minutes.
 
 # shellcheck shell=bash
 # Oh My Zsh's git plugin defines `alias gwt='git worktree'` etc. — in zsh an
