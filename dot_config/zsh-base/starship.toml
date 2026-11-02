@@ -53,6 +53,7 @@ style = "yellow"
 [git_status]
 format = "([$all_status$ahead_behind]($style) )"
 style = "red"
+stashed = "≡"  # starship's default is "$", which reads as a second prompt char
 
 [cmd_duration]
 min_time = 2_000
@@ -60,7 +61,7 @@ format = "[$duration]($style) "
 
 [status]
 disabled = false
-format = "[$status]($style) "
+format = "[✘$status]($style) "  # last exit code; the ✘ says it isn't output
 
 [character]
 success_symbol = "[\\$](bold white)"
