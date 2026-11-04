@@ -33,5 +33,5 @@
 [".oh-my-zsh"]
     type = "archive"
     exact = true
-    url = "https://github.com/ohmyzsh/ohmyzsh/archive/0650a250405af1e480b1ecf8c33bc960b9f333f5.tar.gz"
+    url = "https://github.com/ohmyzsh/ohmyzsh/archive/b509b1c6ed0c1ba37de12cbd37f30b2b2f61193a.tar.gz"
     stripComponents = 1
