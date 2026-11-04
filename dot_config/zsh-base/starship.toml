@@ -1,8 +1,9 @@
 # starship prompt for every account that loads the shared zsh base (omz.zsh
 # points STARSHIP_CONFIG here). Close to the geoffgarside theme it replaced,
 # [time] user:dir git:(branch) $, with up to three path segments instead of
-# one, plus the host over SSH, git state in words ("2 untracked"), how long a
-# slow command took ("took 13s") and the exit status.
+# one, plus the host over SSH, an in-progress merge/rebase, background jobs
+# and the exit status. No git dirty/untracked markers or command duration:
+# they read as stray punctuation ("? 13s") and weren't useful.
 "$schema" = "https://starship.rs/config-schema.json"
 
 add_newline = false
@@ -14,8 +15,6 @@ $hostname\
 $directory\
 $git_branch\
 $git_state\
-$git_status\
-$cmd_duration\
 $jobs\
 $status\
 $character"""
@@ -49,29 +48,6 @@ truncate_to_repo = true
 [git_branch]
 format = "[git:\\($branch\\)]($style) "
 style = "yellow"
-
-[git_status]
-# Spelled out with counts: starship's default symbols (? ! + $ ⇡ ...) read as
-# stray punctuation next to the $ prompt char. Each piece carries its own
-# trailing space, since $all_status joins them with none.
-format = "([$all_status$ahead_behind]($style))"
-style = "red"
-conflicted = "${count} conflicted "
-stashed = "${count} stashed "
-deleted = "${count} deleted "
-renamed = "${count} renamed "
-modified = "${count} modified "
-typechanged = "${count} typechanged "
-staged = "${count} staged "
-untracked = "${count} untracked "
-ahead = "${count} ahead "
-behind = "${count} behind "
-diverged = "${ahead_count} ahead ${behind_count} behind "
-
-[cmd_duration]
-min_time = 2_000  # how long the last command ran, shown when it took 2s+
-format = "[took $duration]($style) "
-style = "dimmed yellow"
 
 [status]
 disabled = false

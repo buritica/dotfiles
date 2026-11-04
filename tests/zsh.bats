@@ -66,7 +66,7 @@ setup() {
   [[ "$output" == "💀 "* ]]
 }
 
-@test "the prompt spells out git state and command duration" {
+@test "the prompt shows no git status markers or command duration" {
   command -v starship >/dev/null 2>&1 || skip "starship not installed"
   local repo="$BATS_TEST_TMPDIR/repo"
   git init -q "$repo" && touch "$repo/a" "$repo/b"
@@ -74,9 +74,9 @@ setup() {
     STARSHIP_CONFIG="$TEST_HOME/.config/zsh-base/starship.toml" \
     sh -c 'cd "$1" && starship prompt --cmd-duration 13000' _ "$repo"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"2 untracked "* ]]
-  [[ "$output" == *"took 13s "* ]]
+  [[ "$output" == *"git:("* ]]
   [[ "$output" != *"?"* ]]
+  [[ "$output" != *"13s"* ]]
 }
 
 @test "starship.toml is valid TOML" {
