@@ -1,5 +1,5 @@
 # starship prompt for every account that loads the shared zsh base (omz.zsh
-# points STARSHIP_CONFIG here). Kept short on purpose: dir git:(branch) $,
+# points STARSHIP_CONFIG here). Kept short on purpose: dir branch $,
 # with user@host in front over SSH (or as root / another user), plus an
 # in-progress merge/rebase, background jobs and the exit status when there
 # are any. No clock, git dirty/untracked markers or command duration: they
@@ -39,8 +39,8 @@ truncation_length = 3
 truncate_to_repo = true
 
 [git_branch]
-format = "[git:\\($branch\\)]($style) "
-style = "yellow"
+format = "[$branch]($style) "  # bare name; its own color says it's the branch
+style = "bold purple"
 
 [status]
 disabled = false
