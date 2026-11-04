@@ -1,17 +1,15 @@
 # starship prompt for every account that loads the shared zsh base (omz.zsh
-# points STARSHIP_CONFIG here). Close to the geoffgarside theme it replaced,
-# [time] user:dir git:(branch) $, with up to three path segments instead of
-# one, plus the host over SSH, an in-progress merge/rebase, background jobs
-# and the exit status. No git dirty/untracked markers or command duration:
-# they read as stray punctuation ("? 13s") and weren't useful.
+# points STARSHIP_CONFIG here). Kept short on purpose: dir git:(branch) $,
+# with user@host in front over SSH (or as root / another user), plus an
+# in-progress merge/rebase, background jobs and the exit status when there
+# are any. No clock, git dirty/untracked markers or command duration: they
+# read as noise ("[00:46:53] ... ? 13s") and weren't useful.
 "$schema" = "https://starship.rs/config-schema.json"
 
 add_newline = false
 format = """
 ${env_var.ZSH_PROMPT_EMOJI}\
-$time\
-$username\
-$hostname\
+($username$hostname:)\
 $directory\
 $git_branch\
 $git_state\
@@ -23,13 +21,8 @@ $character"""
 [env_var.ZSH_PROMPT_EMOJI]
 format = "$env_value "
 
-[time]
-disabled = false
-format = "[\\[$time\\]]($style) "
-style = "dimmed white"
-
 [username]
-show_always = true  # buritica and estanli share severo; always say which
+show_always = false  # over SSH, as root, or as a user other than the one logged in
 format = "[$user]($style)"
 style_user = "cyan"
 style_root = "bold red"
@@ -40,7 +33,7 @@ format = "@[$hostname]($style)"
 style = "bold blue"
 
 [directory]
-format = ":[$path]($style)[$read_only]($read_only_style) "
+format = "[$path]($style)[$read_only]($read_only_style) "
 style = "green"
 truncation_length = 3
 truncate_to_repo = true
