@@ -66,6 +66,37 @@ setup() {
   [[ "$output" == "💀 "* ]]
 }
 
+@test "the prompt shows no git status markers or command duration" {
+  command -v starship >/dev/null 2>&1 || skip "starship not installed"
+  local repo="$BATS_TEST_TMPDIR/repo"
+  git init -q "$repo" && touch "$repo/a" "$repo/b"
+  run env -i HOME="$TEST_HOME" PATH="$PATH" \
+    STARSHIP_CONFIG="$TEST_HOME/.config/zsh-base/starship.toml" \
+    sh -c 'cd "$1" && starship prompt --cmd-duration 13000' _ "$repo"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"git:("* ]]
+  [[ "$output" != *"?"* ]]
+  [[ "$output" != *"13s"* ]]
+  [[ ! "$output" =~ [0-9]{2}:[0-9]{2}:[0-9]{2} ]]  # no clock
+}
+
+@test "user@host shows over SSH only" {
+  command -v starship >/dev/null 2>&1 || skip "starship not installed"
+  local cfg="$TEST_HOME/.config/zsh-base/starship.toml" u
+  u=$(id -un)
+  cd "$TEST_HOME"  # so the directory segment is ~, not a path holding $u
+  run env -i HOME="$TEST_HOME" PATH="$PATH" USER="$u" LOGNAME="$u" \
+    STARSHIP_CONFIG="$cfg" starship prompt
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"$u"* ]]
+  [[ "$output" != *"@"* ]]
+
+  run env -i HOME="$TEST_HOME" PATH="$PATH" USER="$u" LOGNAME="$u" \
+    SSH_CONNECTION="10.0.0.1 22 10.0.0.2 22" STARSHIP_CONFIG="$cfg" starship prompt
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"$u"*"@"*":"* ]]
+}
+
 @test "starship.toml is valid TOML" {
   python3 -c 'import tomllib' 2>/dev/null || skip "python3 without tomllib"
   python3 -c 'import sys, tomllib; tomllib.load(open(sys.argv[1], "rb"))' \
