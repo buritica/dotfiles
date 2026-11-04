@@ -66,6 +66,19 @@ setup() {
   [[ "$output" == "💀 "* ]]
 }
 
+@test "the prompt spells out git state and command duration" {
+  command -v starship >/dev/null 2>&1 || skip "starship not installed"
+  local repo="$BATS_TEST_TMPDIR/repo"
+  git init -q "$repo" && touch "$repo/a" "$repo/b"
+  run env -i HOME="$TEST_HOME" PATH="$PATH" \
+    STARSHIP_CONFIG="$TEST_HOME/.config/zsh-base/starship.toml" \
+    sh -c 'cd "$1" && starship prompt --cmd-duration 13000' _ "$repo"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"2 untracked "* ]]
+  [[ "$output" == *"took 13s "* ]]
+  [[ "$output" != *"?"* ]]
+}
+
 @test "starship.toml is valid TOML" {
   python3 -c 'import tomllib' 2>/dev/null || skip "python3 without tomllib"
   python3 -c 'import sys, tomllib; tomllib.load(open(sys.argv[1], "rb"))' \
