@@ -16,7 +16,7 @@ env:
   # Oh My Zsh at the SHA both accounts pin: .chezmoiexternal.toml here and
   # dotfiles_omz_version in team-perrito/estanli roles/dotfiles/defaults/main.yml
   # (tests/chezmoi.bats checks this one matches the external)
-  OMZ_SHA: 0650a250405af1e480b1ecf8c33bc960b9f333f5
+  OMZ_SHA: b509b1c6ed0c1ba37de12cbd37f30b2b2f61193a
   HOMEBREW_NO_AUTO_UPDATE: 1
   HOMEBREW_NO_INSTALL_CLEANUP: 1
 
