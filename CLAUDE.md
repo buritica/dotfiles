@@ -83,7 +83,7 @@ The `machine-list` and `machine-info` shell helpers still work for informational
 
 ### Shell Configuration
 - **Primary shell**: Zsh with Oh My Zsh, pinned to a commit in `.chezmoiexternal.toml` (same SHA as team-perrito/estanli's `dotfiles_omz_version`; bump both together, this repo first: estanli's `omz-pin` workflow compares its pin against this repo's master daily and on its PRs). OMZ's own updater is disabled.
-- **Prompt**: starship (from the machines core Brewfile) with `dot_config/zsh-base/starship.toml`; the per-host emoji is `ZSH_PROMPT_EMOJI` in `dot_zshrc.tmpl`. Kept short on purpose: emoji, `user@host` only over SSH, directory, the bare branch name in bold purple, merge/rebase state, jobs, exit status. No clock, git dirty/untracked markers or command duration. Falls back to the `geoffgarside` theme when starship is missing.
+- **Prompt**: starship (from the machines core Brewfile) with `dot_config/zsh-base/starship.toml`; the per-host emoji is `ZSH_PROMPT_EMOJI` in `dot_zshrc.tmpl`. Kept short on purpose: emoji, `user@host` only over SSH (the user alone also shows as root or another user), directory, the bare branch name in bold purple, merge/rebase state, jobs, exit status. No clock, git dirty/untracked markers or command duration. Falls back to the `geoffgarside` theme when starship is missing.
 - **Plugin management**: Via `.chezmoiexternal.toml` (pinned to tags/commits; bump by editing the URL)
   - zsh-syntax-highlighting
   - zsh-autosuggestions
